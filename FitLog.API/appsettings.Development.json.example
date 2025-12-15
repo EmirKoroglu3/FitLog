@@ -1,0 +1,20 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning",
+      "Microsoft.EntityFrameworkCore": "Information"
+    }
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5432;Database=FitLogDb;Username=postgres;Password=YOUR_POSTGRES_PASSWORD"
+  },
+  "JwtSettings": {
+    "Secret": "YourSecretKeyAtLeast32CharactersLongForJWTAuthentication!",
+    "Issuer": "FitLog",
+    "Audience": "FitLogUsers",
+    "ExpirationInMinutes": 120,
+    "RefreshTokenExpirationInDays": 7
+  }
+}
+

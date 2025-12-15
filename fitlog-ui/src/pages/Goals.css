@@ -1,0 +1,412 @@
+.goals-page {
+  padding: 2rem 0;
+  min-height: calc(100vh - 80px);
+}
+
+.goals-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.goals-content,
+.calculator-content {
+  margin-top: 2rem;
+}
+
+.goals-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+/* Goals Section */
+.goals-section {
+  margin-bottom: 3rem;
+}
+
+.goals-section h2 {
+  font-size: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.goals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Goal Card */
+.goal-card {
+  padding: 1.5rem;
+}
+
+.goal-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.goal-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.goal-info {
+  flex: 1;
+}
+
+.goal-info h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+.goal-category {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+/* Progress */
+.goal-progress {
+  margin-bottom: 1rem;
+}
+
+.goal-progress .progress-bar {
+  height: 10px;
+  background: var(--color-bg-secondary);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.goal-progress .progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-accent-primary), #059669);
+  border-radius: 5px;
+  transition: width 0.3s ease;
+}
+
+.goal-progress .progress-text {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
+/* Goal Update */
+.goal-update {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.goal-update input {
+  width: 100px;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.goal-update .unit {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.goal-deadline {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+/* Completed Goals */
+.completed-section {
+  opacity: 0.8;
+}
+
+.completed-goals {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.completed-goal-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+}
+
+.completed-goal-item .check {
+  font-size: 1.25rem;
+}
+
+.completed-goal-item .title {
+  flex: 1;
+  text-decoration: line-through;
+  color: var(--color-text-secondary);
+}
+
+.completed-goal-item .value {
+  font-weight: 600;
+  color: var(--color-accent-primary);
+}
+
+/* Calculator Layout */
+.calc-layout {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 2rem;
+  align-items: start;
+}
+
+.calculator-card {
+  padding: 2rem;
+}
+
+.calculator-card h2 {
+  margin-bottom: 0.5rem;
+}
+
+.calc-description {
+  color: var(--color-text-secondary);
+  margin-bottom: 2rem;
+}
+
+.calc-form {
+  max-width: 400px;
+}
+
+.calc-form .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.btn-calc {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 1rem;
+  font-size: 1.1rem;
+}
+
+/* Calc Result */
+.calc-result {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.result-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.result-label {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.result-value {
+  font-size: 4rem;
+  font-weight: 800;
+  color: var(--color-accent-primary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.btn-save {
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+/* Percentages Table */
+.percentages-table {
+  margin-top: 1rem;
+}
+
+.percentages-table h4 {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.percentages-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.percentages-table th,
+.percentages-table td {
+  padding: 0.75rem;
+  text-align: center;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.percentages-table th {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.percentages-table tr.highlight {
+  background: rgba(0, 212, 170, 0.1);
+}
+
+.percentages-table tr.highlight td {
+  color: var(--color-accent-primary);
+  font-weight: 600;
+}
+
+/* Records Sidebar */
+.records-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.records-card h3,
+.formula-card h3 {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.no-records {
+  color: var(--color-text-muted);
+  font-style: italic;
+  text-align: center;
+  padding: 1rem;
+}
+
+.records-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.record-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  align-items: center;
+}
+
+.record-exercise {
+  font-weight: 500;
+}
+
+.record-weight {
+  font-weight: 700;
+  color: var(--color-accent-primary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.record-date {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+/* Formula Card */
+.formula {
+  padding: 1rem;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.formula code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1rem;
+  color: var(--color-accent-secondary);
+}
+
+.formula-card p {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.formula-card .note {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(245, 158, 11, 0.1);
+  border-left: 3px solid #f59e0b;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  color: #f59e0b;
+}
+
+/* Empty State */
+.goals-page .empty-state {
+  text-align: center;
+  padding: 3rem;
+  max-width: 400px;
+}
+
+.goals-page .empty-icon {
+  font-size: 4rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.goals-page .empty-state p {
+  color: var(--color-text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+/* Success Modal */
+.success-modal {
+  text-align: center;
+  padding: 2rem;
+}
+
+.success-icon {
+  font-size: 4rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.success-modal h3 {
+  margin-bottom: 0.5rem;
+}
+
+.success-modal p {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-accent-primary);
+  margin-bottom: 1.5rem;
+}
+
+.modal-content.small {
+  max-width: 350px;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+  .calc-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .records-sidebar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .goals-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .result-value {
+    font-size: 3rem;
+  }
+}
+
