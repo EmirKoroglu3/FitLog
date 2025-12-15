@@ -1,13 +1,125 @@
-FITLOG – CLEAN ARCHITECTURE FITNESS TRACKING APPLICATION
-========================================================
+# 💪 FitLog - Fitness Tracking Application
 
-## 🚀 Hızlı Kurulum (Quick Start)
+<div align="center">
+
+![FitLog Banner](https://img.shields.io/badge/FitLog-Fitness%20Tracker-00d4aa?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0yMC41NyAxNC44NkwxOC41NSAxM2ExLjUgMS41IDAgMDAtMi4xMiAwbC0uNzEuNzFhMSAxIDAgMDEtMS40MSAwbC0yLjEyLTIuMTJhMSAxIDAgMDEwLTEuNDFsLjcxLS43MWExLjUgMS41IDAgMDAwLTIuMTJsLTEuODYtMS44NmExLjUgMS41IDAgMDAtMi4xMiAwTDcuMiA3LjJhMyAzIDAgMDAwIDQuMjRsNS4zNiA1LjM2YTMgMyAwIDAwNC4yNCAwbDEuNzEtMS43MWExLjUgMS41IDAgMDAwLTIuMTJ6Ii8+PC9zdmc+)
+
+[![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
+[![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql)](https://www.postgresql.org/)
+[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
+
+**Modern, full-stack fitness tracking application built with Clean Architecture**
+
+[Özellikler](#-özellikler) • [Teknolojiler](#-teknolojiler) • [Kurulum](#-kurulum) • [Ekran Görüntüleri](#-ekran-görüntüleri) • [API](#-api-endpoints)
+
+</div>
+
+---
+
+## 📖 Proje Hakkında
+
+FitLog, kullanıcıların fitness yolculuklarını kapsamlı bir şekilde takip etmelerini sağlayan modern bir web uygulamasıdır. Clean Architecture prensiplerine uygun olarak geliştirilmiş, **ASP.NET Core** backend ve **React + TypeScript** frontend ile güçlendirilmiştir.
+
+### 🎯 Neden FitLog?
+
+- **Antrenman Takibi**: Programlar oluştur, günleri planla, egzersizleri takip et
+- **Canlı Antrenman Modu**: Set sayacı, dinlenme timer'ı, ilerleme takibi
+- **Beslenme Yönetimi**: 100+ yiyecek veritabanı ile kalori ve makro takibi
+- **Vücut Ölçüleri**: Kilo, yağ oranı ve çevre ölçülerini kaydet
+- **Hedef & Başarılar**: Hedefler belirle, rozetler kazan
+- **Su Takibi**: Günlük su tüketimini izle
+
+---
+
+## ✨ Özellikler
+
+### 🏋️ Antrenman Modülü
+- ✅ Özelleştirilebilir antrenman programları
+- ✅ Push/Pull/Legs, Full Body gibi hazır şablonlar
+- ✅ Haftalık program takvimi
+- ✅ Canlı antrenman modu (timer, set takibi)
+- ✅ Egzersiz veritabanı (200+ egzersiz)
+- ✅ Ağırlık ve tekrar takibi
+
+### 🥗 Beslenme Modülü
+- ✅ Yemek kaydı ve kalori takibi
+- ✅ Makro besin (protein, karbonhidrat, yağ) hesaplama
+- ✅ 100+ yiyecek içeren veritabanı
+- ✅ Öğün bazlı kayıt (kahvaltı, öğle, akşam)
+
+### 📊 Analiz & Takip
+- ✅ Antrenman takvimi ve streak takibi
+- ✅ Vücut ölçüleri (kilo, boy, çevre ölçüleri)
+- ✅ BMI ve BMR hesaplayıcı
+- ✅ 1RM (One Rep Max) hesaplayıcı
+- ✅ Kişiselleştirilmiş öneriler
+
+### 🏆 Motivasyon
+- ✅ 25+ başarı rozeti
+- ✅ Hedef belirleme ve takip
+- ✅ Günlük streak sistemi
+- ✅ Su tüketimi takibi
+
+### ⚙️ Diğer
+- ✅ JWT Authentication
+- ✅ Dark/Light tema desteği
+- ✅ Responsive tasarım
+- ✅ Veri dışa aktarma (JSON)
+
+---
+
+## 🛠 Teknolojiler
+
+### Backend
+| Teknoloji | Versiyon | Açıklama |
+|-----------|----------|----------|
+| .NET | 9.0 | Framework |
+| ASP.NET Core | 9.0 | Web API |
+| Entity Framework Core | 9.0 | ORM |
+| PostgreSQL | 16+ | Veritabanı |
+| ASP.NET Identity | - | Kimlik Yönetimi |
+| JWT Bearer | - | Authentication |
+| FluentValidation | 11.x | Validation |
+| Swagger/OpenAPI | - | API Dokümantasyonu |
+
+### Frontend
+| Teknoloji | Versiyon | Açıklama |
+|-----------|----------|----------|
+| React | 18.x | UI Library |
+| TypeScript | 5.x | Type Safety |
+| Vite | 5.x | Build Tool |
+| React Router | 6.x | Routing |
+| Axios | 1.x | HTTP Client |
+| CSS3 | - | Styling |
+
+### Mimari
+```
+┌─────────────────────────────────────────────────────────────┐
+│                         API Layer                            │
+│                    (Controllers, Middleware)                 │
+├─────────────────────────────────────────────────────────────┤
+│                     Application Layer                        │
+│              (DTOs, Interfaces, Validators)                  │
+├─────────────────────────────────────────────────────────────┤
+│                    Infrastructure Layer                      │
+│         (DbContext, Repositories, Services, Identity)        │
+├─────────────────────────────────────────────────────────────┤
+│                       Domain Layer                           │
+│                   (Entities, Value Objects)                  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🚀 Kurulum
 
 ### Gereksinimler
-- .NET 9 SDK
-- Node.js 18+
-- PostgreSQL 14+
-- Git
+- [.NET 9 SDK](https://dotnet.microsoft.com/download)
+- [Node.js 18+](https://nodejs.org/)
+- [PostgreSQL 14+](https://www.postgresql.org/)
+- [Git](https://git-scm.com/)
 
 ### 1. Projeyi Klonla
 ```bash
@@ -17,11 +129,12 @@ cd FitLog
 
 ### 2. Backend Kurulumu
 ```bash
-# appsettings.Development.json dosyasını oluştur
+# Ayar dosyasını oluştur
 cp FitLog.API/appsettings.Development.json.example FitLog.API/appsettings.Development.json
 
-# Dosyayı düzenleyip kendi PostgreSQL şifreni ve JWT Secret key'ini gir
-# NOT: JWT Secret en az 32 karakter olmalı!
+# ⚠️ appsettings.Development.json dosyasını düzenle:
+# - PostgreSQL şifreni gir
+# - JWT Secret key oluştur (min 32 karakter)
 
 # Paketleri yükle
 dotnet restore
@@ -42,341 +155,140 @@ npm run dev
 ```
 
 ### 4. Erişim
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:5001
-- Swagger: http://localhost:5001/swagger
+| Servis | URL |
+|--------|-----|
+| Frontend | http://localhost:5173 |
+| Backend API | http://localhost:5001 |
+| Swagger UI | http://localhost:5001/swagger |
 
 ---
 
-## ⚠️ Güvenlik Notu
-`appsettings.Development.json` dosyası .gitignore'da olduğu için GitHub'a yüklenmez.
-Kendi şifrelerinizi güvenle bu dosyaya yazabilirsiniz.
+## 📁 Proje Yapısı
+
+```
+FitLog/
+├── 📂 FitLog.Domain/           # Domain Layer
+│   ├── Common/                 # Base classes
+│   └── Entities/               # Domain entities
+│
+├── 📂 FitLog.Application/      # Application Layer
+│   ├── DTOs/                   # Data Transfer Objects
+│   ├── Interfaces/             # Abstractions
+│   ├── Services/               # Service interfaces
+│   └── Validators/             # FluentValidation
+│
+├── 📂 FitLog.Infrastructure/   # Infrastructure Layer
+│   ├── Identity/               # ASP.NET Identity
+│   ├── Migrations/             # EF Core migrations
+│   ├── Persistence/            # DbContext
+│   ├── Repositories/           # Repository pattern
+│   └── Services/               # Service implementations
+│
+├── 📂 FitLog.API/              # API Layer
+│   ├── Controllers/            # API endpoints
+│   ├── Middleware/             # Custom middleware
+│   └── Services/               # API services
+│
+└── 📂 fitlog-ui/               # Frontend (React)
+    ├── src/
+    │   ├── api/                # Axios client
+    │   ├── components/         # React components
+    │   ├── data/               # Static data (foods, exercises)
+    │   ├── pages/              # Page components
+    │   ├── services/           # API services
+    │   ├── store/              # Context (Auth)
+    │   ├── styles/             # Global styles
+    │   └── types/              # TypeScript types
+    └── public/
+```
 
 ---
 
-0) PROJE AMACI VE GENEL TANIM
---------------------------------------------------------
-FitLog; kullanıcıların antrenman programlarını, beslenmelerini ve supplement
-kullanımlarını takip edebildiği bir fitness tracking uygulamasıdır.
-
-Frontend: React + TypeScript
-Backend: ASP.NET Core Web API (C#)
-Mimari: Clean Architecture
-Database: PostgreSQL
-Auth: JWT + ASP.NET Identity
-
-Bu proje; kurumsal mimari, temiz kod, katmanlı yapı ve modern frontend-backend
-iletişimini öğrenmek ve göstermek amacıyla geliştirilir.
-
-Hedef:
-- Clean Architecture’ı gerçek projede uygulamak
-- Orta–üst seviye full-stack proje çıkarmak
-- CV + GitHub için güçlü referans oluşturmak
-
-
-1) GENEL MİMARİ VE TEKNOLOJİLER
---------------------------------------------------------
-Backend:
-- .NET 8
-- ASP.NET Core Web API
-- Entity Framework Core
-- PostgreSQL
-- ASP.NET Identity
-- JWT Authentication
-
-Frontend:
-- React
-- TypeScript
-- Vite
-- Axios
-- React Router
-- Chart.js
-
-Clean Architecture Katmanları:
-- Domain
-- Application
-- Infrastructure
-- API
-
-Bağımlılık yönü:
-API -> Application -> Domain
-Infrastructure -> Application
-Domain hiçbir katmana bağlı değildir.
-
-
-2) BACKEND SOLUTION OLUŞTURMA
---------------------------------------------------------
-Adımlar:
-
-1. Boş solution oluştur:
-   dotnet new sln -n FitLog
-
-2. Projeleri oluştur:
-   dotnet new classlib -n FitLog.Domain
-   dotnet new classlib -n FitLog.Application
-   dotnet new classlib -n FitLog.Infrastructure
-   dotnet new webapi -n FitLog.API
-
-3. Solution’a ekle:
-   dotnet sln add FitLog.Domain
-   dotnet sln add FitLog.Application
-   dotnet sln add FitLog.Infrastructure
-   dotnet sln add FitLog.API
-
-
-3) PROJELER ARASI REFERANSLAR
---------------------------------------------------------
-Referans kuralları:
-
-- FitLog.Application -> FitLog.Domain
-- FitLog.Infrastructure -> FitLog.Application
-- FitLog.API -> FitLog.Application
-- FitLog.API -> FitLog.Infrastructure
-
-Domain:
-- Hiçbir projeye referans vermez
-- Tamamen bağımsızdır
-
-
-4) DOMAIN KATMANI (CORE BUSINESS)
---------------------------------------------------------
-Amaç:
-- Saf iş kuralları
-- Framework bağımsız kod
-- Entity tanımları
-
-Kurallar:
-- EF Core attribute KULLANILMAZ
-- Controller, DbContext, DTO YOK
-- Sadece iş mantığı vardır
-
-Oluşturulacak yapılar:
-
-BaseEntity:
-- Id (Guid)
-- CreatedDate
-- UpdatedDate
-
-Entity’ler:
-- User
-  - Id
-  - Email
-  - Name
-  - Surname
-
-- WorkoutProgram
-  - Id
-  - UserId
-  - Name
-  - Description
-
-- WorkoutDay
-  - Id
-  - WorkoutProgramId
-  - DayOfWeek
-
-- Exercise
-  - Id
-  - WorkoutDayId
-  - Name
-  - SetCount
-  - Reps
-  - Weight
-
-- NutritionLog
-  - Id
-  - UserId
-  - Calories
-  - Protein
-  - Date
-
-- Supplement
-  - Id
-  - UserId
-  - Name
-  - UsageNote
-
-
-5) APPLICATION KATMANI (USE CASE LAYER)
---------------------------------------------------------
-Amaç:
-- İş akışlarını yönetmek
-- Use-case’leri yazmak
-- DTO, Command, Query yapısını kurmak
-
-Klasör yapısı:
-
-Application
-- Interfaces
-- DTOs
-- Features
-  - Auth
-  - Workouts
-  - Nutrition
-- Validators
-- Mappings
-
-Kurallar:
-- Entity’ler API’ye dönmez
-- DTO zorunlu
-- Business logic burada yazılır
-
-
-6) DTO KULLANIMI
---------------------------------------------------------
-Her entity için ayrı DTO’lar yazılır:
-
-- CreateRequest DTO
-- UpdateRequest DTO
-- Response DTO
-
-Örnek:
-- CreateWorkoutProgramRequest
-- WorkoutProgramResponse
-
-Controller asla Entity dönmez.
-
-
-7) CQRS YAPISI
---------------------------------------------------------
-Command:
-- Veri değiştirir
-- Create, Update, Delete işlemleri
-
-Query:
-- Sadece veri okur
-- Get, List işlemleri
-
-Örnek Command’ler:
-- CreateWorkoutProgramCommand
-- AddExerciseCommand
-- CreateNutritionLogCommand
-
-Örnek Query’ler:
-- GetUserWorkoutProgramsQuery
-- GetWorkoutDetailQuery
-
-
-8) VALIDATION
---------------------------------------------------------
-- FluentValidation kullanılır
-- Tüm input doğrulamaları burada yapılır
-- Controller içinde validation yapılmaz
-
-Örnek:
-- CreateWorkoutProgramCommandValidator
-- RegisterUserCommandValidator
-
-
-9) INFRASTRUCTURE KATMANI
---------------------------------------------------------
-Amaç:
-- Database
-- EF Core
-- Identity
-- Repository implementasyonları
-
-Burada yapılacaklar:
-- PostgreSQL bağlantısı
-- DbContext oluşturma
-- Repository’leri implement etme
-- Identity ve JWT altyapısı
-
-
-10) DATABASE VE EF CORE
---------------------------------------------------------
-- PostgreSQL kullanılır
-- Npgsql provider eklenir
-- FitLogDbContext oluşturulur
-- DbSet’ler tanımlanır
-- Fluent API ile mapping yazılır
-- Migration oluşturulur
-
-DbContext API’de direkt kullanılmaz.
-
-
-11) REPOSITORY PATTERN
---------------------------------------------------------
-- Interface Application katmanında
-- Implementasyon Infrastructure katmanında
-- Dependency Injection kullanılır
-
-Amaç:
-- DbContext bağımlılığını izole etmek
-- Test edilebilirlik sağlamak
-
-
-12) AUTHENTICATION & IDENTITY
---------------------------------------------------------
-- ASP.NET Core Identity kurulur
-- User IdentityUser’dan türetilir
-- JWT Token üretilir
-- Refresh Token opsiyonel
-
-Auth endpoint’leri:
-- Register
-- Login
-
-Yetkilendirme:
-- [Authorize] attribute
-- Role-based auth (opsiyonel)
-
-
-13) API KATMANI
---------------------------------------------------------
-Amaç:
-- HTTP endpoint’ler
-- Request / Response yönetimi
-
-Controller’lar:
-- AuthController
-- WorkoutController
-- NutritionController
-
-Middleware:
-- Global Exception Handling
-- JWT Authentication
-- Authorization
-- Logging
-
-Swagger:
-- JWT destekli Swagger
-- Tüm endpoint’ler dokümante edilir
-
-
-14) FRONTEND – REACT + TYPESCRIPT
---------------------------------------------------------
-Kurulum:
-npm create vite@latest fitlog-ui -- --template react-ts
-
-Klasör yapısı:
-
-src
-- api
-- components
-- pages
-- hooks
-- services
-- types
-- utils
-- store
-- routes
-
-Frontend’de yapılacaklar:
-- Login / Register sayfaları
-- Dashboard
-- Workout programları
-- Nutrition takibi
-- Progress chart’ları
-
-API entegrasyonu:
-- Axios instance
-- JWT interceptor
-- Protected routes
-- Error handling
-- Loading state
-
---------------------------------------------------------
-BU NOKTAYA KADAR OLAN KISIM PROJENİN %80’İNİ OLUŞTURUR.
-BURADAN SONRASI EKSTRA VE GELİŞTİRME ADIMLARIDIR.
-========================================================
+## 🔌 API Endpoints
+
+### Authentication
+| Method | Endpoint | Açıklama |
+|--------|----------|----------|
+| POST | `/api/auth/register` | Yeni kullanıcı kaydı |
+| POST | `/api/auth/login` | Kullanıcı girişi |
+| POST | `/api/auth/refresh` | Token yenileme |
+
+### Workouts
+| Method | Endpoint | Açıklama |
+|--------|----------|----------|
+| GET | `/api/workout/programs` | Tüm programları getir |
+| POST | `/api/workout/programs` | Yeni program oluştur |
+| PUT | `/api/workout/programs/{id}` | Program güncelle |
+| DELETE | `/api/workout/programs/{id}` | Program sil |
+| POST | `/api/workout/days` | Gün ekle |
+| POST | `/api/workout/exercises` | Egzersiz ekle |
+
+### Nutrition
+| Method | Endpoint | Açıklama |
+|--------|----------|----------|
+| GET | `/api/nutrition` | Beslenme kayıtları |
+| POST | `/api/nutrition` | Yeni kayıt ekle |
+| DELETE | `/api/nutrition/{id}` | Kayıt sil |
+
+### Profile
+| Method | Endpoint | Açıklama |
+|--------|----------|----------|
+| GET | `/api/profile` | Profil bilgileri |
+| PUT | `/api/profile` | Profil güncelle |
+| GET | `/api/profile/analysis` | BMI/BMR analizi |
+
+---
+
+## 📸 Ekran Görüntüleri
+
+<details>
+<summary>📱 Ekran görüntülerini görmek için tıkla</summary>
+
+### Dashboard
+> Ana sayfa ile antrenman, beslenme ve hedef özetleri
+
+### Antrenman Modu
+> Canlı antrenman takibi, set sayacı ve dinlenme timer'ı
+
+### Takvim
+> Haftalık antrenman planı ve streak takibi
+
+### Beslenme
+> Kalori ve makro takibi
+
+</details>
+
+---
+
+## 🤝 Katkıda Bulunma
+
+1. Fork yapın
+2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
+3. Commit yapın (`git commit -m 'feat: Add amazing feature'`)
+4. Push yapın (`git push origin feature/amazing-feature`)
+5. Pull Request açın
+
+---
+
+## 📝 Lisans
+
+Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
+
+---
+
+## 👤 Geliştirici
+
+**Emir Köroğlu**
+
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/emirkoroglu)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/emirkoroglu)
+
+---
+
+<div align="center">
+
+**⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın! ⭐**
+
+Made with ❤️ and ☕
+
+</div>
