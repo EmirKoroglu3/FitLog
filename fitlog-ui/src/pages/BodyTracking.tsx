@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '../store/AuthContext';
 import './BodyTracking.css';
 
 interface WaterLog {
@@ -21,6 +22,7 @@ interface BodyMeasurement {
 }
 
 export function BodyTracking() {
+  const { user } = useAuth();
   const today = new Date().toISOString().split('T')[0];
   const [waterGoal, setWaterGoal] = useState(8);
   const [todayWater, setTodayWater] = useState(0);
@@ -32,11 +34,16 @@ export function BodyTracking() {
   });
   const [activeTab, setActiveTab] = useState<'water' | 'body'>('water');
 
+  // Kullanıcı bazlı localStorage key
+  const getStorageKey = (key: string) => user ? `${key}_${user.id}` : key;
+
   useEffect(() => {
-    // LocalStorage'dan verileri yükle
-    const savedWaterLogs = localStorage.getItem('waterLogs');
-    const savedMeasurements = localStorage.getItem('bodyMeasurements');
-    const savedWaterGoal = localStorage.getItem('waterGoal');
+    if (!user) return;
+    
+    // LocalStorage'dan verileri yükle - kullanıcı bazlı
+    const savedWaterLogs = localStorage.getItem(getStorageKey('waterLogs'));
+    const savedMeasurements = localStorage.getItem(getStorageKey('bodyMeasurements'));
+    const savedWaterGoal = localStorage.getItem(getStorageKey('waterGoal'));
     
     if (savedWaterLogs) {
       const logs: WaterLog[] = JSON.parse(savedWaterLogs);
@@ -52,7 +59,7 @@ export function BodyTracking() {
     if (savedWaterGoal) {
       setWaterGoal(parseInt(savedWaterGoal));
     }
-  }, []);
+  }, [user]);
 
   const addWater = (amount: number = 1) => {
     const newAmount = Math.max(0, todayWater + amount);
@@ -61,12 +68,12 @@ export function BodyTracking() {
     const updatedLogs = waterLogs.filter(l => l.date !== today);
     updatedLogs.push({ date: today, glasses: newAmount });
     setWaterLogs(updatedLogs);
-    localStorage.setItem('waterLogs', JSON.stringify(updatedLogs));
+    localStorage.setItem(getStorageKey('waterLogs'), JSON.stringify(updatedLogs));
   };
 
   const updateWaterGoal = (goal: number) => {
     setWaterGoal(goal);
-    localStorage.setItem('waterGoal', goal.toString());
+    localStorage.setItem(getStorageKey('waterGoal'), goal.toString());
   };
 
   const saveMeasurement = () => {
@@ -89,7 +96,7 @@ export function BodyTracking() {
     );
     
     setMeasurements(updatedMeasurements);
-    localStorage.setItem('bodyMeasurements', JSON.stringify(updatedMeasurements));
+    localStorage.setItem(getStorageKey('bodyMeasurements'), JSON.stringify(updatedMeasurements));
     setShowMeasurementModal(false);
     setNewMeasurement({ date: today });
   };
@@ -97,7 +104,7 @@ export function BodyTracking() {
   const deleteMeasurement = (id: string) => {
     const updatedMeasurements = measurements.filter(m => m.id !== id);
     setMeasurements(updatedMeasurements);
-    localStorage.setItem('bodyMeasurements', JSON.stringify(updatedMeasurements));
+    localStorage.setItem(getStorageKey('bodyMeasurements'), JSON.stringify(updatedMeasurements));
   };
 
   const getProgressPercent = (current: number, goal: number) => {

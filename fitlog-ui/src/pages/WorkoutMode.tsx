@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { WorkoutProgramDto, WorkoutDayDto } from '../types/workout';
 import workoutService from '../services/workoutService';
+import { useAuth } from '../store/AuthContext';
 import './WorkoutMode.css';
 
 interface ExerciseProgress {
@@ -13,8 +14,12 @@ interface ExerciseProgress {
 export function WorkoutMode() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const programId = searchParams.get('programId');
   const dayId = searchParams.get('dayId');
+  
+  // Kullanıcı bazlı localStorage key
+  const getStorageKey = (key: string) => user ? `${key}_${user.id}` : key;
   
   // Program seçim state'leri
   const [allPrograms, setAllPrograms] = useState<WorkoutProgramDto[]>([]);
@@ -191,9 +196,9 @@ export function WorkoutMode() {
     if (workoutTimerRef.current) clearInterval(workoutTimerRef.current);
     setShowCompleteModal(true);
     
-    // LocalStorage'a kaydet
+    // LocalStorage'a kaydet - kullanıcı bazlı
     const today = new Date().toISOString().split('T')[0];
-    const savedLogs = localStorage.getItem('workoutLogs');
+    const savedLogs = localStorage.getItem(getStorageKey('workoutLogs'));
     const logs = savedLogs ? JSON.parse(savedLogs) : [];
     
     const newLog = {
@@ -206,7 +211,7 @@ export function WorkoutMode() {
     };
     
     logs.push(newLog);
-    localStorage.setItem('workoutLogs', JSON.stringify(logs));
+    localStorage.setItem(getStorageKey('workoutLogs'), JSON.stringify(logs));
   };
 
   const formatTime = (seconds: number) => {

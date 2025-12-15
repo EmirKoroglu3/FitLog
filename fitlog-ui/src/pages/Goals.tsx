@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '../store/AuthContext';
 import './Goals.css';
 
 interface Goal {
@@ -20,6 +21,7 @@ interface OneRMRecord {
 }
 
 export function Goals() {
+  const { user } = useAuth();
   const [goals, setGoals] = useState<Goal[]>([]);
   const [showGoalModal, setShowGoalModal] = useState(false);
   const [showCalcModal, setShowCalcModal] = useState(false);
@@ -37,6 +39,9 @@ export function Goals() {
   const [calcExercise, setCalcExercise] = useState('');
   const [oneRMRecords, setOneRMRecords] = useState<OneRMRecord[]>([]);
 
+  // Kullanıcı bazlı localStorage key
+  const getStorageKey = (key: string) => user ? `${key}_${user.id}` : key;
+
   const categoryOptions = [
     { value: 'strength', label: 'Güç/Kaldırma', icon: '🏋️' },
     { value: 'weight', label: 'Kilo', icon: '⚖️' },
@@ -51,12 +56,14 @@ export function Goals() {
   ];
 
   useEffect(() => {
-    const savedGoals = localStorage.getItem('fitnessGoals');
-    const savedRecords = localStorage.getItem('oneRMRecords');
+    if (!user) return;
+    
+    const savedGoals = localStorage.getItem(getStorageKey('fitnessGoals'));
+    const savedRecords = localStorage.getItem(getStorageKey('oneRMRecords'));
     
     if (savedGoals) setGoals(JSON.parse(savedGoals));
     if (savedRecords) setOneRMRecords(JSON.parse(savedRecords));
-  }, []);
+  }, [user]);
 
   const saveGoal = () => {
     const goal: Goal = {
@@ -73,7 +80,7 @@ export function Goals() {
     
     const updated = [...goals, goal];
     setGoals(updated);
-    localStorage.setItem('fitnessGoals', JSON.stringify(updated));
+    localStorage.setItem(getStorageKey('fitnessGoals'), JSON.stringify(updated));
     setShowGoalModal(false);
     setNewGoal({ category: 'strength' });
   };
@@ -87,13 +94,13 @@ export function Goals() {
       return g;
     });
     setGoals(updated);
-    localStorage.setItem('fitnessGoals', JSON.stringify(updated));
+    localStorage.setItem(getStorageKey('fitnessGoals'), JSON.stringify(updated));
   };
 
   const deleteGoal = (id: string) => {
     const updated = goals.filter(g => g.id !== id);
     setGoals(updated);
-    localStorage.setItem('fitnessGoals', JSON.stringify(updated));
+    localStorage.setItem(getStorageKey('fitnessGoals'), JSON.stringify(updated));
   };
 
   // 1RM Hesaplama (Brzycki Formülü)
@@ -116,7 +123,7 @@ export function Goals() {
     
     const updated = [...oneRMRecords, record];
     setOneRMRecords(updated);
-    localStorage.setItem('oneRMRecords', JSON.stringify(updated));
+    localStorage.setItem(getStorageKey('oneRMRecords'), JSON.stringify(updated));
     setShowCalcModal(true);
   };
 

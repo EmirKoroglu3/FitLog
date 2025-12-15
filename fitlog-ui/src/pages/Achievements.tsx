@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '../store/AuthContext';
 import './Achievements.css';
 
 interface Achievement {
@@ -20,10 +21,14 @@ interface WorkoutLog {
 }
 
 export function Achievements() {
+  const { user } = useAuth();
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [filter, setFilter] = useState<string>('all');
   const [showUnlockModal, setShowUnlockModal] = useState(false);
   const [newlyUnlocked, setNewlyUnlocked] = useState<Achievement | null>(null);
+  
+  // Kullanıcı bazlı localStorage key
+  const getStorageKey = (key: string) => user ? `${key}_${user.id}` : key;
 
   const achievementDefinitions: Omit<Achievement, 'currentProgress' | 'unlocked' | 'unlockedDate'>[] = [
     // Workout Achievements
@@ -83,16 +88,18 @@ export function Achievements() {
   };
 
   useEffect(() => {
-    calculateAchievements();
-  }, []);
+    if (user) {
+      calculateAchievements();
+    }
+  }, [user]);
 
   const calculateAchievements = () => {
-    // LocalStorage'dan verileri al
-    const workoutLogs: WorkoutLog[] = JSON.parse(localStorage.getItem('workoutLogs') || '[]');
-    const waterLogs = JSON.parse(localStorage.getItem('waterLogs') || '[]');
-    const bodyMeasurements = JSON.parse(localStorage.getItem('bodyMeasurements') || '[]');
-    const oneRMRecords = JSON.parse(localStorage.getItem('oneRMRecords') || '[]');
-    const savedAchievements = JSON.parse(localStorage.getItem('achievements') || '{}');
+    // LocalStorage'dan verileri al - kullanıcı bazlı
+    const workoutLogs: WorkoutLog[] = JSON.parse(localStorage.getItem(getStorageKey('workoutLogs')) || '[]');
+    const waterLogs = JSON.parse(localStorage.getItem(getStorageKey('waterLogs')) || '[]');
+    const bodyMeasurements = JSON.parse(localStorage.getItem(getStorageKey('bodyMeasurements')) || '[]');
+    const oneRMRecords = JSON.parse(localStorage.getItem(getStorageKey('oneRMRecords')) || '[]');
+    const savedAchievements = JSON.parse(localStorage.getItem(getStorageKey('achievements')) || '{}');
     
     const totalWorkouts = workoutLogs.filter((l: WorkoutLog) => l.completed).length;
     
@@ -182,7 +189,7 @@ export function Achievements() {
       acc[a.id] = { unlocked: a.unlocked, unlockedDate: a.unlockedDate };
       return acc;
     }, {} as Record<string, { unlocked: boolean; unlockedDate?: string }>);
-    localStorage.setItem('achievements', JSON.stringify(achievementsToSave));
+    localStorage.setItem(getStorageKey('achievements'), JSON.stringify(achievementsToSave));
   };
 
   const filteredAchievements = filter === 'all' 

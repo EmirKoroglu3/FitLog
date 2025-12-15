@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { WorkoutProgramDto, WorkoutDayDto } from '../types/workout';
 import workoutService from '../services/workoutService';
+import { useAuth } from '../store/AuthContext';
 import './Calendar.css';
 
 interface WorkoutLog {
@@ -15,6 +16,7 @@ interface WorkoutLog {
 
 export function Calendar() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [programs, setPrograms] = useState<WorkoutProgramDto[]>([]);
   const [activeProgram, setActiveProgram] = useState<WorkoutProgramDto | null>(null);
@@ -31,9 +33,14 @@ export function Calendar() {
   const dayNames = ['Pzr', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
   const dayNamesFull = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
 
+  // Kullanıcı bazlı localStorage key'leri
+  const getStorageKey = (key: string) => user ? `${key}_${user.id}` : key;
+
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (user) {
+      fetchData();
+    }
+  }, [user]);
 
   useEffect(() => {
     calculateStreak();
@@ -45,17 +52,17 @@ export function Calendar() {
       const data = await workoutService.getPrograms();
       setPrograms(data);
       
-      // İlk programı aktif program olarak seç (veya localStorage'dan oku)
-      const savedActiveProgram = localStorage.getItem('activeProgramId');
+      // İlk programı aktif program olarak seç (veya localStorage'dan oku) - kullanıcı bazlı
+      const savedActiveProgram = localStorage.getItem(getStorageKey('activeProgramId'));
       if (savedActiveProgram && data.find(p => p.id === savedActiveProgram)) {
         setActiveProgram(data.find(p => p.id === savedActiveProgram) || null);
       } else if (data.length > 0) {
         setActiveProgram(data[0]);
-        localStorage.setItem('activeProgramId', data[0].id);
+        localStorage.setItem(getStorageKey('activeProgramId'), data[0].id);
       }
       
-      // Workout log'ları localStorage'dan al (gerçek projede API'den gelir)
-      const savedLogs = localStorage.getItem('workoutLogs');
+      // Workout log'ları localStorage'dan al - kullanıcı bazlı
+      const savedLogs = localStorage.getItem(getStorageKey('workoutLogs'));
       if (savedLogs) {
         setWorkoutLogs(JSON.parse(savedLogs));
       }
@@ -70,7 +77,7 @@ export function Calendar() {
     const program = programs.find(p => p.id === programId);
     if (program) {
       setActiveProgram(program);
-      localStorage.setItem('activeProgramId', programId);
+      localStorage.setItem(getStorageKey('activeProgramId'), programId);
     }
   };
 
@@ -166,14 +173,14 @@ export function Calendar() {
     
     const updatedLogs = [...workoutLogs.filter(l => l.date !== selectedDate), newLog];
     setWorkoutLogs(updatedLogs);
-    localStorage.setItem('workoutLogs', JSON.stringify(updatedLogs));
+    localStorage.setItem(getStorageKey('workoutLogs'), JSON.stringify(updatedLogs));
     setSelectedDate(null);
   };
 
   const removeWorkout = (dateStr: string) => {
     const updatedLogs = workoutLogs.filter(l => l.date !== dateStr);
     setWorkoutLogs(updatedLogs);
-    localStorage.setItem('workoutLogs', JSON.stringify(updatedLogs));
+    localStorage.setItem(getStorageKey('workoutLogs'), JSON.stringify(updatedLogs));
   };
 
   const { daysInMonth, startingDay } = getDaysInMonth(currentDate);
