@@ -239,26 +239,6 @@ FitLog/
 
 ---
 
-## 📸 Ekran Görüntüleri
-
-<details>
-<summary>📱 Ekran görüntülerini görmek için tıkla</summary>
-
-### Dashboard
-> Ana sayfa ile antrenman, beslenme ve hedef özetleri
-
-### Antrenman Modu
-> Canlı antrenman takibi, set sayacı ve dinlenme timer'ı
-
-### Takvim
-> Haftalık antrenman planı ve streak takibi
-
-### Beslenme
-> Kalori ve makro takibi
-
-</details>
-
----
 
 ## 🤝 Katkıda Bulunma
 
@@ -280,8 +260,8 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICE
 
 **Emir Köroğlu**
 
-[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/emirkoroglu)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/emirkoroglu)
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/EmirKoroglu3)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/emir-koroglu)
 
 ---
 
