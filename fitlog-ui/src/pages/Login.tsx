@@ -72,6 +72,10 @@ export function Login() {
 
         <div className="auth-footer">
           <p>
+            Şifreni mi unuttun?{' '}
+            <Link to="/forgot-password">Şifremi Unuttum</Link>
+          </p>
+          <p style={{ marginTop: '0.5rem' }}>
             Hesabın yok mu?{' '}
             <Link to="/register">Kayıt Ol</Link>
           </p>

@@ -16,15 +16,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Sayfa yüklendiğinde localStorage'dan auth bilgilerini al
-    const storedUser = authService.getStoredUser();
-    const storedToken = authService.getToken();
-    
-    if (storedUser && storedToken) {
-      setUser(storedUser);
-      setToken(storedToken);
-    }
-    setIsLoading(false);
+    const initializeAuth = async () => {
+      // Sayfa yüklendiğinde localStorage'dan auth bilgilerini al
+      const storedUser = authService.getStoredUser();
+      const storedToken = authService.getToken();
+
+      // Hem kullanıcı hem token varsa direkt state'e yükle
+      if (storedUser && storedToken) {
+        setUser(storedUser);
+        setToken(storedToken);
+        setIsLoading(false);
+        return;
+      }
+
+      // Token yoksa ama refreshToken varsa sessiz login dene
+      const refreshToken = localStorage.getItem('refreshToken');
+
+      if (refreshToken) {
+        try {
+          const response = await authService.refreshToken(refreshToken);
+
+          if (response.success && response.user && response.token) {
+            authService.saveAuth(response);
+            setUser(response.user);
+            setToken(response.token);
+          } else {
+            authService.logout();
+          }
+        } catch {
+          authService.logout();
+        }
+      }
+
+      setIsLoading(false);
+    };
+
+    void initializeAuth();
   }, []);
 
   const login = async (data: LoginRequest) => {

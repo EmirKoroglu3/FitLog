@@ -161,6 +161,32 @@ npm run dev
 | Backend API | http://localhost:5001 |
 | Swagger UI | http://localhost:5001/swagger |
 
+### 5. Production Deployment
+
+#### Environment Variables (Önerilen)
+
+Production ortamında hassas bilgileri ve yapılandırmaları environment variable olarak ayarlayın:
+
+**Backend için:**
+```bash
+# Windows
+set SendGrid__ApiKey=YOUR_SENDGRID_API_KEY
+set FrontendUrl=https://yourdomain.com
+set ConnectionStrings__DefaultConnection=Host=...;Database=...;Username=...;Password=...
+
+# Linux/Mac
+export SendGrid__ApiKey=YOUR_SENDGRID_API_KEY
+export FrontendUrl=https://yourdomain.com
+export ConnectionStrings__DefaultConnection="Host=...;Database=...;Username=...;Password=..."
+```
+
+**Öncelik Sırası:**
+1. Environment Variables (en yüksek öncelik)
+2. `appsettings.Production.json`
+3. `appsettings.json` (fallback)
+
+**Not:** `FrontendUrl` environment variable olarak ayarlandığında, şifre sıfırlama email'lerindeki linkler otomatik olarak production URL'ini kullanır.
+
 ---
 
 ## 📁 Proje Yapısı

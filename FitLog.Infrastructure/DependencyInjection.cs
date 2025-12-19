@@ -72,6 +72,7 @@ public static class DependencyInjection
         services.AddScoped<INutritionService, NutritionService>();
         services.AddScoped<ISupplementService, SupplementService>();
         services.AddScoped<IProfileService, ProfileService>();
+        services.AddScoped<IEmailSender, SendGridEmailService>();
 
         return services;
     }

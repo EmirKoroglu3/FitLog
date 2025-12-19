@@ -6,6 +6,7 @@ using FitLog.Application.DTOs.Auth;
 using FitLog.Application.Interfaces;
 using FitLog.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -18,11 +19,19 @@ public class AuthService : IAuthService
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly JwtSettings _jwtSettings;
+    private readonly IEmailSender _emailSender;
+    private readonly IConfiguration _configuration;
 
-    public AuthService(UserManager<ApplicationUser> userManager, IOptions<JwtSettings> jwtSettings)
+    public AuthService(
+        UserManager<ApplicationUser> userManager,
+        IOptions<JwtSettings> jwtSettings,
+        IEmailSender emailSender,
+        IConfiguration configuration)
     {
         _userManager = userManager;
         _jwtSettings = jwtSettings.Value;
+        _emailSender = emailSender;
+        _configuration = configuration;
     }
 
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
@@ -162,6 +171,95 @@ public class AuthService : IAuthService
                 Name = user.Name,
                 Surname = user.Surname
             }
+        };
+    }
+
+    public async Task<AuthResponse> ForgotPasswordAsync(ForgotPasswordRequest request, CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByEmailAsync(request.Email);
+
+        // Kullanıcıyı bulamasak bile, hesap var/yok bilgisini sızdırmamak için her zaman aynı cevabı döneriz.
+        if (user == null)
+        {
+            return new AuthResponse
+            {
+                Success = true,
+                Message = "Eğer bu email ile kayıtlı bir hesabın varsa, şifre sıfırlama bağlantısı gönderildi."
+            };
+        }
+
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+        // Şifre sıfırlama linkini oluştur
+        var encodedToken = Uri.EscapeDataString(token);
+        
+        // Frontend URL'i önce environment variable'dan al (production için),
+        // yoksa appsettings.json'dan al, yoksa varsayılan olarak localhost kullan
+        // Production'da: FrontendUrl environment variable olarak ayarla
+        // Örnek: set FrontendUrl=https://fitlog.com (Windows) veya export FrontendUrl=https://fitlog.com (Linux/Mac)
+        var frontendUrl = Environment.GetEnvironmentVariable("FrontendUrl") 
+            ?? _configuration["FrontendUrl"] 
+            ?? "http://localhost:5173";
+        
+        var resetLink = $"{frontendUrl}/reset-password?userId={user.Id}&token={encodedToken}";
+
+        var subject = "FitLog - Şifre Sıfırlama";
+        var body = $@"
+            <p>Merhaba {user.Name},</p>
+            <p>Şifreni sıfırlamak için aşağıdaki bağlantıya tıklayabilirsin:</p>
+            <p><a href=""{resetLink}"">Şifremi Sıfırla</a></p>
+            <p>Eğer bu isteği sen yapmadıysan bu e-postayı dikkate alma.</p>
+        ";
+
+        await _emailSender.SendEmailAsync(user.Email!, subject, body, cancellationToken);
+
+        return new AuthResponse
+        {
+            Success = true,
+            Message = "Eğer bu email ile kayıtlı bir hesabın varsa, şifre sıfırlama bağlantısı gönderildi."
+        };
+    }
+
+    public async Task<AuthResponse> ResetPasswordAsync(ResetPasswordRequest request, CancellationToken cancellationToken = default)
+    {
+        if (request.NewPassword != request.ConfirmPassword)
+        {
+            return new AuthResponse
+            {
+                Success = false,
+                Message = "Şifreler eşleşmiyor.",
+                Errors = new List<string> { "Passwords do not match" }
+            };
+        }
+
+        var user = await _userManager.FindByIdAsync(request.UserId.ToString());
+
+        if (user == null)
+        {
+            return new AuthResponse
+            {
+                Success = false,
+                Message = "Kullanıcı bulunamadı.",
+                Errors = new List<string> { "User not found" }
+            };
+        }
+
+        var result = await _userManager.ResetPasswordAsync(user, request.Token, request.NewPassword);
+
+        if (!result.Succeeded)
+        {
+            return new AuthResponse
+            {
+                Success = false,
+                Message = "Şifre sıfırlanamadı.",
+                Errors = result.Errors.Select(e => e.Description).ToList()
+            };
+        }
+
+        return new AuthResponse
+        {
+            Success = true,
+            Message = "Şifre başarıyla güncellendi."
         };
     }
 

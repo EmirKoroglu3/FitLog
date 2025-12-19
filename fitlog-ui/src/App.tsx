@@ -16,6 +16,8 @@ import { BodyTracking } from './pages/BodyTracking';
 import { Goals } from './pages/Goals';
 import { Achievements } from './pages/Achievements';
 import { Settings } from './pages/Settings';
+import { ForgotPassword } from './pages/ForgotPassword';
+import { ResetPassword } from './pages/ResetPassword';
 import './styles/globals.css';
 
 function App() {
@@ -29,6 +31,8 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             
             {/* Protected Routes */}
             <Route element={<ProtectedRoute />}>

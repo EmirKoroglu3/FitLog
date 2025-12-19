@@ -15,6 +15,13 @@
     "Audience": "FitLogUsers",
     "ExpirationInMinutes": 120,
     "RefreshTokenExpirationInDays": 7
-  }
+  },
+  "SendGrid": {
+    "ApiKey": "",
+    "FromEmail": "fitlog.noreply@gmail.com",
+    "FromName": "FitLog"
+  },
+  "FrontendUrl": "http://localhost:5173",
+  "TestEmail": "your-test-email@example.com"
 }
 

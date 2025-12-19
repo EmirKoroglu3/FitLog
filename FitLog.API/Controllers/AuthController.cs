@@ -81,6 +81,34 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
+    /// Şifre sıfırlama linki isteği.
+    /// </summary>
+    [HttpPost("forgot-password")]
+    [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _authService.ForgotPasswordAsync(request, cancellationToken);
+        // Güvenlik nedeniyle her zaman 200 döneriz, detay mesaj response içindedir.
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Şifre sıfırlama (token ile yeni şifre belirleme).
+    /// </summary>
+    [HttpPost("reset-password")]
+    [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _authService.ResetPasswordAsync(request, cancellationToken);
+
+        if (!result.Success)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Token yenileme.
     /// </summary>
     [HttpPost("refresh")]
