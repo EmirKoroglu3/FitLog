@@ -21,6 +21,7 @@ public class FitLogDbContext : IdentityDbContext<ApplicationUser, IdentityRole<G
     public DbSet<Exercise> Exercises => Set<Exercise>();
     public DbSet<NutritionLog> NutritionLogs => Set<NutritionLog>();
     public DbSet<Supplement> Supplements => Set<Supplement>();
+    public DbSet<AiCoachReport> AiCoachReports => Set<AiCoachReport>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -105,6 +106,21 @@ public class FitLogDbContext : IdentityDbContext<ApplicationUser, IdentityRole<G
                   .HasForeignKey(e => e.UserId)
                   .OnDelete(DeleteBehavior.Cascade);
             entity.Ignore(e => e.User); // Domain User entity'sini ignore et
+        });
+
+        // AiCoachReport configuration
+        builder.Entity<AiCoachReport>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.TrainingSummary).HasMaxLength(4000);
+            entity.Property(e => e.NutritionSummary).HasMaxLength(2000);
+            entity.Property(e => e.AiRecommendationText).HasMaxLength(8000);
+            entity.Property(e => e.CalculatedVolumeJson).HasMaxLength(8000);
+            entity.HasIndex(e => e.UserId);
+            entity.HasOne<ApplicationUser>()
+                  .WithMany()
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
     }
 

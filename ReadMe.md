@@ -123,7 +123,7 @@ FitLog, kullanıcıların fitness yolculuklarını kapsamlı bir şekilde takip 
 
 ### 1. Projeyi Klonla
 ```bash
-git clone https://github.com/YOUR_USERNAME/FitLog.git
+git clone https://github.com/EmirKoroglu3/FitLog.git
 cd FitLog
 ```
 

@@ -61,6 +61,9 @@ export function Navbar() {
                   <Link to="/goals" className={`dropdown-item ${isActive('/goals') ? 'active' : ''}`}>
                     🎯 Hedefler
                   </Link>
+                  <Link to="/coach" className={`dropdown-item ${isActive('/coach') ? 'active' : ''}`}>
+                    🤖 AI Koç
+                  </Link>
                   <Link to="/achievements" className={`dropdown-item ${isActive('/achievements') ? 'active' : ''}`}>
                     🏆 Başarılar
                   </Link>

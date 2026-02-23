@@ -5,6 +5,7 @@ using FitLog.Infrastructure.Identity;
 using FitLog.Infrastructure.Persistence;
 using FitLog.Infrastructure.Repositories;
 using FitLog.Infrastructure.Services;
+using FitLog.Infrastructure.Services.OpenAI;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -73,6 +74,13 @@ public static class DependencyInjection
         services.AddScoped<ISupplementService, SupplementService>();
         services.AddScoped<IProfileService, ProfileService>();
         services.AddScoped<IEmailSender, SendGridEmailService>();
+
+        // OpenAI & AI Coach
+        services.Configure<OpenAiSettings>(configuration.GetSection(OpenAiSettings.SectionName));
+        services.AddHttpClient<IOpenAiClient, OpenAiClient>();
+        services.AddMemoryCache();
+        services.Configure<AiCoachSettings>(configuration.GetSection(AiCoachSettings.SectionName));
+        services.AddScoped<IAiCoachService, AiCoachService>();
 
         return services;
     }

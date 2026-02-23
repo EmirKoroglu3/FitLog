@@ -16,6 +16,7 @@ import { BodyTracking } from './pages/BodyTracking';
 import { Goals } from './pages/Goals';
 import { Achievements } from './pages/Achievements';
 import { Settings } from './pages/Settings';
+import { Coach } from './pages/Coach';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { ResetPassword } from './pages/ResetPassword';
 import './styles/globals.css';
@@ -44,6 +45,7 @@ function App() {
               <Route path="/supplements" element={<Supplements />} />
               <Route path="/body-tracking" element={<BodyTracking />} />
               <Route path="/goals" element={<Goals />} />
+              <Route path="/coach" element={<Coach />} />
               <Route path="/achievements" element={<Achievements />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
