@@ -1,0 +1,50 @@
+.trend-chart {
+  position: relative;
+}
+
+.trend-chart .table-toggle {
+  position: absolute;
+  top: -2.6rem;
+  right: 0;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.85rem;
+  border-radius: var(--radius-full);
+  background: var(--surface-2);
+  color: var(--text-2);
+  border: 1px solid var(--border);
+}
+
+.trend-chart .table-toggle:hover {
+  color: var(--text);
+}
+
+.trend-table-wrap {
+  max-height: 300px;
+  overflow: auto;
+}
+
+.trend-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.trend-table th,
+.trend-table td {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.trend-table th {
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  color: var(--text-2);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.trend-table .muted {
+  color: var(--text-muted);
+}

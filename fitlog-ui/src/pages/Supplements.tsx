@@ -3,6 +3,8 @@ import { SupplementDto } from '../types/supplement';
 import supplementService from '../services/supplementService';
 import { supplementCategories, searchSupplements, SupplementItem, getSupplementsByCategory } from '../data/supplementDatabase';
 import './Supplements.css';
+import { SupplementChecklist } from '../components/SupplementChecklist';
+import { AlarmClock, FlaskConical, NotebookPen, Pencil, Pill, Search, Trash2, X } from 'lucide-react';
 
 export function Supplements() {
   const [supplements, setSupplements] = useState<SupplementDto[]>([]);
@@ -65,7 +67,7 @@ export function Supplements() {
 
     try {
       const payload = {
-        name: selectedSupplement ? `${selectedSupplement.icon} ${form.name}` : form.name,
+        name: form.name,
         dosage: form.dosage || undefined,
         timing: form.timing || undefined,
         usageNote: form.usageNote || undefined
@@ -155,7 +157,7 @@ export function Supplements() {
     <div className="supplements-page">
       <div className="container">
         <div className="supplements-header">
-          <h1>💊 Takviye Takibi</h1>
+          <h1><Pill size="1em" aria-hidden="true" /> Takviye Takibi</h1>
           <button className="btn-primary" onClick={() => setShowModal(true)}>
             + Yeni Takviye
           </button>
@@ -163,9 +165,11 @@ export function Supplements() {
 
         {error && <div className="error-banner">{error}</div>}
 
+        <SupplementChecklist refreshKey={supplements.length} />
+
         {supplements.length === 0 ? (
           <div className="empty-state">
-            <span className="empty-icon">💊</span>
+            <span className="empty-icon"><Pill size="1em" aria-hidden="true" /></span>
             <h3>Henüz takviye kaydı yok</h3>
             <p>Aldığın takviyeleri kaydet ve takibini kolaylaştır!</p>
             <button className="btn-primary" onClick={() => setShowModal(true)}>
@@ -180,10 +184,10 @@ export function Supplements() {
                   <h3>{supplement.name}</h3>
                   <div className="supplement-actions">
                     <button className="btn-icon" onClick={() => openEditModal(supplement)}>
-                      ✏️
+                      <Pencil size="1em" aria-hidden="true" />
                     </button>
                     <button className="btn-icon btn-delete" onClick={() => handleDelete(supplement.id)}>
-                      🗑️
+                      <Trash2 size="1em" aria-hidden="true" />
                     </button>
                   </div>
                 </div>
@@ -191,7 +195,7 @@ export function Supplements() {
                 <div className="supplement-details">
                   {supplement.dosage && (
                     <div className="detail-item">
-                      <span className="detail-icon">💉</span>
+                      <span className="detail-icon"><FlaskConical size="1em" aria-hidden="true" /></span>
                       <div>
                         <span className="detail-label">Doz</span>
                         <span className="detail-value">{supplement.dosage}</span>
@@ -200,7 +204,7 @@ export function Supplements() {
                   )}
                   {supplement.timing && (
                     <div className="detail-item">
-                      <span className="detail-icon">⏰</span>
+                      <span className="detail-icon"><AlarmClock size="1em" aria-hidden="true" /></span>
                       <div>
                         <span className="detail-label">Zaman</span>
                         <span className="detail-value">{supplement.timing}</span>
@@ -211,7 +215,7 @@ export function Supplements() {
 
                 {supplement.usageNote && (
                   <div className="supplement-note">
-                    <span className="note-label">📝 Not:</span>
+                    <span className="note-label"><NotebookPen size="1em" aria-hidden="true" /> Not:</span>
                     <p>{supplement.usageNote}</p>
                   </div>
                 )}
@@ -235,7 +239,7 @@ export function Supplements() {
                   <div className="search-input-wrapper">
                     <input
                       type="text"
-                      placeholder="🔍 Takviye ara... (örn: kreatin, protein, omega)"
+                      placeholder="Takviye ara... (örn: kreatin, protein, omega)"
                       value={searchQuery}
                       onChange={e => setSearchQuery(e.target.value)}
                       onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
@@ -251,7 +255,7 @@ export function Supplements() {
                           setShowSearchResults(false);
                         }}
                       >
-                        ✕
+                        <X size="1em" aria-hidden="true" />
                       </button>
                     )}
                   </div>
@@ -298,7 +302,7 @@ export function Supplements() {
 
                   {showSearchResults && searchResults.length === 0 && searchQuery.length >= 2 && (
                     <div className="no-results">
-                      <span>🔍</span>
+                      <span><Search size="1em" aria-hidden="true" /></span>
                       <p>"{searchQuery}" için sonuç bulunamadı</p>
                     </div>
                   )}

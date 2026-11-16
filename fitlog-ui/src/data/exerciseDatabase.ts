@@ -763,6 +763,98 @@ export const exerciseDatabase: ExerciseItem[] = [
     defaultReps: 40,
     icon: '🚶'
   },
+
+  // KALÇA ODAKLI EK HAREKETLER
+  {
+    id: 'hip-abduction-machine',
+    name: 'Hip Abduction Makinesi',
+    category: 'glutes',
+    muscleGroup: 'Kalça (Yan)',
+    equipment: 'Makine',
+    defaultSets: 3,
+    defaultReps: 15,
+    icon: ''
+  },
+  {
+    id: 'cable-abduction',
+    name: 'Cable Hip Abduction',
+    category: 'glutes',
+    muscleGroup: 'Kalça (Yan)',
+    equipment: 'Kablo',
+    defaultSets: 3,
+    defaultReps: 12,
+    icon: ''
+  },
+  {
+    id: 'b-stance-hip-thrust',
+    name: 'B-Stance Hip Thrust',
+    category: 'glutes',
+    muscleGroup: 'Kalça, Hamstring',
+    equipment: 'Barbell',
+    defaultSets: 3,
+    defaultReps: 10,
+    icon: ''
+  },
+  {
+    id: 'frog-pump',
+    name: 'Frog Pump',
+    category: 'glutes',
+    muscleGroup: 'Kalça',
+    equipment: 'Vücut Ağırlığı',
+    defaultSets: 3,
+    defaultReps: 20,
+    icon: ''
+  },
+  {
+    id: 'mini-band-walk',
+    name: 'Mini Band Yan Yürüyüş',
+    category: 'glutes',
+    muscleGroup: 'Kalça (Yan)',
+    equipment: 'Mini Band',
+    defaultSets: 3,
+    defaultReps: 20,
+    icon: ''
+  },
+  {
+    id: 'reverse-lunge',
+    name: 'Reverse Lunge',
+    category: 'legs',
+    muscleGroup: 'Kalça, Quadriceps',
+    equipment: 'Dumbbell',
+    defaultSets: 3,
+    defaultReps: 10,
+    icon: ''
+  },
+  {
+    id: 'curtsy-lunge',
+    name: 'Curtsy Lunge',
+    category: 'legs',
+    muscleGroup: 'Kalça, İç Bacak',
+    equipment: 'Dumbbell',
+    defaultSets: 3,
+    defaultReps: 10,
+    icon: ''
+  },
+  {
+    id: 'single-leg-rdl',
+    name: 'Tek Bacak Romanian Deadlift',
+    category: 'legs',
+    muscleGroup: 'Hamstring, Kalça',
+    equipment: 'Dumbbell',
+    defaultSets: 3,
+    defaultReps: 10,
+    icon: ''
+  },
+  {
+    id: 'good-morning',
+    name: 'Good Morning',
+    category: 'legs',
+    muscleGroup: 'Hamstring, Bel, Kalça',
+    equipment: 'Barbell',
+    defaultSets: 3,
+    defaultReps: 10,
+    icon: ''
+  },
 ];
 
 // Egzersiz arama fonksiyonu

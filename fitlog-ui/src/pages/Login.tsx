@@ -2,8 +2,11 @@ import { useState, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../store/AuthContext';
 import './Auth.css';
+import { Hand } from 'lucide-react';
+import { useI18n } from '../i18n/I18nContext';
 
 export function Login() {
+  const { t } = useI18n();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -32,8 +35,8 @@ export function Login() {
     <div className="auth-page">
       <div className="auth-container animate-slideUp">
         <div className="auth-header">
-          <h1>Hoş Geldin 👋</h1>
-          <p>Hesabına giriş yap ve antrenmanlarını takip et</p>
+          <h1>{t("Hoş Geldin")} <Hand size="1em" aria-hidden="true" /></h1>
+          <p>{t("Hesabına giriş yap ve antrenmanlarını takip et")}</p>
         </div>
 
         {error && <div className="error-message">{error}</div>}
@@ -53,7 +56,7 @@ export function Login() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Şifre</label>
+            <label htmlFor="password">{t("Şifre")}</label>
             <input
               type="password"
               id="password"
@@ -66,18 +69,18 @@ export function Login() {
           </div>
 
           <button type="submit" className="btn-primary btn-full" disabled={loading}>
-            {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
+            {loading ? t("Giriş yapılıyor...") : t("Giriş Yap")}
           </button>
         </form>
 
         <div className="auth-footer">
           <p>
-            Şifreni mi unuttun?{' '}
-            <Link to="/forgot-password">Şifremi Unuttum</Link>
+            {t("Şifreni mi unuttun?")}{' '}
+            <Link to="/forgot-password">{t("Şifremi Unuttum")}</Link>
           </p>
           <p style={{ marginTop: '0.5rem' }}>
-            Hesabın yok mu?{' '}
-            <Link to="/register">Kayıt Ol</Link>
+            {t("Hesabın yok mu?")}{' '}
+            <Link to="/register">{t("Kayıt Ol")}</Link>
           </p>
         </div>
       </div>

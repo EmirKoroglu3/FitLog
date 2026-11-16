@@ -1,0 +1,203 @@
+.progress-page {
+  padding: 2rem 0 4rem;
+}
+
+.progress-page .progress-header {
+  margin-bottom: 1.5rem;
+}
+
+.progress-page .progress-header p {
+  color: var(--text-2);
+  margin-top: 0.35rem;
+}
+
+.progress-page .progress-loading {
+  display: grid;
+  place-items: center;
+  min-height: 50vh;
+}
+
+.progress-page .stat-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.progress-page .stat-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 1.1rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.progress-page .tile-label {
+  font-size: 0.85rem;
+  color: var(--text-2);
+}
+
+.progress-page .stat-tile strong {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-page .tile-sub {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.progress-page .tile-sub em {
+  font-style: normal;
+  font-weight: 600;
+}
+
+.progress-page .tile-sub em.up {
+  color: var(--success);
+}
+
+.progress-page .tile-sub em.down {
+  color: var(--danger);
+}
+
+.progress-page .chart-card {
+  margin-bottom: 1.25rem;
+}
+
+.progress-page .chart-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  min-height: 2.6rem;
+  margin-bottom: 0.75rem;
+}
+
+.progress-page .chart-head h2,
+.progress-page .pr-title {
+  font-size: 1.45rem;
+}
+
+.progress-page .chart-head p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-top: 0.15rem;
+}
+
+.progress-page .chart-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.progress-page .chart-filters select {
+  width: auto;
+  min-width: 200px;
+}
+
+.progress-page .segmented {
+  display: inline-flex;
+  padding: 0.2rem;
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.progress-page .segmented button {
+  padding: 0.45rem 0.85rem;
+  font-size: 0.9rem;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-2);
+}
+
+.progress-page .segmented button.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+}
+
+.progress-page .chart-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.progress-page .chart-empty {
+  color: var(--text-muted);
+  padding: 2rem 0;
+  text-align: center;
+}
+
+.progress-page .progress-empty {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--text-2);
+}
+
+.progress-page .progress-empty svg {
+  color: var(--primary);
+}
+
+.progress-page .progress-empty h2 {
+  margin: 0.75rem 0 0.4rem;
+}
+
+.progress-page .progress-empty .btn-primary {
+  margin-top: 1.25rem;
+}
+
+.progress-page .pr-title {
+  margin-bottom: 1rem;
+}
+
+.progress-page .pr-table-wrap {
+  overflow-x: auto;
+}
+
+.progress-page .pr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-page .pr-table th,
+.progress-page .pr-table td {
+  text-align: left;
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.progress-page .pr-table thead th {
+  color: var(--text-2);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.progress-page .link-btn {
+  padding: 0;
+  background: none;
+  color: var(--text);
+  font-weight: 600;
+  text-align: left;
+}
+
+.progress-page .link-btn:hover {
+  color: var(--primary-solid);
+}
+
+@media (max-width: 900px) {
+  .progress-page .stat-tiles {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .progress-page .chart-row {
+    grid-template-columns: 1fr;
+  }
+}

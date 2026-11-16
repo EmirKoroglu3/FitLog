@@ -1,8 +1,10 @@
 import { useState, FormEvent } from 'react';
 import './Auth.css';
 import authService from '../services/authService';
+import { useI18n } from '../i18n/I18nContext';
 
 export function ForgotPassword() {
+  const { t } = useI18n();
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -32,8 +34,8 @@ export function ForgotPassword() {
     <div className="auth-page">
       <div className="auth-container animate-slideUp">
         <div className="auth-header">
-          <h1>Şifremi Unuttum</h1>
-          <p>Hesabına ait email adresini gir, sana şifre sıfırlama bağlantısı gönderelim.</p>
+          <h1>{t("Şifremi Unuttum")}</h1>
+          <p>{t("Hesabına ait email adresini gir, sana şifre sıfırlama bağlantısı gönderelim.")}</p>
         </div>
 
         {message && <div className="error-message" style={{ borderColor: 'var(--color-accent-success)', color: 'var(--color-accent-success)', background: 'rgba(34,197,94,0.08)' }}>{message}</div>}

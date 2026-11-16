@@ -13,6 +13,9 @@ public interface INutritionService
     Task<NutritionLogDto?> UpdateNutritionLogAsync(Guid id, UpdateNutritionLogRequest request, CancellationToken cancellationToken = default);
     Task<bool> DeleteNutritionLogAsync(Guid id, CancellationToken cancellationToken = default);
     Task<NutritionSummaryDto> GetDailySummaryAsync(Guid userId, DateTime date, CancellationToken cancellationToken = default);
+
+    /// <summary>Totals for logs in [start, end). Lets the client pass its own local-day bounds (as UTC).</summary>
+    Task<NutritionSummaryDto> GetSummaryForRangeAsync(Guid userId, DateTime start, DateTime end, CancellationToken cancellationToken = default);
 }
 
 /// <summary>

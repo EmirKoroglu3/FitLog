@@ -82,6 +82,17 @@ public static class DependencyInjection
         services.Configure<AiCoachSettings>(configuration.GetSection(AiCoachSettings.SectionName));
         services.AddScoped<IAiCoachService, AiCoachService>();
 
+        // Ownership checks used by controllers (prevents IDOR)
+        services.AddScoped<IResourceOwnershipService, ResourceOwnershipService>();
+
+        // Tracking
+        services.AddScoped<IWorkoutSessionService, Services.Tracking.WorkoutSessionService>();
+        services.AddScoped<IBodyTrackingService, Services.Tracking.BodyTrackingService>();
+        services.AddScoped<IGoalService, Services.Tracking.GoalService>();
+        services.AddScoped<IUserSettingsService, Services.Tracking.UserSettingsService>();
+        services.AddScoped<ICustomFoodService, Services.Tracking.CustomFoodService>();
+        services.AddScoped<ISupplementIntakeService, Services.Tracking.SupplementIntakeService>();
+
         return services;
     }
 }

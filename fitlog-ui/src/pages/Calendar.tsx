@@ -4,8 +4,13 @@ import { WorkoutProgramDto, WorkoutDayDto } from '../types/workout';
 import workoutService from '../services/workoutService';
 import { useAuth } from '../store/AuthContext';
 import './Calendar.css';
+import { toLocalDateInput } from '../utils/dateTime';
+import { sessionsApi } from '../services/trackingService';
+import { CardioModal } from '../components/CardioModal';
+import { HeartPulse, Share2, ArrowLeft, ArrowRight, BarChart3, BedDouble, CalendarDays, Check, CircleCheck, Dumbbell, Flame, Lightbulb, MapPin, Play, Timer, Trash2 } from 'lucide-react';
 
 interface WorkoutLog {
+  sessionIds: string[];
   date: string;
   programName: string;
   dayName: string;
@@ -24,6 +29,7 @@ export function Calendar() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [streak, setStreak] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [showCardio, setShowCardio] = useState(false);
 
   const monthNames = [
     'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
@@ -61,11 +67,8 @@ export function Calendar() {
         localStorage.setItem(getStorageKey('activeProgramId'), data[0].id);
       }
       
-      // Workout log'ları localStorage'dan al - kullanıcı bazlı
-      const savedLogs = localStorage.getItem(getStorageKey('workoutLogs'));
-      if (savedLogs) {
-        setWorkoutLogs(JSON.parse(savedLogs));
-      }
+      // Completed workouts come from the API (one entry per local day)
+      setWorkoutLogs(toDailyLogs(await sessionsApi.list(), data));
     } catch (err) {
       console.error('Veri yüklenirken hata:', err);
     } finally {
@@ -85,7 +88,7 @@ export function Calendar() {
   const getPlannedWorkoutForDate = (dateStr: string): WorkoutDayDto | null => {
     if (!activeProgram) return null;
     
-    const date = new Date(dateStr);
+    const date = new Date(`${dateStr}T00:00`); // local midnight, not UTC
     const dayOfWeek = date.getDay();
     
     const plannedDay = activeProgram.workoutDays.find(d => d.dayOfWeek === dayOfWeek);
@@ -104,7 +107,7 @@ export function Calendar() {
     for (let i = 0; i < 365; i++) {
       const checkDate = new Date(today);
       checkDate.setDate(today.getDate() - i);
-      const dateStr = checkDate.toISOString().split('T')[0];
+      const dateStr = toLocalDateInput(checkDate);
       
       const hasWorkout = workoutLogs.some(log => log.date === dateStr && log.completed);
       
@@ -155,32 +158,40 @@ export function Calendar() {
     setCurrentDate(newDate);
   };
 
-  const logWorkout = (programId: string, dayId: string) => {
+  /** Marks a planned day as done without set details (creates an empty session at noon). */
+  const logWorkout = async (programId: string, dayId: string) => {
     if (!selectedDate) return;
-    
     const program = programs.find(p => p.id === programId);
     const day = program?.workoutDays.find(d => d.id === dayId);
-    
     if (!program || !day) return;
-    
-    const newLog: WorkoutLog = {
-      date: selectedDate,
-      programName: program.name,
-      dayName: day.name || dayNames[day.dayOfWeek],
-      exerciseCount: day.exercises.length,
-      completed: true
-    };
-    
-    const updatedLogs = [...workoutLogs.filter(l => l.date !== selectedDate), newLog];
-    setWorkoutLogs(updatedLogs);
-    localStorage.setItem(getStorageKey('workoutLogs'), JSON.stringify(updatedLogs));
-    setSelectedDate(null);
+
+    try {
+      await sessionsApi.create({
+        workoutProgramId: program.id,
+        workoutDayId: day.id,
+        name: day.name || dayNamesFull[day.dayOfWeek],
+        type: 'strength',
+        startedAt: new Date(`${selectedDate}T12:00`).toISOString(),
+        durationSeconds: 0,
+        notes: 'Takvimden manuel tamamlandı',
+        sets: [],
+      });
+      setWorkoutLogs(toDailyLogs(await sessionsApi.list(), programs));
+      setSelectedDate(null);
+    } catch {
+      alert('Antrenman kaydedilemedi, tekrar dene.');
+    }
   };
 
-  const removeWorkout = (dateStr: string) => {
-    const updatedLogs = workoutLogs.filter(l => l.date !== dateStr);
-    setWorkoutLogs(updatedLogs);
-    localStorage.setItem(getStorageKey('workoutLogs'), JSON.stringify(updatedLogs));
+  const removeWorkout = async (dateStr: string) => {
+    const log = workoutLogs.find(l => l.date === dateStr);
+    if (!log || !confirm('Bu günün antrenman kaydı (setler dahil) silinsin mi?')) return;
+    try {
+      await Promise.all(log.sessionIds.map(id => sessionsApi.remove(id)));
+      setWorkoutLogs(workoutLogs.filter(l => l.date !== dateStr));
+    } catch {
+      alert('Silinemedi, tekrar dene.');
+    }
   };
 
   const { daysInMonth, startingDay } = getDaysInMonth(currentDate);
@@ -198,7 +209,7 @@ export function Calendar() {
     const plannedWorkout = getPlannedWorkoutForDate(dateStr);
     const offDay = isOffDay(dateStr);
     const today = isToday(day);
-    const isPast = new Date(dateStr) < new Date(new Date().toDateString());
+    const isPast = new Date(`${dateStr}T00:00`) < new Date(new Date().toDateString());
     
     calendarDays.push(
       <div 
@@ -216,17 +227,17 @@ export function Calendar() {
         
         {completedWorkout ? (
           <div className="workout-indicator completed">
-            <span className="workout-icon">✅</span>
+            <span className="workout-icon"><CircleCheck size="1em" aria-hidden="true" /></span>
             <span className="workout-name-mini">{completedWorkout.dayName}</span>
           </div>
         ) : plannedWorkout && plannedWorkout.exercises.length > 0 ? (
           <div className="workout-indicator planned">
-            <span className="workout-icon">🏋️</span>
+            <span className="workout-icon"><Dumbbell size="1em" aria-hidden="true" /></span>
             <span className="workout-name-mini">{plannedWorkout.name || 'Antrenman'}</span>
           </div>
         ) : offDay ? (
           <div className="workout-indicator off">
-            <span className="workout-icon">😴</span>
+            <span className="workout-icon"><BedDouble size="1em" aria-hidden="true" /></span>
             <span className="workout-name-mini">Off</span>
           </div>
         ) : null}
@@ -235,7 +246,7 @@ export function Calendar() {
   }
 
   // Bugünün planlanan antrenmanı (aktif programdan)
-  const todayDateStr = new Date().toISOString().split('T')[0];
+  const todayDateStr = toLocalDateInput();
   const todayPlannedWorkout = getPlannedWorkoutForDate(todayDateStr);
   const todayCompleted = getWorkoutForDate(todayDateStr);
 
@@ -251,9 +262,12 @@ export function Calendar() {
     <div className="calendar-page">
       <div className="container">
         <div className="calendar-header">
-          <h1>📅 Antrenman Takvimi</h1>
+          <h1><CalendarDays size="1em" aria-hidden="true" /> Antrenman Takvimi</h1>
+          <button className="btn-secondary cardio-btn" onClick={() => setShowCardio(true)}>
+            <HeartPulse size="1em" aria-hidden="true" /> Kardiyo Kaydet
+          </button>
           <div className="streak-badge">
-            <span className="streak-icon">🔥</span>
+            <span className="streak-icon"><Flame size="1em" aria-hidden="true" /></span>
             <span className="streak-count">{streak}</span>
             <span className="streak-label">Gün Streak</span>
           </div>
@@ -278,9 +292,9 @@ export function Calendar() {
             )}
             
             <div className="calendar-nav">
-              <button onClick={() => navigateMonth(-1)}>←</button>
+              <button onClick={() => navigateMonth(-1)}><ArrowLeft size="1em" aria-hidden="true" /></button>
               <h2>{monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}</h2>
-              <button onClick={() => navigateMonth(1)}>→</button>
+              <button onClick={() => navigateMonth(1)}><ArrowRight size="1em" aria-hidden="true" /></button>
             </div>
 
             <div className="calendar-grid">
@@ -292,15 +306,15 @@ export function Calendar() {
 
             <div className="calendar-legend">
               <div className="legend-item">
-                <span className="legend-dot completed-dot">✅</span>
+                <span className="legend-dot completed-dot"><CircleCheck size="1em" aria-hidden="true" /></span>
                 <span>Tamamlandı</span>
               </div>
               <div className="legend-item">
-                <span className="legend-dot planned-dot">🏋️</span>
+                <span className="legend-dot planned-dot"><Dumbbell size="1em" aria-hidden="true" /></span>
                 <span>Planlanan</span>
               </div>
               <div className="legend-item">
-                <span className="legend-dot off-dot">😴</span>
+                <span className="legend-dot off-dot"><BedDouble size="1em" aria-hidden="true" /></span>
                 <span>Off Day</span>
               </div>
             </div>
@@ -310,11 +324,11 @@ export function Calendar() {
           <div className="calendar-sidebar">
             {/* Bugünün Antrenmanı */}
             <div className="today-workout card">
-              <h3>📍 Bugün - {dayNamesFull[new Date().getDay()]}</h3>
+              <h3><MapPin size="1em" aria-hidden="true" /> Bugün - {dayNamesFull[new Date().getDay()]}</h3>
               
               {todayCompleted ? (
                 <div className="today-completed">
-                  <span className="completed-badge">✅ Tamamlandı!</span>
+                  <span className="completed-badge"><CircleCheck size="1em" aria-hidden="true" /> Tamamlandı!</span>
                   <div className="completed-details">
                     <span>{todayCompleted.dayName}</span>
                     {todayCompleted.duration && (
@@ -340,12 +354,12 @@ export function Calendar() {
                     className="btn-start-today"
                     onClick={() => navigate(`/workout-mode?programId=${activeProgram?.id}&dayId=${todayPlannedWorkout.id}`)}
                   >
-                    🚀 Başlat
+                    <Play size="1em" aria-hidden="true" /> Başlat
                   </button>
                 </div>
               ) : (
                 <div className="today-off">
-                  <span className="off-icon">😴</span>
+                  <span className="off-icon"><BedDouble size="1em" aria-hidden="true" /></span>
                   <span className="off-text">Bugün Off Day - Dinlen!</span>
                 </div>
               )}
@@ -355,7 +369,7 @@ export function Calendar() {
             {selectedDate && (
               <div className="selected-day-detail card">
                 <h3>
-                  📆 {new Date(selectedDate).toLocaleDateString('tr-TR', { 
+                  <CalendarDays size="1em" aria-hidden="true" /> {new Date(selectedDate).toLocaleDateString('tr-TR', { 
                     day: 'numeric', 
                     month: 'long',
                     weekday: 'long'
@@ -371,28 +385,36 @@ export function Calendar() {
                     return (
                       <div className="logged-workout">
                         <div className="logged-info">
-                          <span className="check-icon">✅</span>
+                          <span className="check-icon"><CircleCheck size="1em" aria-hidden="true" /></span>
                           <div>
                             <strong>{completedWorkout.programName}</strong>
                             <span>{completedWorkout.dayName}</span>
                             {completedWorkout.duration && (
-                              <span className="workout-duration">⏱️ {Math.floor(completedWorkout.duration / 60)} dk</span>
+                              <span className="workout-duration"><Timer size="1em" aria-hidden="true" /> {Math.floor(completedWorkout.duration / 60)} dk</span>
                             )}
                           </div>
                         </div>
-                        <button 
-                          className="btn-secondary btn-small"
-                          onClick={() => removeWorkout(selectedDate)}
-                        >
-                          🗑️ Kaldır
-                        </button>
+                        <div className="completed-actions">
+                          <button
+                            className="btn-secondary btn-small"
+                            onClick={() => navigate(`/share/${completedWorkout.sessionIds[0]}`)}
+                          >
+                            <Share2 size="1em" aria-hidden="true" /> Özet
+                          </button>
+                          <button
+                            className="btn-secondary btn-small"
+                            onClick={() => removeWorkout(selectedDate)}
+                          >
+                            <Trash2 size="1em" aria-hidden="true" /> Kaldır
+                          </button>
+                        </div>
                       </div>
                     );
                   } else if (plannedWorkout && plannedWorkout.exercises.length > 0) {
                     return (
                       <div className="planned-workout-detail">
                         <div className="planned-header">
-                          <span className="planned-icon">🏋️</span>
+                          <span className="planned-icon"><Dumbbell size="1em" aria-hidden="true" /></span>
                           <div>
                             <strong>{plannedWorkout.name || 'Antrenman'}</strong>
                             <span>{plannedWorkout.exercises.length} egzersiz</span>
@@ -411,7 +433,7 @@ export function Calendar() {
                             className="btn-primary"
                             onClick={() => navigate(`/workout-mode?programId=${activeProgram?.id}&dayId=${plannedWorkout.id}`)}
                           >
-                            🚀 Antrenmanı Başlat
+                            <Play size="1em" aria-hidden="true" /> Antrenmanı Başlat
                           </button>
                           <button 
                             className="btn-secondary"
@@ -421,7 +443,7 @@ export function Calendar() {
                               }
                             }}
                           >
-                            ✓ Manuel Tamamla
+                            <Check size="1em" aria-hidden="true" /> Manuel Tamamla
                           </button>
                         </div>
                       </div>
@@ -429,9 +451,9 @@ export function Calendar() {
                   } else if (isOff) {
                     return (
                       <div className="off-day-detail">
-                        <span className="off-icon">😴</span>
+                        <span className="off-icon"><BedDouble size="1em" aria-hidden="true" /></span>
                         <p>Bu gün dinlenme günü</p>
-                        <p className="off-tip">💡 Kasların büyümesi için dinlenme önemlidir!</p>
+                        <p className="off-tip"><Lightbulb size="1em" aria-hidden="true" /> Kasların büyümesi için dinlenme önemlidir!</p>
                       </div>
                     );
                   } else {
@@ -453,7 +475,7 @@ export function Calendar() {
 
             {/* İstatistikler */}
             <div className="calendar-stats card">
-              <h3>📊 Bu Ay</h3>
+              <h3><BarChart3 size="1em" aria-hidden="true" /> Bu Ay</h3>
               <div className="stats-grid">
                 <div className="stat-item">
                   <span className="stat-value">
@@ -472,9 +494,41 @@ export function Calendar() {
           </div>
         </div>
       </div>
+      {showCardio && (
+        <CardioModal onClose={() => setShowCardio(false)} onSaved={() => fetchData()} />
+      )}
     </div>
   );
 }
 
 export default Calendar;
 
+/** Groups API sessions into one calendar entry per local day. */
+function toDailyLogs(
+  sessions: Awaited<ReturnType<typeof sessionsApi.list>>,
+  programs: WorkoutProgramDto[],
+): WorkoutLog[] {
+  const byDate = new Map<string, WorkoutLog>();
+  for (const s of [...sessions].reverse()) {
+    const date = toLocalDateInput(new Date(s.startedAt));
+    const program = programs.find(p => p.id === s.workoutProgramId);
+    const day = program?.workoutDays.find(d => d.id === s.workoutDayId);
+    const existing = byDate.get(date);
+    if (existing) {
+      existing.sessionIds.push(s.id);
+      existing.dayName += ` + ${s.name}`;
+      existing.duration = (existing.duration ?? 0) + s.durationSeconds;
+    } else {
+      byDate.set(date, {
+        sessionIds: [s.id],
+        date,
+        programName: program?.name ?? (s.type === 'cardio' ? 'Kardiyo' : 'Antrenman'),
+        dayName: s.name,
+        exerciseCount: day?.exercises.length ?? 0,
+        completed: true,
+        duration: s.durationSeconds,
+      });
+    }
+  }
+  return [...byDate.values()];
+}

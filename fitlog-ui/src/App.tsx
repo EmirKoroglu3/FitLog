@@ -1,5 +1,9 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './store/AuthContext';
+import { ThemeProvider } from './store/ThemeContext';
+import { SettingsProvider, useSettings } from './store/SettingsContext';
+import { I18nProvider, useI18n } from './i18n/I18nContext';
+import { useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Home } from './pages/Home';
@@ -17,14 +21,30 @@ import { Goals } from './pages/Goals';
 import { Achievements } from './pages/Achievements';
 import { Settings } from './pages/Settings';
 import { Coach } from './pages/Coach';
+import { Progress } from './pages/Progress';
+import { SessionSummary } from './pages/SessionSummary';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { ResetPassword } from './pages/ResetPassword';
 import './styles/globals.css';
 
+/** Logged-in users carry their language in account settings; apply it once settings load. */
+function LanguageSync() {
+  const { settings, loaded } = useSettings();
+  const { setLang } = useI18n();
+  useEffect(() => {
+    if (loaded) setLang(settings.language);
+  }, [loaded, settings.language, setLang]);
+  return null;
+}
+
 function App() {
   return (
+    <ThemeProvider>
+    <I18nProvider>
     <AuthProvider>
+    <SettingsProvider>
       <BrowserRouter>
+        <LanguageSync />
         <Navbar />
         <main>
           <Routes>
@@ -41,6 +61,8 @@ function App() {
               <Route path="/workouts" element={<Workouts />} />
               <Route path="/workout-mode" element={<WorkoutMode />} />
               <Route path="/calendar" element={<Calendar />} />
+              <Route path="/progress" element={<Progress />} />
+              <Route path="/share/:id" element={<SessionSummary />} />
               <Route path="/nutrition" element={<Nutrition />} />
               <Route path="/supplements" element={<Supplements />} />
               <Route path="/body-tracking" element={<BodyTracking />} />
@@ -53,7 +75,10 @@ function App() {
           </Routes>
         </main>
       </BrowserRouter>
+    </SettingsProvider>
     </AuthProvider>
+    </I18nProvider>
+    </ThemeProvider>
   );
 }
 

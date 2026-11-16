@@ -67,6 +67,119 @@ namespace FitLog.Infrastructure.Migrations
                     b.ToTable("AiCoachReports");
                 });
 
+            modelBuilder.Entity("FitLog.Domain.Entities.BodyMeasurement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal?>("Biceps")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)");
+
+                    b.Property<decimal?>("BodyFatPercent")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)");
+
+                    b.Property<decimal?>("Calf")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)");
+
+                    b.Property<decimal?>("Chest")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<decimal?>("Hips")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)");
+
+                    b.Property<decimal?>("Neck")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)");
+
+                    b.Property<decimal?>("Thigh")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal?>("Waist")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)");
+
+                    b.Property<decimal?>("WeightKg")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "Date");
+
+                    b.ToTable("BodyMeasurements");
+                });
+
+            modelBuilder.Entity("FitLog.Domain.Entities.CustomFood", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Calories")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("numeric(8,2)");
+
+                    b.Property<decimal>("Carbohydrates")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("numeric(8,2)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("Fat")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("numeric(8,2)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<decimal>("Protein")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("numeric(8,2)");
+
+                    b.Property<decimal>("ServingSize")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("numeric(8,2)");
+
+                    b.Property<string>("ServingUnit")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CustomFoods");
+                });
+
             modelBuilder.Entity("FitLog.Domain.Entities.Exercise", b =>
                 {
                     b.Property<Guid>("Id")
@@ -106,6 +219,57 @@ namespace FitLog.Infrastructure.Migrations
                     b.HasIndex("WorkoutDayId");
 
                     b.ToTable("Exercises");
+                });
+
+            modelBuilder.Entity("FitLog.Domain.Entities.FitnessGoal", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("CurrentValue")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<DateOnly?>("Deadline")
+                        .HasColumnType("date");
+
+                    b.Property<decimal>("TargetValue")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("FitnessGoals");
                 });
 
             modelBuilder.Entity("FitLog.Domain.Entities.NutritionLog", b =>
@@ -156,6 +320,132 @@ namespace FitLog.Infrastructure.Migrations
                     b.ToTable("NutritionLogs");
                 });
 
+            modelBuilder.Entity("FitLog.Domain.Entities.OneRepMaxRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<string>("ExerciseName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("WeightKg")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("numeric(8,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "ExerciseName");
+
+                    b.ToTable("OneRepMaxRecords");
+                });
+
+            modelBuilder.Entity("FitLog.Domain.Entities.ProgressPhoto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<byte[]>("ImageData")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("Pose")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "Date");
+
+                    b.ToTable("ProgressPhotos");
+                });
+
+            modelBuilder.Entity("FitLog.Domain.Entities.SessionSet", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ExerciseName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("ExerciseOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsWarmup")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Reps")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal?>("Rpe")
+                        .HasPrecision(3, 1)
+                        .HasColumnType("numeric(3,1)");
+
+                    b.Property<int>("SetNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("WeightKg")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("numeric(8,2)");
+
+                    b.Property<Guid>("WorkoutSessionId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExerciseName");
+
+                    b.HasIndex("WorkoutSessionId");
+
+                    b.ToTable("SessionSets");
+                });
+
             modelBuilder.Entity("FitLog.Domain.Entities.Supplement", b =>
                 {
                     b.Property<Guid>("Id")
@@ -193,6 +483,136 @@ namespace FitLog.Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Supplements");
+                });
+
+            modelBuilder.Entity("FitLog.Domain.Entities.SupplementIntake", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("SupplementId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("TakenAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SupplementId");
+
+                    b.HasIndex("UserId", "SupplementId", "Date")
+                        .IsUnique();
+
+                    b.ToTable("SupplementIntakes");
+                });
+
+            modelBuilder.Entity("FitLog.Domain.Entities.UserSettings", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("CalorieTarget")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("CarbTarget")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DefaultRestSeconds")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("FatTarget")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("FavoriteFoodIds")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<string>("MeasurementUnit")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<bool>("Notifications")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("ProteinTarget")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("SoundEffects")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("WaterGoalGlasses")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("WeightUnit")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("UserSettings");
+                });
+
+            modelBuilder.Entity("FitLog.Domain.Entities.WaterLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<int>("Glasses")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "Date")
+                        .IsUnique();
+
+                    b.ToTable("WaterLogs");
                 });
 
             modelBuilder.Entity("FitLog.Domain.Entities.WorkoutDay", b =>
@@ -253,6 +673,69 @@ namespace FitLog.Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("WorkoutPrograms");
+                });
+
+            modelBuilder.Entity("FitLog.Domain.Entities.WorkoutSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("AverageHeartRate")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("CaloriesBurned")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("CardioActivity")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal?>("DistanceKm")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("numeric(8,2)");
+
+                    b.Property<int>("DurationSeconds")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("EndedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("WorkoutDayId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("WorkoutProgramId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "StartedAt");
+
+                    b.ToTable("WorkoutSessions");
                 });
 
             modelBuilder.Entity("FitLog.Infrastructure.Identity.ApplicationUser", b =>
@@ -353,6 +836,36 @@ namespace FitLog.Infrastructure.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("FitLog.Infrastructure.Identity.UserRefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
@@ -494,6 +1007,24 @@ namespace FitLog.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("FitLog.Domain.Entities.BodyMeasurement", b =>
+                {
+                    b.HasOne("FitLog.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FitLog.Domain.Entities.CustomFood", b =>
+                {
+                    b.HasOne("FitLog.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("FitLog.Domain.Entities.Exercise", b =>
                 {
                     b.HasOne("FitLog.Domain.Entities.WorkoutDay", "WorkoutDay")
@@ -505,6 +1036,15 @@ namespace FitLog.Infrastructure.Migrations
                     b.Navigation("WorkoutDay");
                 });
 
+            modelBuilder.Entity("FitLog.Domain.Entities.FitnessGoal", b =>
+                {
+                    b.HasOne("FitLog.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("FitLog.Domain.Entities.NutritionLog", b =>
                 {
                     b.HasOne("FitLog.Infrastructure.Identity.ApplicationUser", null)
@@ -514,7 +1054,69 @@ namespace FitLog.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("FitLog.Domain.Entities.OneRepMaxRecord", b =>
+                {
+                    b.HasOne("FitLog.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FitLog.Domain.Entities.ProgressPhoto", b =>
+                {
+                    b.HasOne("FitLog.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FitLog.Domain.Entities.SessionSet", b =>
+                {
+                    b.HasOne("FitLog.Domain.Entities.WorkoutSession", "WorkoutSession")
+                        .WithMany("Sets")
+                        .HasForeignKey("WorkoutSessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("WorkoutSession");
+                });
+
             modelBuilder.Entity("FitLog.Domain.Entities.Supplement", b =>
+                {
+                    b.HasOne("FitLog.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FitLog.Domain.Entities.SupplementIntake", b =>
+                {
+                    b.HasOne("FitLog.Domain.Entities.Supplement", null)
+                        .WithMany()
+                        .HasForeignKey("SupplementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FitLog.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FitLog.Domain.Entities.UserSettings", b =>
+                {
+                    b.HasOne("FitLog.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FitLog.Domain.Entities.WaterLog", b =>
                 {
                     b.HasOne("FitLog.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany()
@@ -535,6 +1137,24 @@ namespace FitLog.Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("FitLog.Domain.Entities.WorkoutProgram", b =>
+                {
+                    b.HasOne("FitLog.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FitLog.Domain.Entities.WorkoutSession", b =>
+                {
+                    b.HasOne("FitLog.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FitLog.Infrastructure.Identity.UserRefreshToken", b =>
                 {
                     b.HasOne("FitLog.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany()
@@ -602,6 +1222,11 @@ namespace FitLog.Infrastructure.Migrations
             modelBuilder.Entity("FitLog.Domain.Entities.WorkoutProgram", b =>
                 {
                     b.Navigation("WorkoutDays");
+                });
+
+            modelBuilder.Entity("FitLog.Domain.Entities.WorkoutSession", b =>
+                {
+                    b.Navigation("Sets");
                 });
 #pragma warning restore 612, 618
         }

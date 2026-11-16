@@ -9,32 +9,33 @@
   justify-content: center;
 }
 
+
 /* Hero Section */
-.dashboard-hero {
+:is(.dashboard, .dashboard-loading) .dashboard-hero {
   margin-bottom: 2.5rem;
 }
 
-.hero-content {
+:is(.dashboard, .dashboard-loading) .hero-content {
   margin-bottom: 2rem;
 }
 
-.hero-content h1 {
+:is(.dashboard, .dashboard-loading) .hero-content h1 {
   font-size: 2.25rem;
   margin-bottom: 0.5rem;
 }
 
-.hero-content p {
+:is(.dashboard, .dashboard-loading) .hero-content p {
   color: var(--color-text-secondary);
   font-size: 1.125rem;
 }
 
-.hero-stats {
+:is(.dashboard, .dashboard-loading) .hero-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
 }
 
-.stat-card {
+:is(.dashboard, .dashboard-loading) .stat-card {
   background: var(--gradient-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -45,47 +46,48 @@
   transition: all var(--transition-base);
 }
 
-.stat-card:hover {
-  border-color: rgba(0, 212, 170, 0.3);
+:is(.dashboard, .dashboard-loading) .stat-card:hover {
+  border-color: color-mix(in srgb, var(--primary) 30%, transparent);
   transform: translateY(-2px);
 }
 
-.stat-icon {
+:is(.dashboard, .dashboard-loading) .stat-icon {
   font-size: 2rem;
 }
 
-.stat-info {
+:is(.dashboard, .dashboard-loading) .stat-info {
   display: flex;
   flex-direction: column;
 }
 
-.stat-value {
+:is(.dashboard, .dashboard-loading) .stat-value {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--color-text-primary);
 }
 
-.stat-label {
+:is(.dashboard, .dashboard-loading) .stat-label {
   font-size: 0.875rem;
   color: var(--color-text-muted);
 }
 
+
 /* Quick Actions */
-.quick-actions {
+:is(.dashboard, .dashboard-loading) .quick-actions {
   margin-bottom: 2.5rem;
 }
 
-.quick-actions h2 {
+:is(.dashboard, .dashboard-loading) .quick-actions h2 {
   margin-bottom: 1rem;
 }
 
-.action-grid {
+:is(.dashboard, .dashboard-loading) .action-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
 }
 
-.action-card {
+:is(.dashboard, .dashboard-loading) .action-card {
   background: var(--gradient-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -95,63 +97,64 @@
   text-align: center;
 }
 
-.action-card:hover {
+:is(.dashboard, .dashboard-loading) .action-card:hover {
   border-color: var(--color-accent-primary);
   transform: translateY(-4px);
   box-shadow: var(--shadow-glow);
 }
 
-.action-icon {
+:is(.dashboard, .dashboard-loading) .action-icon {
   font-size: 2.5rem;
   display: block;
   margin-bottom: 1rem;
 }
 
-.action-card h3 {
+:is(.dashboard, .dashboard-loading) .action-card h3 {
   font-size: 1.125rem;
   color: var(--color-text-primary);
   margin-bottom: 0.25rem;
 }
 
-.action-card p {
+:is(.dashboard, .dashboard-loading) .action-card p {
   font-size: 0.875rem;
   color: var(--color-text-muted);
 }
 
+
 /* Recent Section */
-.recent-section {
+:is(.dashboard, .dashboard-loading) .recent-section {
   margin-bottom: 2rem;
 }
 
-.section-header {
+:is(.dashboard, .dashboard-loading) .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
 }
 
-.see-all {
+:is(.dashboard, .dashboard-loading) .see-all {
   font-size: 0.9rem;
   color: var(--color-accent-primary);
   font-weight: 500;
 }
 
-.program-grid {
+:is(.dashboard, .dashboard-loading) .program-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
 }
 
-.program-card {
+:is(.dashboard, .dashboard-loading) .program-card {
   cursor: pointer;
 }
 
-.program-card h3 {
+:is(.dashboard, .dashboard-loading) .program-card h3 {
   font-size: 1.125rem;
   margin-bottom: 0.5rem;
 }
 
-.program-card p {
+:is(.dashboard, .dashboard-loading) .program-card p {
   font-size: 0.875rem;
   margin-bottom: 1rem;
   display: -webkit-box;
@@ -160,15 +163,15 @@
   overflow: hidden;
 }
 
-.program-days {
+:is(.dashboard, .dashboard-loading) .program-days {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 1rem;
 }
 
-.day-badge {
-  background: rgba(0, 212, 170, 0.1);
+:is(.dashboard, .dashboard-loading) .day-badge {
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
   color: var(--color-accent-primary);
   font-size: 0.75rem;
   padding: 0.25rem 0.5rem;
@@ -176,65 +179,70 @@
   font-weight: 500;
 }
 
-.day-badge.more {
-  background: rgba(124, 58, 237, 0.1);
+:is(.dashboard, .dashboard-loading) .day-badge.more {
+  background: color-mix(in srgb, var(--info) 10%, transparent);
   color: var(--color-accent-secondary);
 }
 
-.program-meta {
+:is(.dashboard, .dashboard-loading) .program-meta {
   display: flex;
   gap: 0.5rem;
   font-size: 0.8rem;
   color: var(--color-text-muted);
 }
 
+
 /* Empty State */
-.empty-state {
+:is(.dashboard, .dashboard-loading) .empty-state {
   text-align: center;
   padding: 3rem 2rem;
 }
 
-.empty-icon {
+:is(.dashboard, .dashboard-loading) .empty-icon {
   font-size: 3rem;
   display: block;
   margin-bottom: 1rem;
 }
 
-.empty-state h3 {
+:is(.dashboard, .dashboard-loading) .empty-state h3 {
   margin-bottom: 0.5rem;
 }
 
-.empty-state p {
+:is(.dashboard, .dashboard-loading) .empty-state p {
   color: var(--color-text-secondary);
   margin-bottom: 1.5rem;
 }
 
+
 /* Responsive */
 @media (max-width: 1024px) {
-  .hero-stats {
+  :is(.dashboard, .dashboard-loading) .hero-stats {
     grid-template-columns: repeat(2, 1fr);
   }
   
-  .program-grid {
+  :is(.dashboard, .dashboard-loading) .program-grid {
     grid-template-columns: repeat(2, 1fr);
-  }
-}
+  }}
 
 @media (max-width: 768px) {
-  .hero-stats {
-    grid-template-columns: 1fr;
+  :is(.dashboard, .dashboard-loading) .hero-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
   }
-  
-  .action-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .program-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .hero-content h1 {
-    font-size: 1.75rem;
-  }
-}
 
+  :is(.dashboard, .dashboard-loading) .stat-card {
+    padding: 0.9rem;
+    gap: 0.7rem;
+  }
+  
+  :is(.dashboard, .dashboard-loading) .action-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  :is(.dashboard, .dashboard-loading) .program-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  :is(.dashboard, .dashboard-loading) .hero-content h1 {
+    font-size: 1.75rem;
+  }}

@@ -2,8 +2,11 @@ import { useState, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../store/AuthContext';
 import './Auth.css';
+import { Play } from 'lucide-react';
+import { useI18n } from '../i18n/I18nContext';
 
 export function Register() {
+  const { t } = useI18n();
   const [formData, setFormData] = useState({
     name: '',
     surname: '',
@@ -26,7 +29,7 @@ export function Register() {
     setError('');
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Şifreler eşleşmiyor');
+      setError(t("Şifreler eşleşmiyor"));
       return;
     }
 
@@ -47,8 +50,8 @@ export function Register() {
     <div className="auth-page">
       <div className="auth-container animate-slideUp">
         <div className="auth-header">
-          <h1>Hesap Oluştur 🚀</h1>
-          <p>FitLog'a katıl ve fitness yolculuğuna başla</p>
+          <h1>{t("Hesap Oluştur")} <Play size="1em" aria-hidden="true" /></h1>
+          <p>{t("FitLog'a katıl ve fitness yolculuğuna başla")}</p>
         </div>
 
         {error && <div className="error-message">{error}</div>}
@@ -56,27 +59,27 @@ export function Register() {
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="name">İsim</label>
+              <label htmlFor="name">{t("İsim")}</label>
               <input
                 type="text"
                 id="name"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="İsminiz"
+                placeholder={t("İsminiz")}
                 required
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="surname">Soyisim</label>
+              <label htmlFor="surname">{t("Soyisim")}</label>
               <input
                 type="text"
                 id="surname"
                 name="surname"
                 value={formData.surname}
                 onChange={handleChange}
-                placeholder="Soyisminiz"
+                placeholder={t("Soyisminiz")}
                 required
               />
             </div>
@@ -97,7 +100,7 @@ export function Register() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Şifre</label>
+            <label htmlFor="password">{t("Şifre")}</label>
             <input
               type="password"
               id="password"
@@ -108,11 +111,11 @@ export function Register() {
               required
               autoComplete="new-password"
             />
-            <span className="form-hint">En az 6 karakter, büyük harf, küçük harf ve rakam içermeli</span>
+            <span className="form-hint">{t("En az 6 karakter, büyük harf, küçük harf ve rakam içermeli")}</span>
           </div>
 
           <div className="form-group">
-            <label htmlFor="confirmPassword">Şifre Tekrar</label>
+            <label htmlFor="confirmPassword">{t("Şifre Tekrar")}</label>
             <input
               type="password"
               id="confirmPassword"
@@ -126,14 +129,14 @@ export function Register() {
           </div>
 
           <button type="submit" className="btn-primary btn-full" disabled={loading}>
-            {loading ? 'Kayıt yapılıyor...' : 'Kayıt Ol'}
+            {loading ? t("Kayıt yapılıyor...") : t("Kayıt Ol")}
           </button>
         </form>
 
         <div className="auth-footer">
           <p>
-            Zaten hesabın var mı?{' '}
-            <Link to="/login">Giriş Yap</Link>
+            {t("Zaten hesabın var mı?")}{' '}
+            <Link to="/login">{t("Giriş Yap")}</Link>
           </p>
         </div>
       </div>

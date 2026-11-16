@@ -759,6 +759,67 @@ export const foodDatabase: FoodItem[] = [
     fat: 6,
     icon: '🥬'
   },
+
+  // ---- Ek: fitness odaklı yiyecekler (yaklaşık değerler, porsiyon başına) ----
+  // PROTEIN
+  { id: 'egg-white', name: 'Yumurta Akı', category: 'protein', servingSize: 1, servingUnit: 'adet (33g)', calories: 17, protein: 3.6, carbohydrates: 0.2, fat: 0.1, icon: '🥚' },
+  { id: 'omelette', name: 'Omlet (2 Yumurta)', category: 'protein', servingSize: 1, servingUnit: 'porsiyon (120g)', calories: 190, protein: 13, carbohydrates: 1, fat: 15, icon: '🍳' },
+  { id: 'turkey-breast', name: 'Hindi Füme', category: 'protein', servingSize: 50, servingUnit: 'g', calories: 55, protein: 10, carbohydrates: 1, fat: 1.2, icon: '🦃' },
+  { id: 'chicken-wing', name: 'Tavuk Kanat (Izgara)', category: 'protein', servingSize: 100, servingUnit: 'g', calories: 210, protein: 25, carbohydrates: 0, fat: 12, icon: '🍗' },
+  { id: 'sucuk', name: 'Sucuk', category: 'protein', servingSize: 30, servingUnit: 'g', calories: 130, protein: 6, carbohydrates: 0.5, fat: 11.5, icon: '🌭' },
+  { id: 'tuna-water', name: 'Ton Balığı (Su İçinde)', category: 'protein', servingSize: 100, servingUnit: 'g (süzülmüş)', calories: 116, protein: 26, carbohydrates: 0, fat: 1, icon: '🐟' },
+  { id: 'lentils', name: 'Yeşil Mercimek (Haşlanmış)', category: 'protein', servingSize: 100, servingUnit: 'g', calories: 116, protein: 9, carbohydrates: 20, fat: 0.4, icon: '🫘' },
+  { id: 'chickpeas', name: 'Nohut (Haşlanmış)', category: 'protein', servingSize: 100, servingUnit: 'g', calories: 164, protein: 8.9, carbohydrates: 27, fat: 2.6, icon: '🫘' },
+
+  // SÜT ÜRÜNLERİ
+  { id: 'skyr', name: 'Skyr / Proteinli Yoğurt', category: 'dairy', servingSize: 150, servingUnit: 'g', calories: 100, protein: 15, carbohydrates: 6, fat: 0.3, icon: '🥣' },
+  { id: 'kefir', name: 'Kefir', category: 'dairy', servingSize: 200, servingUnit: 'ml', calories: 110, protein: 7, carbohydrates: 9, fat: 5, icon: '🥛' },
+  { id: 'labneh-light', name: 'Light Labne', category: 'dairy', servingSize: 30, servingUnit: 'g', calories: 45, protein: 2, carbohydrates: 1.5, fat: 3.5, icon: '🧀' },
+  { id: 'protein-milk', name: 'Proteinli Süt', category: 'dairy', servingSize: 250, servingUnit: 'ml', calories: 150, protein: 25, carbohydrates: 10, fat: 1.5, icon: '🥛' },
+
+  // TAHILLAR
+  { id: 'brown-rice', name: 'Esmer Pirinç (Pişmiş)', category: 'grains', servingSize: 150, servingUnit: 'g', calories: 165, protein: 3.8, carbohydrates: 34, fat: 1.4, icon: '🍚' },
+  { id: 'quinoa', name: 'Kinoa (Pişmiş)', category: 'grains', servingSize: 150, servingUnit: 'g', calories: 180, protein: 6.6, carbohydrates: 32, fat: 2.9, icon: '🍚' },
+  { id: 'rice-cake', name: 'Pirinç Patlağı', category: 'grains', servingSize: 1, servingUnit: 'adet (9g)', calories: 35, protein: 0.7, carbohydrates: 7.3, fat: 0.3, icon: '🍘' },
+  { id: 'granola', name: 'Granola', category: 'grains', servingSize: 40, servingUnit: 'g', calories: 180, protein: 4, carbohydrates: 26, fat: 7, icon: '🥣' },
+  { id: 'wrap-whole', name: 'Tam Buğday Lavaş', category: 'grains', servingSize: 1, servingUnit: 'adet (60g)', calories: 175, protein: 5, carbohydrates: 30, fat: 4, icon: '🫓' },
+  { id: 'simit', name: 'Simit', category: 'grains', servingSize: 1, servingUnit: 'adet (120g)', calories: 380, protein: 11, carbohydrates: 64, fat: 9, icon: '🥯' },
+
+  // SEBZELER
+  { id: 'sweet-potato', name: 'Tatlı Patates (Fırın)', category: 'vegetables', servingSize: 150, servingUnit: 'g', calories: 135, protein: 3, carbohydrates: 31, fat: 0.2, icon: '🍠' },
+  { id: 'avocado', name: 'Avokado', category: 'vegetables', servingSize: 100, servingUnit: 'g (yarım)', calories: 160, protein: 2, carbohydrates: 8.5, fat: 14.7, icon: '🥑' },
+  { id: 'mushroom', name: 'Mantar (Sote)', category: 'vegetables', servingSize: 100, servingUnit: 'g', calories: 45, protein: 3.1, carbohydrates: 3.3, fat: 2.5, icon: '🍄' },
+  { id: 'green-beans', name: 'Zeytinyağlı Taze Fasulye', category: 'vegetables', servingSize: 200, servingUnit: 'g', calories: 150, protein: 3, carbohydrates: 12, fat: 10, icon: '🫛' },
+
+  // MEYVELER
+  { id: 'kiwi', name: 'Kivi', category: 'fruits', servingSize: 1, servingUnit: 'adet (75g)', calories: 46, protein: 0.9, carbohydrates: 11, fat: 0.4, icon: '🥝' },
+  { id: 'blueberry', name: 'Yaban Mersini', category: 'fruits', servingSize: 100, servingUnit: 'g', calories: 57, protein: 0.7, carbohydrates: 14.5, fat: 0.3, icon: '🫐' },
+  { id: 'dates', name: 'Hurma', category: 'fruits', servingSize: 3, servingUnit: 'adet (24g)', calories: 68, protein: 0.6, carbohydrates: 18, fat: 0.1, icon: '🌴' },
+  { id: 'dried-apricot', name: 'Kuru Kayısı', category: 'fruits', servingSize: 5, servingUnit: 'adet (40g)', calories: 96, protein: 1.4, carbohydrates: 25, fat: 0.2, icon: '🍑' },
+
+  // ATIŞTIRMALIKLAR
+  { id: 'protein-bar', name: 'Protein Bar', category: 'snacks', servingSize: 1, servingUnit: 'adet (60g)', calories: 210, protein: 20, carbohydrates: 20, fat: 7, icon: '🍫' },
+  { id: 'cashew', name: 'Kaju', category: 'snacks', servingSize: 30, servingUnit: 'g', calories: 165, protein: 5.5, carbohydrates: 9, fat: 13, icon: '🥜' },
+  { id: 'leblebi', name: 'Leblebi', category: 'snacks', servingSize: 30, servingUnit: 'g', calories: 110, protein: 6, carbohydrates: 18, fat: 1.8, icon: '🫘' },
+
+  // İÇECEKLER
+  { id: 'water', name: 'Su', category: 'drinks', servingSize: 500, servingUnit: 'ml', calories: 0, protein: 0, carbohydrates: 0, fat: 0, icon: '💧' },
+  { id: 'filter-coffee', name: 'Filtre Kahve / Americano', category: 'drinks', servingSize: 240, servingUnit: 'ml', calories: 2, protein: 0.3, carbohydrates: 0, fat: 0, icon: '☕' },
+  { id: 'latte', name: 'Latte (Yarım Yağlı Süt)', category: 'drinks', servingSize: 350, servingUnit: 'ml', calories: 190, protein: 13, carbohydrates: 19, fat: 7, icon: '☕' },
+  { id: 'green-tea', name: 'Yeşil Çay', category: 'drinks', servingSize: 250, servingUnit: 'ml', calories: 2, protein: 0, carbohydrates: 0, fat: 0, icon: '🍵' },
+  { id: 'energy-drink', name: 'Enerji İçeceği', category: 'drinks', servingSize: 250, servingUnit: 'ml', calories: 113, protein: 0, carbohydrates: 27, fat: 0, icon: '🥫' },
+  { id: 'cola-zero', name: 'Kola (Şekersiz)', category: 'drinks', servingSize: 330, servingUnit: 'ml', calories: 1, protein: 0, carbohydrates: 0, fat: 0, icon: '🥤' },
+  { id: 'cola', name: 'Kola', category: 'drinks', servingSize: 330, servingUnit: 'ml', calories: 139, protein: 0, carbohydrates: 35, fat: 0, icon: '🥤' },
+  { id: 'mineral-water', name: 'Maden Suyu', category: 'drinks', servingSize: 200, servingUnit: 'ml', calories: 0, protein: 0, carbohydrates: 0, fat: 0, icon: '🫧' },
+
+  // HAZIR YEMEKLER
+  { id: 'meal-prep-chicken-rice', name: 'Tavuk & Pirinç (Meal Prep)', category: 'meals', servingSize: 1, servingUnit: 'kutu (400g)', calories: 600, protein: 45, carbohydrates: 70, fat: 14, icon: '🍱' },
+  { id: 'chicken-saute', name: 'Tavuk Sote', category: 'meals', servingSize: 300, servingUnit: 'g', calories: 360, protein: 35, carbohydrates: 12, fat: 19, icon: '🍲' },
+  { id: 'etli-nohut', name: 'Etli Nohut', category: 'meals', servingSize: 300, servingUnit: 'g', calories: 420, protein: 24, carbohydrates: 42, fat: 17, icon: '🍲' },
+  { id: 'manti', name: 'Mantı (Yoğurtlu)', category: 'meals', servingSize: 250, servingUnit: 'g', calories: 480, protein: 20, carbohydrates: 55, fat: 20, icon: '🥟' },
+  { id: 'cheese-toast', name: 'Kaşarlı Tost', category: 'meals', servingSize: 1, servingUnit: 'adet (150g)', calories: 380, protein: 17, carbohydrates: 38, fat: 17, icon: '🥪' },
+  { id: 'pizza-slice', name: 'Pizza (Karışık)', category: 'meals', servingSize: 1, servingUnit: 'dilim (110g)', calories: 285, protein: 12, carbohydrates: 36, fat: 10, icon: '🍕' },
+  { id: 'hamburger', name: 'Hamburger', category: 'meals', servingSize: 1, servingUnit: 'adet (250g)', calories: 550, protein: 28, carbohydrates: 45, fat: 28, icon: '🍔' },
 ];
 
 // Yiyecek arama fonksiyonu

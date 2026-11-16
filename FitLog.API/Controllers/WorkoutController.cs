@@ -41,8 +41,11 @@ public class WorkoutController : ControllerBase
     [HttpGet("programs/{id:guid}")]
     [ProducesResponseType(typeof(WorkoutProgramDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetProgram(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetProgram(Guid id, [FromServices] IResourceOwnershipService ownership, CancellationToken cancellationToken)
     {
+        if (!await ownership.OwnsProgramAsync(_currentUserService.UserId!.Value, id, cancellationToken))
+            return NotFound(new { message = "Kayıt bulunamadı." });
+
         var program = await _workoutService.GetWorkoutProgramByIdAsync(id, cancellationToken);
         if (program == null)
             return NotFound(new { message = "Program bulunamadı." });
@@ -69,8 +72,11 @@ public class WorkoutController : ControllerBase
     [HttpPut("programs/{id:guid}")]
     [ProducesResponseType(typeof(WorkoutProgramDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateProgram(Guid id, [FromBody] UpdateWorkoutProgramRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateProgram(Guid id, [FromBody] UpdateWorkoutProgramRequest request, [FromServices] IResourceOwnershipService ownership, CancellationToken cancellationToken)
     {
+        if (!await ownership.OwnsProgramAsync(_currentUserService.UserId!.Value, id, cancellationToken))
+            return NotFound(new { message = "Kayıt bulunamadı." });
+
         var program = await _workoutService.UpdateWorkoutProgramAsync(id, request, cancellationToken);
         if (program == null)
             return NotFound(new { message = "Program bulunamadı." });
@@ -84,8 +90,11 @@ public class WorkoutController : ControllerBase
     [HttpDelete("programs/{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteProgram(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> DeleteProgram(Guid id, [FromServices] IResourceOwnershipService ownership, CancellationToken cancellationToken)
     {
+        if (!await ownership.OwnsProgramAsync(_currentUserService.UserId!.Value, id, cancellationToken))
+            return NotFound(new { message = "Kayıt bulunamadı." });
+
         var result = await _workoutService.DeleteWorkoutProgramAsync(id, cancellationToken);
         if (!result)
             return NotFound(new { message = "Program bulunamadı." });
@@ -99,8 +108,11 @@ public class WorkoutController : ControllerBase
     /// </summary>
     [HttpPost("days")]
     [ProducesResponseType(typeof(WorkoutDayDto), StatusCodes.Status201Created)]
-    public async Task<IActionResult> CreateDay([FromBody] CreateWorkoutDayRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateDay([FromBody] CreateWorkoutDayRequest request, [FromServices] IResourceOwnershipService ownership, CancellationToken cancellationToken)
     {
+        if (!await ownership.OwnsProgramAsync(_currentUserService.UserId!.Value, request.WorkoutProgramId, cancellationToken))
+            return NotFound(new { message = "Kayıt bulunamadı." });
+
         var day = await _workoutService.CreateWorkoutDayAsync(request, cancellationToken);
         return CreatedAtAction(nameof(GetProgram), new { id = request.WorkoutProgramId }, day);
     }
@@ -111,8 +123,11 @@ public class WorkoutController : ControllerBase
     [HttpPut("days/{id:guid}")]
     [ProducesResponseType(typeof(WorkoutDayDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateDay(Guid id, [FromBody] UpdateWorkoutDayRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateDay(Guid id, [FromBody] UpdateWorkoutDayRequest request, [FromServices] IResourceOwnershipService ownership, CancellationToken cancellationToken)
     {
+        if (!await ownership.OwnsDayAsync(_currentUserService.UserId!.Value, id, cancellationToken))
+            return NotFound(new { message = "Kayıt bulunamadı." });
+
         var day = await _workoutService.UpdateWorkoutDayAsync(id, request, cancellationToken);
         if (day == null)
             return NotFound(new { message = "Gün bulunamadı." });
@@ -126,8 +141,11 @@ public class WorkoutController : ControllerBase
     [HttpDelete("days/{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteDay(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> DeleteDay(Guid id, [FromServices] IResourceOwnershipService ownership, CancellationToken cancellationToken)
     {
+        if (!await ownership.OwnsDayAsync(_currentUserService.UserId!.Value, id, cancellationToken))
+            return NotFound(new { message = "Kayıt bulunamadı." });
+
         var result = await _workoutService.DeleteWorkoutDayAsync(id, cancellationToken);
         if (!result)
             return NotFound(new { message = "Gün bulunamadı." });
@@ -141,8 +159,11 @@ public class WorkoutController : ControllerBase
     /// </summary>
     [HttpPost("exercises")]
     [ProducesResponseType(typeof(ExerciseDto), StatusCodes.Status201Created)]
-    public async Task<IActionResult> CreateExercise([FromBody] CreateExerciseRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateExercise([FromBody] CreateExerciseRequest request, [FromServices] IResourceOwnershipService ownership, CancellationToken cancellationToken)
     {
+        if (!await ownership.OwnsDayAsync(_currentUserService.UserId!.Value, request.WorkoutDayId, cancellationToken))
+            return NotFound(new { message = "Kayıt bulunamadı." });
+
         var exercise = await _workoutService.CreateExerciseAsync(request, cancellationToken);
         return CreatedAtAction(nameof(GetProgram), new { id = request.WorkoutDayId }, exercise);
     }
@@ -153,8 +174,11 @@ public class WorkoutController : ControllerBase
     [HttpPut("exercises/{id:guid}")]
     [ProducesResponseType(typeof(ExerciseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateExercise(Guid id, [FromBody] UpdateExerciseRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateExercise(Guid id, [FromBody] UpdateExerciseRequest request, [FromServices] IResourceOwnershipService ownership, CancellationToken cancellationToken)
     {
+        if (!await ownership.OwnsExerciseAsync(_currentUserService.UserId!.Value, id, cancellationToken))
+            return NotFound(new { message = "Kayıt bulunamadı." });
+
         var exercise = await _workoutService.UpdateExerciseAsync(id, request, cancellationToken);
         if (exercise == null)
             return NotFound(new { message = "Egzersiz bulunamadı." });
@@ -168,8 +192,11 @@ public class WorkoutController : ControllerBase
     [HttpDelete("exercises/{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteExercise(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> DeleteExercise(Guid id, [FromServices] IResourceOwnershipService ownership, CancellationToken cancellationToken)
     {
+        if (!await ownership.OwnsExerciseAsync(_currentUserService.UserId!.Value, id, cancellationToken))
+            return NotFound(new { message = "Kayıt bulunamadı." });
+
         var result = await _workoutService.DeleteExerciseAsync(id, cancellationToken);
         if (!result)
             return NotFound(new { message = "Egzersiz bulunamadı." });

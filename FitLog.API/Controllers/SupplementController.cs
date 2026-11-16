@@ -41,8 +41,11 @@ public class SupplementController : ControllerBase
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(SupplementDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetSupplement(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetSupplement(Guid id, [FromServices] IResourceOwnershipService ownership, CancellationToken cancellationToken)
     {
+        if (!await ownership.OwnsSupplementAsync(_currentUserService.UserId!.Value, id, cancellationToken))
+            return NotFound(new { message = "Kayıt bulunamadı." });
+
         var supplement = await _supplementService.GetSupplementByIdAsync(id, cancellationToken);
         if (supplement == null)
             return NotFound(new { message = "Supplement bulunamadı." });
@@ -68,8 +71,11 @@ public class SupplementController : ControllerBase
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(SupplementDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateSupplement(Guid id, [FromBody] UpdateSupplementRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateSupplement(Guid id, [FromBody] UpdateSupplementRequest request, [FromServices] IResourceOwnershipService ownership, CancellationToken cancellationToken)
     {
+        if (!await ownership.OwnsSupplementAsync(_currentUserService.UserId!.Value, id, cancellationToken))
+            return NotFound(new { message = "Kayıt bulunamadı." });
+
         var supplement = await _supplementService.UpdateSupplementAsync(id, request, cancellationToken);
         if (supplement == null)
             return NotFound(new { message = "Supplement bulunamadı." });
@@ -83,8 +89,11 @@ public class SupplementController : ControllerBase
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteSupplement(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> DeleteSupplement(Guid id, [FromServices] IResourceOwnershipService ownership, CancellationToken cancellationToken)
     {
+        if (!await ownership.OwnsSupplementAsync(_currentUserService.UserId!.Value, id, cancellationToken))
+            return NotFound(new { message = "Kayıt bulunamadı." });
+
         var result = await _supplementService.DeleteSupplementAsync(id, cancellationToken);
         if (!result)
             return NotFound(new { message = "Supplement bulunamadı." });

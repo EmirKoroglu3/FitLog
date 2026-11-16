@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ProfileAnalysis, UpdateProfileRequest } from '../types/profile';
 import profileService from '../services/profileService';
 import './Profile.css';
+import { BarChart3, Beef, BicepsFlexed, Cake, Dumbbell, Flame, Lightbulb, Pencil, Ruler, Scale, Target, TriangleAlert, UserRound } from 'lucide-react';
 
 export function Profile() {
   const [analysis, setAnalysis] = useState<ProfileAnalysis | null>(null);
@@ -78,13 +79,13 @@ export function Profile() {
     return '#ef4444';
   };
 
-  const getBmiEmoji = (category?: string) => {
+  const getBmiCategoryColor = (category?: string) => {
     switch (category) {
-      case 'Zayıf': return '💙';
-      case 'Normal': return '💚';
-      case 'Fazla Kilolu': return '🧡';
-      case 'Obez': return '❤️';
-      default: return '❓';
+      case 'Zayıf': return 'var(--info)';
+      case 'Normal': return 'var(--success)';
+      case 'Fazla Kilolu': return 'var(--warning)';
+      case 'Obez': return 'var(--danger)';
+      default: return 'var(--text-muted)';
     }
   };
 
@@ -103,10 +104,10 @@ export function Profile() {
     <div className="profile-page">
       <div className="container">
         <div className="profile-header">
-          <h1>👤 Profilim</h1>
+          <h1><UserRound size="1em" aria-hidden="true" /> Profilim</h1>
           {!editMode && (
             <button className="btn-primary" onClick={() => setEditMode(true)}>
-              ✏️ Düzenle
+              <Pencil size="1em" aria-hidden="true" /> Düzenle
             </button>
           )}
         </div>
@@ -116,7 +117,7 @@ export function Profile() {
 
         {!isProfileComplete && !editMode && (
           <div className="profile-incomplete-banner">
-            <span className="banner-icon">⚠️</span>
+            <span className="banner-icon"><TriangleAlert size="1em" aria-hidden="true" /></span>
             <div className="banner-content">
               <h3>Profilini Tamamla!</h3>
               <p>Boy, kilo ve diğer bilgilerini girerek kişiselleştirilmiş öneriler al.</p>
@@ -241,7 +242,7 @@ export function Profile() {
               <div className="profile-view card">
                 <div className="profile-avatar">
                   <span className="avatar-icon">
-                    {profile?.gender === 'Erkek' ? '👨' : profile?.gender === 'Kadın' ? '👩' : '👤'}
+                    <UserRound size="1em" aria-hidden="true" />
                   </span>
                   <h2>{profile?.name} {profile?.surname}</h2>
                   <p className="profile-email">{profile?.email}</p>
@@ -249,21 +250,21 @@ export function Profile() {
 
                 <div className="profile-stats">
                   <div className="stat-item">
-                    <span className="stat-icon">📏</span>
+                    <span className="stat-icon"><Ruler size="1em" aria-hidden="true" /></span>
                     <div className="stat-info">
                       <span className="stat-value">{profile?.height || '-'} cm</span>
                       <span className="stat-label">Boy</span>
                     </div>
                   </div>
                   <div className="stat-item">
-                    <span className="stat-icon">⚖️</span>
+                    <span className="stat-icon"><Scale size="1em" aria-hidden="true" /></span>
                     <div className="stat-info">
                       <span className="stat-value">{profile?.weight || '-'} kg</span>
                       <span className="stat-label">Kilo</span>
                     </div>
                   </div>
                   <div className="stat-item">
-                    <span className="stat-icon">🎂</span>
+                    <span className="stat-icon"><Cake size="1em" aria-hidden="true" /></span>
                     <div className="stat-info">
                       <span className="stat-value">{profile?.age || '-'}</span>
                       <span className="stat-label">Yaş</span>
@@ -275,7 +276,7 @@ export function Profile() {
                   <div className="bmi-section">
                     <h3>Vücut Kitle İndeksi (BMI)</h3>
                     <div className="bmi-display" style={{ borderColor: getBmiColor(profile.bmi) }}>
-                      <span className="bmi-emoji">{getBmiEmoji(profile.bmiCategory)}</span>
+                      <span className="bmi-emoji" aria-hidden="true" style={{ display: 'inline-block', width: '0.75em', height: '0.75em', borderRadius: '50%', background: getBmiCategoryColor(profile.bmiCategory) }} />
                       <span className="bmi-value" style={{ color: getBmiColor(profile.bmi) }}>
                         {profile.bmi}
                       </span>
@@ -292,11 +293,11 @@ export function Profile() {
 
                 <div className="profile-details">
                   <div className="detail-row">
-                    <span className="detail-label">🎯 Hedef</span>
+                    <span className="detail-label"><Target size="1em" aria-hidden="true" /> Hedef</span>
                     <span className="detail-value">{profile?.fitnessGoal || 'Belirtilmedi'}</span>
                   </div>
                   <div className="detail-row">
-                    <span className="detail-label">📊 Seviye</span>
+                    <span className="detail-label"><BarChart3 size="1em" aria-hidden="true" /> Seviye</span>
                     <span className="detail-value">{profile?.experienceLevel || 'Belirtilmedi'}</span>
                   </div>
                 </div>
@@ -309,15 +310,15 @@ export function Profile() {
             <div className="profile-recommendations-panel">
               {/* Günlük İhtiyaçlar */}
               <div className="daily-needs card">
-                <h3>📊 Günlük İhtiyaçlarınız</h3>
+                <h3><BarChart3 size="1em" aria-hidden="true" /> Günlük İhtiyaçlarınız</h3>
                 <div className="needs-grid">
                   <div className="need-item calories">
-                    <span className="need-icon">🔥</span>
+                    <span className="need-icon"><Flame size="1em" aria-hidden="true" /></span>
                     <span className="need-value">{analysis.dailyCalorieNeed}</span>
                     <span className="need-label">Kalori</span>
                   </div>
                   <div className="need-item protein">
-                    <span className="need-icon">🥩</span>
+                    <span className="need-icon"><Beef size="1em" aria-hidden="true" /></span>
                     <span className="need-value">{analysis.dailyProteinNeed}g</span>
                     <span className="need-label">Protein</span>
                   </div>
@@ -326,9 +327,9 @@ export function Profile() {
 
               {/* Önerilen Program */}
               <div className="suggested-program card">
-                <h3>🏋️ Önerilen Program</h3>
+                <h3><Dumbbell size="1em" aria-hidden="true" /> Önerilen Program</h3>
                 <div className="program-suggestion">
-                  <span className="suggestion-icon">💪</span>
+                  <span className="suggestion-icon"><BicepsFlexed size="1em" aria-hidden="true" /></span>
                   <div className="suggestion-info">
                     <span className="suggestion-name">{analysis.suggestedProgram}</span>
                     <span className="suggestion-desc">Hedeflerinize ve seviyenize göre</span>
@@ -338,7 +339,7 @@ export function Profile() {
 
               {/* Tavsiyeler */}
               <div className="recommendations card">
-                <h3>💡 Kişisel Tavsiyeler</h3>
+                <h3><Lightbulb size="1em" aria-hidden="true" /> Kişisel Tavsiyeler</h3>
                 <div className="recommendations-list">
                   {analysis.recommendations.map((rec, index) => (
                     <div key={index} className="recommendation-item">

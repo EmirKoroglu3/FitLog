@@ -1,0 +1,22 @@
+{
+  "name": "FitLog — Antrenman & Beslenme Takibi",
+  "short_name": "FitLog",
+  "description": "Antrenman, beslenme, takviye ve gelişim takibini tek yerden yönet.",
+  "lang": "tr",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f7f7f5",
+  "theme_color": "#ea580c",
+  "categories": ["health", "fitness", "lifestyle"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Antrenmana Başla", "url": "/workout-mode", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Öğün Ekle", "url": "/nutrition", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

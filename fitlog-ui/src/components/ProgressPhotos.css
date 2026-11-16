@@ -1,0 +1,106 @@
+.progress-photos {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.progress-photos h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.4rem;
+}
+
+.progress-photos .muted {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.upload-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.upload-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  min-width: 150px;
+}
+
+.progress-photos .error-text {
+  margin-top: 0.75rem;
+  color: var(--danger);
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 1rem;
+}
+
+.photo-grid figure {
+  border: 2px solid transparent;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.photo-grid figure.selected {
+  border-color: var(--primary);
+}
+
+.photo-btn {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border-radius: 0;
+  background: var(--surface-2);
+}
+
+.photo-btn img,
+.photo-placeholder {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+}
+
+.photo-grid figcaption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.4rem 0.4rem 0.4rem 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text-2);
+}
+
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.compare-grid img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+}
+
+.compare-grid figcaption {
+  text-align: center;
+  margin-top: 0.35rem;
+  font-weight: 600;
+}
+
+.empty-photos {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--text-muted);
+}

@@ -3,77 +3,80 @@
   min-height: calc(100vh - 80px);
 }
 
-.goals-header {
+.goals-page .goals-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
 }
 
-.goals-content,
-.calculator-content {
+.goals-page .goals-content,
+.goals-page .calculator-content {
   margin-top: 2rem;
 }
 
-.goals-actions {
+.goals-page .goals-actions {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 1.5rem;
 }
 
+
 /* Goals Section */
-.goals-section {
+.goals-page .goals-section {
   margin-bottom: 3rem;
 }
 
-.goals-section h2 {
+.goals-page .goals-section h2 {
   font-size: 1.25rem;
   margin-bottom: 1.5rem;
 }
 
-.goals-grid {
+.goals-page .goals-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1.5rem;
 }
 
+
 /* Goal Card */
-.goal-card {
+.goals-page .goal-card {
   padding: 1.5rem;
 }
 
-.goal-header {
+.goals-page .goal-header {
   display: flex;
   align-items: flex-start;
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
-.goal-icon {
+.goals-page .goal-icon {
   font-size: 2rem;
   flex-shrink: 0;
 }
 
-.goal-info {
+.goals-page .goal-info {
   flex: 1;
 }
 
-.goal-info h3 {
+.goals-page .goal-info h3 {
   font-size: 1.1rem;
   margin-bottom: 0.25rem;
 }
 
-.goal-category {
+.goals-page .goal-category {
   font-size: 0.8rem;
   color: var(--color-text-muted);
 }
 
+
 /* Progress */
-.goal-progress {
+.goals-page .goal-progress {
   margin-bottom: 1rem;
 }
 
-.goal-progress .progress-bar {
+.goals-page .goal-progress .progress-bar {
   height: 10px;
   background: var(--color-bg-secondary);
   border-radius: 5px;
@@ -81,56 +84,58 @@
   margin-bottom: 0.5rem;
 }
 
-.goal-progress .progress-fill {
+.goals-page .goal-progress .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--color-accent-primary), #059669);
+  background: linear-gradient(90deg, var(--color-accent-primary), var(--success));
   border-radius: 5px;
   transition: width 0.3s ease;
 }
 
-.goal-progress .progress-text {
+.goals-page .goal-progress .progress-text {
   display: flex;
   justify-content: space-between;
   font-size: 0.85rem;
   color: var(--color-text-secondary);
 }
 
+
 /* Goal Update */
-.goal-update {
+.goals-page .goal-update {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 0.75rem;
 }
 
-.goal-update input {
+.goals-page .goal-update input {
   width: 100px;
   padding: 0.5rem;
   text-align: center;
 }
 
-.goal-update .unit {
+.goals-page .goal-update .unit {
   color: var(--color-text-muted);
   font-size: 0.9rem;
 }
 
-.goal-deadline {
+.goals-page .goal-deadline {
   font-size: 0.8rem;
   color: var(--color-text-muted);
 }
 
+
 /* Completed Goals */
-.completed-section {
+.goals-page .completed-section {
   opacity: 0.8;
 }
 
-.completed-goals {
+.goals-page .completed-goals {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.completed-goal-item {
+.goals-page .completed-goal-item {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -139,155 +144,159 @@
   border-radius: var(--radius-md);
 }
 
-.completed-goal-item .check {
+.goals-page .completed-goal-item .check {
   font-size: 1.25rem;
 }
 
-.completed-goal-item .title {
+.goals-page .completed-goal-item .title {
   flex: 1;
   text-decoration: line-through;
   color: var(--color-text-secondary);
 }
 
-.completed-goal-item .value {
+.goals-page .completed-goal-item .value {
   font-weight: 600;
   color: var(--color-accent-primary);
 }
 
+
 /* Calculator Layout */
-.calc-layout {
+.goals-page .calc-layout {
   display: grid;
   grid-template-columns: 1fr 350px;
   gap: 2rem;
   align-items: start;
 }
 
-.calculator-card {
+.goals-page .calculator-card {
   padding: 2rem;
 }
 
-.calculator-card h2 {
+.goals-page .calculator-card h2 {
   margin-bottom: 0.5rem;
 }
 
-.calc-description {
+.goals-page .calc-description {
   color: var(--color-text-secondary);
   margin-bottom: 2rem;
 }
 
-.calc-form {
+.goals-page .calc-form {
   max-width: 400px;
 }
 
-.calc-form .form-row {
+.goals-page .calc-form .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
 }
 
-.btn-calc {
+.goals-page .btn-calc {
   width: 100%;
   margin-top: 1rem;
   padding: 1rem;
   font-size: 1.1rem;
 }
 
+
 /* Calc Result */
-.calc-result {
+.goals-page .calc-result {
   margin-top: 2rem;
   padding-top: 2rem;
   border-top: 1px solid var(--color-border);
 }
 
-.result-main {
+.goals-page .result-main {
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-bottom: 1.5rem;
 }
 
-.result-label {
+.goals-page .result-label {
   font-size: 0.9rem;
   color: var(--color-text-secondary);
   margin-bottom: 0.25rem;
 }
 
-.result-value {
+.goals-page .result-value {
   font-size: 4rem;
   font-weight: 800;
   color: var(--color-accent-primary);
   font-family: 'JetBrains Mono', monospace;
 }
 
-.btn-save {
+.goals-page .btn-save {
   width: 100%;
   margin-bottom: 2rem;
 }
 
+
 /* Percentages Table */
-.percentages-table {
+.goals-page .percentages-table {
   margin-top: 1rem;
 }
 
-.percentages-table h4 {
+.goals-page .percentages-table h4 {
   margin-bottom: 1rem;
   font-size: 1rem;
 }
 
-.percentages-table table {
+.goals-page .percentages-table table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.percentages-table th,
-.percentages-table td {
+.goals-page .percentages-table th,
+.goals-page .percentages-table td {
   padding: 0.75rem;
   text-align: center;
   border-bottom: 1px solid var(--color-border);
 }
 
-.percentages-table th {
+.goals-page .percentages-table th {
   font-size: 0.8rem;
   color: var(--color-text-muted);
   text-transform: uppercase;
 }
 
-.percentages-table tr.highlight {
-  background: rgba(0, 212, 170, 0.1);
+.goals-page .percentages-table tr.highlight {
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
 }
 
-.percentages-table tr.highlight td {
+.goals-page .percentages-table tr.highlight td {
   color: var(--color-accent-primary);
   font-weight: 600;
 }
 
+
 /* Records Sidebar */
-.records-sidebar {
+.goals-page .records-sidebar {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-.records-card h3,
-.formula-card h3 {
+.goals-page .records-card h3,
+.goals-page .formula-card h3 {
   margin-bottom: 1rem;
   font-size: 1rem;
 }
 
-.no-records {
+.goals-page .no-records {
   color: var(--color-text-muted);
   font-style: italic;
   text-align: center;
   padding: 1rem;
 }
 
-.records-list {
+.goals-page .records-list {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.record-item {
+.goals-page .record-item {
   display: grid;
   grid-template-columns: 1fr auto auto;
   gap: 0.5rem;
@@ -297,23 +306,24 @@
   align-items: center;
 }
 
-.record-exercise {
+.goals-page .record-exercise {
   font-weight: 500;
 }
 
-.record-weight {
+.goals-page .record-weight {
   font-weight: 700;
   color: var(--color-accent-primary);
   font-family: 'JetBrains Mono', monospace;
 }
 
-.record-date {
+.goals-page .record-date {
   font-size: 0.75rem;
   color: var(--color-text-muted);
 }
 
+
 /* Formula Card */
-.formula {
+.goals-page .formula {
   padding: 1rem;
   background: var(--color-bg-secondary);
   border-radius: var(--radius-md);
@@ -321,27 +331,28 @@
   text-align: center;
 }
 
-.formula code {
+.goals-page .formula code {
   font-family: 'JetBrains Mono', monospace;
   font-size: 1rem;
   color: var(--color-accent-secondary);
 }
 
-.formula-card p {
+.goals-page .formula-card p {
   font-size: 0.85rem;
   color: var(--color-text-secondary);
   line-height: 1.6;
 }
 
-.formula-card .note {
+.goals-page .formula-card .note {
   margin-top: 1rem;
   padding: 0.75rem;
-  background: rgba(245, 158, 11, 0.1);
-  border-left: 3px solid #f59e0b;
+  background: color-mix(in srgb, var(--warning) 10%, transparent);
+  border-left: 3px solid var(--warning);
   border-radius: var(--radius-sm);
   font-size: 0.8rem;
-  color: #f59e0b;
+  color: var(--warning);
 }
+
 
 /* Empty State */
 .goals-page .empty-state {
@@ -361,52 +372,51 @@
   margin-bottom: 1.5rem;
 }
 
+
 /* Success Modal */
-.success-modal {
+.goals-page .success-modal {
   text-align: center;
   padding: 2rem;
 }
 
-.success-icon {
+.goals-page .success-icon {
   font-size: 4rem;
   display: block;
   margin-bottom: 1rem;
 }
 
-.success-modal h3 {
+.goals-page .success-modal h3 {
   margin-bottom: 0.5rem;
 }
 
-.success-modal p {
+.goals-page .success-modal p {
   font-size: 2rem;
   font-weight: 700;
   color: var(--color-accent-primary);
   margin-bottom: 1.5rem;
 }
 
-.modal-content.small {
+.goals-page .modal-content.small {
   max-width: 350px;
 }
 
+
 /* Responsive */
 @media (max-width: 968px) {
-  .calc-layout {
+  .goals-page .calc-layout {
     grid-template-columns: 1fr;
   }
   
-  .records-sidebar {
+  .goals-page .records-sidebar {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  }
-}
+  }}
 
 @media (max-width: 480px) {
-  .goals-grid {
+  .goals-page .goals-grid {
     grid-template-columns: 1fr;
   }
   
-  .result-value {
+  .goals-page .result-value {
     font-size: 3rem;
-  }
-}
-
+  }}

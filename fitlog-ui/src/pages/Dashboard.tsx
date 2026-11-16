@@ -6,8 +6,13 @@ import { WorkoutProgramDto } from '../types/workout';
 import nutritionService from '../services/nutritionService';
 import workoutService from '../services/workoutService';
 import './Dashboard.css';
+import { MacroProgress } from '../components/MacroProgress';
+import { SupplementChecklist } from '../components/SupplementChecklist';
+import { ArrowRight, Beef, BicepsFlexed, Dumbbell, Flame, Nut, Pill, Salad, Wheat } from 'lucide-react';
+import { useI18n } from '../i18n/I18nContext';
 
 export function Dashboard() {
+  const { t } = useI18n();
   const { user } = useAuth();
   const [nutritionSummary, setNutritionSummary] = useState<NutritionSummaryDto | null>(null);
   const [recentPrograms, setRecentPrograms] = useState<WorkoutProgramDto[]>([]);
@@ -52,60 +57,63 @@ export function Dashboard() {
         <section className="dashboard-hero animate-slideUp">
           <div className="hero-content">
             <h1>
-              Merhaba, <span className="text-accent">{user?.name}</span>! 💪
+              {t('Merhaba')}, <span className="text-accent">{user?.name}</span>! <BicepsFlexed size="1em" aria-hidden="true" />
             </h1>
-            <p>Bugünkü hedeflerine ulaşmak için hazır mısın?</p>
+            <p>{t("Bugünkü hedeflerine ulaşmak için hazır mısın?")}</p>
           </div>
           <div className="hero-stats">
             <div className="stat-card">
-              <span className="stat-icon">🔥</span>
+              <span className="stat-icon"><Flame size="1em" aria-hidden="true" /></span>
               <div className="stat-info">
                 <span className="stat-value">{nutritionSummary?.totalCalories || 0}</span>
-                <span className="stat-label">Kalori</span>
+                <span className="stat-label">{t("Kalori")}</span>
               </div>
             </div>
             <div className="stat-card">
-              <span className="stat-icon">🥩</span>
+              <span className="stat-icon"><Beef size="1em" aria-hidden="true" /></span>
               <div className="stat-info">
                 <span className="stat-value">{nutritionSummary?.totalProtein?.toFixed(0) || 0}g</span>
-                <span className="stat-label">Protein</span>
+                <span className="stat-label">{t("Protein")}</span>
               </div>
             </div>
             <div className="stat-card">
-              <span className="stat-icon">🍚</span>
+              <span className="stat-icon"><Wheat size="1em" aria-hidden="true" /></span>
               <div className="stat-info">
                 <span className="stat-value">{nutritionSummary?.totalCarbohydrates?.toFixed(0) || 0}g</span>
-                <span className="stat-label">Karbonhidrat</span>
+                <span className="stat-label">{t("Karbonhidrat")}</span>
               </div>
             </div>
             <div className="stat-card">
-              <span className="stat-icon">🥑</span>
+              <span className="stat-icon"><Nut size="1em" aria-hidden="true" /></span>
               <div className="stat-info">
                 <span className="stat-value">{nutritionSummary?.totalFat?.toFixed(0) || 0}g</span>
-                <span className="stat-label">Yağ</span>
+                <span className="stat-label">{t("Yağ")}</span>
               </div>
             </div>
           </div>
+          <MacroProgress summary={nutritionSummary} />
         </section>
+
+        <SupplementChecklist compact />
 
         {/* Quick Actions */}
         <section className="quick-actions animate-slideUp" style={{ animationDelay: '100ms' }}>
-          <h2>Hızlı İşlemler</h2>
+          <h2>{t("Hızlı İşlemler")}</h2>
           <div className="action-grid">
             <Link to="/workouts" className="action-card">
-              <span className="action-icon">🏋️</span>
-              <h3>Yeni Antrenman</h3>
-              <p>Antrenman programı oluştur</p>
+              <span className="action-icon"><Dumbbell size="1em" aria-hidden="true" /></span>
+              <h3>{t("Yeni Antrenman")}</h3>
+              <p>{t("Antrenman programı oluştur")}</p>
             </Link>
             <Link to="/nutrition" className="action-card">
-              <span className="action-icon">🥗</span>
-              <h3>Öğün Ekle</h3>
-              <p>Günlük beslenme kaydı</p>
+              <span className="action-icon"><Salad size="1em" aria-hidden="true" /></span>
+              <h3>{t("Öğün Ekle")}</h3>
+              <p>{t("Günlük beslenme kaydı")}</p>
             </Link>
             <Link to="/supplements" className="action-card">
-              <span className="action-icon">💊</span>
-              <h3>Takviye Takibi</h3>
-              <p>Supplement kayıtları</p>
+              <span className="action-icon"><Pill size="1em" aria-hidden="true" /></span>
+              <h3>{t("Takviye Takibi")}</h3>
+              <p>{t("Supplement kayıtları")}</p>
             </Link>
           </div>
         </section>
@@ -113,8 +121,8 @@ export function Dashboard() {
         {/* Recent Workouts */}
         <section className="recent-section animate-slideUp" style={{ animationDelay: '200ms' }}>
           <div className="section-header">
-            <h2>Antrenman Programların</h2>
-            <Link to="/workouts" className="see-all">Tümünü Gör →</Link>
+            <h2>{t("Antrenman Programların")}</h2>
+            <Link to="/workouts" className="see-all">{t("Tümünü Gör")} <ArrowRight size="1em" aria-hidden="true" /></Link>
           </div>
           
           {recentPrograms.length > 0 ? (
@@ -143,11 +151,11 @@ export function Dashboard() {
             </div>
           ) : (
             <div className="empty-state card">
-              <span className="empty-icon">🏋️</span>
-              <h3>Henüz antrenman programın yok</h3>
-              <p>İlk programını oluşturarak başla!</p>
+              <span className="empty-icon"><Dumbbell size="1em" aria-hidden="true" /></span>
+              <h3>{t("Henüz antrenman programın yok")}</h3>
+              <p>{t("İlk programını oluşturarak başla!")}</p>
               <Link to="/workouts" className="btn-primary">
-                Program Oluştur
+                {t("Program Oluştur")}
               </Link>
             </div>
           )}

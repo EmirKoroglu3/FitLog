@@ -41,8 +41,11 @@ public class NutritionController : ControllerBase
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(NutritionLogDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetLog(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetLog(Guid id, [FromServices] IResourceOwnershipService ownership, CancellationToken cancellationToken)
     {
+        if (!await ownership.OwnsNutritionLogAsync(_currentUserService.UserId!.Value, id, cancellationToken))
+            return NotFound(new { message = "Kayıt bulunamadı." });
+
         var log = await _nutritionService.GetNutritionLogByIdAsync(id, cancellationToken);
         if (log == null)
             return NotFound(new { message = "Kayıt bulunamadı." });
@@ -55,12 +58,25 @@ public class NutritionController : ControllerBase
     /// </summary>
     [HttpGet("summary")]
     [ProducesResponseType(typeof(NutritionSummaryDto), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetDailySummary([FromQuery] DateTime? date, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetDailySummary(
+        [FromQuery] DateTime? date,
+        [FromQuery] DateTime? start,
+        [FromQuery] DateTime? end,
+        CancellationToken cancellationToken)
     {
         var userId = _currentUserService.UserId!.Value;
+
+        // Preferred: the client sends its local day as a UTC range, so time zones are handled correctly.
+        if (start.HasValue && end.HasValue)
+        {
+            if (end <= start)
+                return BadRequest(new { message = "end, start'tan sonra olmalı." });
+
+            return Ok(await _nutritionService.GetSummaryForRangeAsync(userId, start.Value, end.Value, cancellationToken));
+        }
+
         var targetDate = date ?? DateTime.UtcNow;
-        var summary = await _nutritionService.GetDailySummaryAsync(userId, targetDate, cancellationToken);
-        return Ok(summary);
+        return Ok(await _nutritionService.GetDailySummaryAsync(userId, targetDate, cancellationToken));
     }
 
     /// <summary>
@@ -81,8 +97,11 @@ public class NutritionController : ControllerBase
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(NutritionLogDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateLog(Guid id, [FromBody] UpdateNutritionLogRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateLog(Guid id, [FromBody] UpdateNutritionLogRequest request, [FromServices] IResourceOwnershipService ownership, CancellationToken cancellationToken)
     {
+        if (!await ownership.OwnsNutritionLogAsync(_currentUserService.UserId!.Value, id, cancellationToken))
+            return NotFound(new { message = "Kayıt bulunamadı." });
+
         var log = await _nutritionService.UpdateNutritionLogAsync(id, request, cancellationToken);
         if (log == null)
             return NotFound(new { message = "Kayıt bulunamadı." });
@@ -96,8 +115,11 @@ public class NutritionController : ControllerBase
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteLog(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> DeleteLog(Guid id, [FromServices] IResourceOwnershipService ownership, CancellationToken cancellationToken)
     {
+        if (!await ownership.OwnsNutritionLogAsync(_currentUserService.UserId!.Value, id, cancellationToken))
+            return NotFound(new { message = "Kayıt bulunamadı." });
+
         var result = await _nutritionService.DeleteNutritionLogAsync(id, cancellationToken);
         if (!result)
             return NotFound(new { message = "Kayıt bulunamadı." });

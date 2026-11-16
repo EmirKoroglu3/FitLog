@@ -1,6 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../store/AuthContext';
 import './Achievements.css';
+import { toLocalDateInput } from '../utils/dateTime';
+import { CircleCheck, Lock, PartyPopper, Sparkles, Trophy } from 'lucide-react';
+import { AppIcon } from '../components/AppIcon';
+import { useSettings } from '../store/SettingsContext';
+import { sessionsApi, bodyApi } from '../services/trackingService';
+import nutritionService from '../services/nutritionService';
+import profileService from '../services/profileService';
+import workoutService from '../services/workoutService';
+import { computeAchievementProgress } from '../utils/achievementMetrics';
 
 interface Achievement {
   id: string;
@@ -15,11 +24,6 @@ interface Achievement {
   rarity: 'common' | 'rare' | 'epic' | 'legendary';
 }
 
-interface WorkoutLog {
-  date: string;
-  completed: boolean;
-}
-
 export function Achievements() {
   const { user } = useAuth();
   const [achievements, setAchievements] = useState<Achievement[]>([]);
@@ -29,167 +33,121 @@ export function Achievements() {
   
   // Kullanıcı bazlı localStorage key
   const getStorageKey = (key: string) => user ? `${key}_${user.id}` : key;
+  const { settings, loaded: settingsLoaded } = useSettings();
+  const [loadError, setLoadError] = useState(false);
 
   const achievementDefinitions: Omit<Achievement, 'currentProgress' | 'unlocked' | 'unlockedDate'>[] = [
     // Workout Achievements
-    { id: 'first_workout', title: 'İlk Adım', description: 'İlk antrenmanını tamamla', icon: '🎉', category: 'workout', requirement: 1, rarity: 'common' },
-    { id: 'workout_10', title: 'Başlangıç', description: '10 antrenman tamamla', icon: '💪', category: 'workout', requirement: 10, rarity: 'common' },
-    { id: 'workout_25', title: 'Kararlı', description: '25 antrenman tamamla', icon: '🔥', category: 'workout', requirement: 25, rarity: 'rare' },
-    { id: 'workout_50', title: 'Adanmış', description: '50 antrenman tamamla', icon: '⚡', category: 'workout', requirement: 50, rarity: 'rare' },
-    { id: 'workout_100', title: 'Makine', description: '100 antrenman tamamla', icon: '🤖', category: 'workout', requirement: 100, rarity: 'epic' },
-    { id: 'workout_250', title: 'Efsane', description: '250 antrenman tamamla', icon: '👑', category: 'workout', requirement: 250, rarity: 'legendary' },
+    { id: 'first_workout', title: 'İlk Adım', description: 'İlk antrenmanını tamamla', icon: 'PartyPopper', category: 'workout', requirement: 1, rarity: 'common' },
+    { id: 'workout_10', title: 'Başlangıç', description: '10 antrenman tamamla', icon: 'BicepsFlexed', category: 'workout', requirement: 10, rarity: 'common' },
+    { id: 'workout_25', title: 'Kararlı', description: '25 antrenman tamamla', icon: 'Flame', category: 'workout', requirement: 25, rarity: 'rare' },
+    { id: 'workout_50', title: 'Adanmış', description: '50 antrenman tamamla', icon: 'Zap', category: 'workout', requirement: 50, rarity: 'rare' },
+    { id: 'workout_100', title: 'Makine', description: '100 antrenman tamamla', icon: 'Bot', category: 'workout', requirement: 100, rarity: 'epic' },
+    { id: 'workout_250', title: 'Efsane', description: '250 antrenman tamamla', icon: 'Crown', category: 'workout', requirement: 250, rarity: 'legendary' },
     
     // Streak Achievements
-    { id: 'streak_3', title: 'Üç Gün', description: '3 gün üst üste antrenman yap', icon: '🔗', category: 'streak', requirement: 3, rarity: 'common' },
-    { id: 'streak_7', title: 'Bir Hafta', description: '7 gün üst üste antrenman yap', icon: '📅', category: 'streak', requirement: 7, rarity: 'common' },
-    { id: 'streak_14', title: 'İki Hafta', description: '14 gün üst üste antrenman yap', icon: '🌟', category: 'streak', requirement: 14, rarity: 'rare' },
-    { id: 'streak_30', title: 'Bir Ay', description: '30 gün üst üste antrenman yap', icon: '🏆', category: 'streak', requirement: 30, rarity: 'epic' },
-    { id: 'streak_100', title: 'Kesintisiz', description: '100 gün üst üste antrenman yap', icon: '💎', category: 'streak', requirement: 100, rarity: 'legendary' },
+    { id: 'streak_3', title: 'Üç Gün', description: '3 gün üst üste antrenman yap', icon: 'Link2', category: 'streak', requirement: 3, rarity: 'common' },
+    { id: 'streak_7', title: 'Bir Hafta', description: '7 gün üst üste antrenman yap', icon: 'CalendarDays', category: 'streak', requirement: 7, rarity: 'common' },
+    { id: 'streak_14', title: 'İki Hafta', description: '14 gün üst üste antrenman yap', icon: 'Star', category: 'streak', requirement: 14, rarity: 'rare' },
+    { id: 'streak_30', title: 'Bir Ay', description: '30 gün üst üste antrenman yap', icon: 'Trophy', category: 'streak', requirement: 30, rarity: 'epic' },
+    { id: 'streak_100', title: 'Kesintisiz', description: '100 gün üst üste antrenman yap', icon: 'Gem', category: 'streak', requirement: 100, rarity: 'legendary' },
     
     // Consistency Achievements
-    { id: 'week_complete', title: 'Tam Hafta', description: 'Bir haftada tüm günleri tamamla', icon: '✅', category: 'consistency', requirement: 7, rarity: 'rare' },
-    { id: 'month_active', title: 'Aktif Ay', description: 'Bir ayda 20+ antrenman yap', icon: '📊', category: 'consistency', requirement: 20, rarity: 'rare' },
-    { id: 'early_bird', title: 'Erken Kuş', description: 'Sabah 7\'den önce antrenman yap', icon: '🌅', category: 'consistency', requirement: 1, rarity: 'common' },
-    { id: 'night_owl', title: 'Gece Kuşu', description: 'Gece 22\'den sonra antrenman yap', icon: '🌙', category: 'consistency', requirement: 1, rarity: 'common' },
+    { id: 'week_complete', title: 'Tam Hafta', description: 'Bir haftada tüm günleri tamamla', icon: 'CircleCheck', category: 'consistency', requirement: 7, rarity: 'rare' },
+    { id: 'month_active', title: 'Aktif Ay', description: 'Bir ayda 20+ antrenman yap', icon: 'BarChart3', category: 'consistency', requirement: 20, rarity: 'rare' },
+    { id: 'early_bird', title: 'Erken Kuş', description: 'Sabah 7\'den önce antrenman yap', icon: 'Sunrise', category: 'consistency', requirement: 1, rarity: 'common' },
+    { id: 'night_owl', title: 'Gece Kuşu', description: 'Gece 22\'den sonra antrenman yap', icon: 'Moon', category: 'consistency', requirement: 1, rarity: 'common' },
     
     // Strength Achievements
-    { id: 'first_pr', title: 'İlk PR', description: 'İlk kişisel rekorunu kır', icon: '📈', category: 'strength', requirement: 1, rarity: 'common' },
-    { id: 'pr_5', title: 'Rekor Avcısı', description: '5 kişisel rekor kır', icon: '🎯', category: 'strength', requirement: 5, rarity: 'rare' },
-    { id: 'bench_100', title: 'Bench Press 100kg', description: 'Bench Press\'te 100kg kaldır', icon: '🏋️', category: 'strength', requirement: 100, rarity: 'epic' },
-    { id: 'squat_140', title: 'Squat 140kg', description: 'Squat\'ta 140kg kaldır', icon: '🦵', category: 'strength', requirement: 140, rarity: 'epic' },
-    { id: 'deadlift_180', title: 'Deadlift 180kg', description: 'Deadlift\'te 180kg kaldır', icon: '💪', category: 'strength', requirement: 180, rarity: 'legendary' },
+    { id: 'first_pr', title: 'İlk PR', description: 'İlk kişisel rekorunu kır', icon: 'TrendingUp', category: 'strength', requirement: 1, rarity: 'common' },
+    { id: 'pr_5', title: 'Rekor Avcısı', description: '5 kişisel rekor kır', icon: 'Target', category: 'strength', requirement: 5, rarity: 'rare' },
+    { id: 'bench_100', title: 'Bench Press 100kg', description: 'Bench Press\'te 100kg kaldır', icon: 'Dumbbell', category: 'strength', requirement: 100, rarity: 'epic' },
+    { id: 'squat_140', title: 'Squat 140kg', description: 'Squat\'ta 140kg kaldır', icon: 'Footprints', category: 'strength', requirement: 140, rarity: 'epic' },
+    { id: 'deadlift_180', title: 'Deadlift 180kg', description: 'Deadlift\'te 180kg kaldır', icon: 'BicepsFlexed', category: 'strength', requirement: 180, rarity: 'legendary' },
     
     // Nutrition Achievements
-    { id: 'water_goal', title: 'Su Uzmanı', description: '7 gün üst üste su hedefini tamamla', icon: '💧', category: 'nutrition', requirement: 7, rarity: 'common' },
-    { id: 'nutrition_log_7', title: 'Özenli', description: '7 gün üst üste yemek kaydı tut', icon: '📝', category: 'nutrition', requirement: 7, rarity: 'common' },
-    { id: 'protein_goal', title: 'Protein Kralı', description: '7 gün üst üste protein hedefini tamamla', icon: '🥩', category: 'nutrition', requirement: 7, rarity: 'rare' },
+    { id: 'water_goal', title: 'Su Uzmanı', description: '7 gün üst üste su hedefini tamamla', icon: 'Droplet', category: 'nutrition', requirement: 7, rarity: 'common' },
+    { id: 'nutrition_log_7', title: 'Özenli', description: '7 gün üst üste yemek kaydı tut', icon: 'NotebookPen', category: 'nutrition', requirement: 7, rarity: 'common' },
+    { id: 'protein_goal', title: 'Protein Kralı', description: '7 gün üst üste protein hedefini tamamla', icon: 'Beef', category: 'nutrition', requirement: 7, rarity: 'rare' },
     
     // Special Achievements
-    { id: 'profile_complete', title: 'Profil Tamamlandı', description: 'Profilini tamamen doldur', icon: '👤', category: 'special', requirement: 1, rarity: 'common' },
-    { id: 'first_program', title: 'Planlamacı', description: 'İlk antrenman programını oluştur', icon: '📋', category: 'special', requirement: 1, rarity: 'common' },
-    { id: 'body_measurement', title: 'Takipçi', description: 'İlk vücut ölçümünü kaydet', icon: '📏', category: 'special', requirement: 1, rarity: 'common' },
+    { id: 'profile_complete', title: 'Profil Tamamlandı', description: 'Profilini tamamen doldur', icon: 'UserRound', category: 'special', requirement: 1, rarity: 'common' },
+    { id: 'first_program', title: 'Planlamacı', description: 'İlk antrenman programını oluştur', icon: 'ClipboardList', category: 'special', requirement: 1, rarity: 'common' },
+    { id: 'body_measurement', title: 'Takipçi', description: 'İlk vücut ölçümünü kaydet', icon: 'Ruler', category: 'special', requirement: 1, rarity: 'common' },
   ];
 
   const categoryLabels: Record<string, { label: string; icon: string }> = {
-    all: { label: 'Tümü', icon: '🏅' },
-    workout: { label: 'Antrenman', icon: '🏋️' },
-    streak: { label: 'Streak', icon: '🔥' },
-    consistency: { label: 'Düzenlilik', icon: '📅' },
-    strength: { label: 'Güç', icon: '💪' },
-    nutrition: { label: 'Beslenme', icon: '🍎' },
-    special: { label: 'Özel', icon: '⭐' },
+    all: { label: 'Tümü', icon: 'Medal' },
+    workout: { label: 'Antrenman', icon: 'Dumbbell' },
+    streak: { label: 'Streak', icon: 'Flame' },
+    consistency: { label: 'Düzenlilik', icon: 'CalendarDays' },
+    strength: { label: 'Güç', icon: 'BicepsFlexed' },
+    nutrition: { label: 'Beslenme', icon: 'Apple' },
+    special: { label: 'Özel', icon: 'Star' },
   };
 
   const rarityColors: Record<string, string> = {
-    common: '#9ca3af',
-    rare: '#3b82f6',
-    epic: '#a855f7',
-    legendary: '#f59e0b',
+    // Dark enough for white badge text (WCAG AA) in both themes
+    common: '#6b7280',
+    rare: '#2563eb',
+    epic: '#9333ea',
+    legendary: '#b45309',
   };
 
   useEffect(() => {
-    if (user) {
+    if (user && settingsLoaded) {
       calculateAchievements();
     }
-  }, [user]);
+  }, [user, settingsLoaded]);
 
-  const calculateAchievements = () => {
-    // LocalStorage'dan verileri al - kullanıcı bazlı
-    const workoutLogs: WorkoutLog[] = JSON.parse(localStorage.getItem(getStorageKey('workoutLogs')) || '[]');
-    const waterLogs = JSON.parse(localStorage.getItem(getStorageKey('waterLogs')) || '[]');
-    const bodyMeasurements = JSON.parse(localStorage.getItem(getStorageKey('bodyMeasurements')) || '[]');
-    const oneRMRecords = JSON.parse(localStorage.getItem(getStorageKey('oneRMRecords')) || '[]');
-    const savedAchievements = JSON.parse(localStorage.getItem(getStorageKey('achievements')) || '{}');
-    
-    const totalWorkouts = workoutLogs.filter((l: WorkoutLog) => l.completed).length;
-    
-    // Streak hesapla
-    let currentStreak = 0;
-    const today = new Date();
-    for (let i = 0; i < 365; i++) {
-      const checkDate = new Date(today);
-      checkDate.setDate(today.getDate() - i);
-      const dateStr = checkDate.toISOString().split('T')[0];
-      const hasWorkout = workoutLogs.some((l: WorkoutLog) => l.date === dateStr && l.completed);
-      if (hasWorkout) {
-        currentStreak++;
-      } else if (i > 0) {
-        break;
-      }
+  const calculateAchievements = async () => {
+    const yearAgo = new Date();
+    yearAgo.setFullYear(yearAgo.getFullYear() - 1);
+    let progress: Record<string, number>;
+    try {
+      const [sessions, water, measurements, nutritionLogs, profile, programs] = await Promise.all([
+        sessionsApi.list({ includeSets: true }),
+        bodyApi.water(toLocalDateInput(yearAgo), toLocalDateInput()),
+        bodyApi.measurements(),
+        nutritionService.getLogs(yearAgo.toISOString(), new Date().toISOString()),
+        profileService.getProfile().catch(() => null),
+        workoutService.getPrograms(),
+      ]);
+      progress = computeAchievementProgress({
+        sessions,
+        water,
+        waterGoal: settings.waterGoalGlasses,
+        measurements,
+        nutritionLogs,
+        proteinTarget: settings.proteinTarget,
+        profile,
+        programCount: programs.length,
+      });
+    } catch {
+      setLoadError(true);
+      return;
     }
 
-    const calculatedAchievements = achievementDefinitions.map(def => {
-      let currentProgress = 0;
-      let unlocked = savedAchievements[def.id]?.unlocked || false;
-      let unlockedDate = savedAchievements[def.id]?.unlockedDate;
+    // Which unlocks this browser has already celebrated (only drives the pop-up)
+    const seen: Record<string, string> = JSON.parse(localStorage.getItem(getStorageKey('achievementsSeen')) || '{}');
+    let firstNew: Achievement | null = null;
 
-      // Her başarı için progress hesapla
-      switch (def.id) {
-        case 'first_workout':
-        case 'workout_10':
-        case 'workout_25':
-        case 'workout_50':
-        case 'workout_100':
-        case 'workout_250':
-          currentProgress = totalWorkouts;
-          break;
-        case 'streak_3':
-        case 'streak_7':
-        case 'streak_14':
-        case 'streak_30':
-        case 'streak_100':
-          currentProgress = currentStreak;
-          break;
-        case 'water_goal':
-          currentProgress = waterLogs.filter((l: { glasses: number }) => l.glasses >= 8).length;
-          break;
-        case 'first_pr':
-        case 'pr_5':
-          currentProgress = oneRMRecords.length;
-          break;
-        case 'body_measurement':
-          currentProgress = bodyMeasurements.length > 0 ? 1 : 0;
-          break;
-        case 'profile_complete':
-          // Basit kontrol
-          currentProgress = 1;
-          break;
-        case 'first_program':
-          // Program sayısını kontrol edebiliriz
-          currentProgress = 1;
-          break;
-        default:
-          currentProgress = 0;
+    const calculated = achievementDefinitions.map(def => {
+      const currentProgress = progress[def.id] ?? 0;
+      const unlocked = currentProgress >= def.requirement;
+      if (unlocked && !seen[def.id]) {
+        seen[def.id] = new Date().toISOString();
+        firstNew ??= { ...def, currentProgress, unlocked, unlockedDate: seen[def.id] } as Achievement;
       }
-
-      // Yeni unlock kontrolü
-      if (!unlocked && currentProgress >= def.requirement) {
-        unlocked = true;
-        unlockedDate = new Date().toISOString();
-        
-        // Yeni unlock'ı göster
-        if (!savedAchievements[def.id]?.unlocked) {
-          setNewlyUnlocked({ ...def, currentProgress, unlocked, unlockedDate } as Achievement);
-          setShowUnlockModal(true);
-        }
-      }
-
-      return {
-        ...def,
-        currentProgress,
-        unlocked,
-        unlockedDate,
-      };
+      return { ...def, currentProgress, unlocked, unlockedDate: unlocked ? seen[def.id] : undefined } as Achievement;
     });
 
-    setAchievements(calculatedAchievements);
-    
-    // Kaydet
-    const achievementsToSave = calculatedAchievements.reduce((acc, a) => {
-      acc[a.id] = { unlocked: a.unlocked, unlockedDate: a.unlockedDate };
-      return acc;
-    }, {} as Record<string, { unlocked: boolean; unlockedDate?: string }>);
-    localStorage.setItem(getStorageKey('achievements'), JSON.stringify(achievementsToSave));
+    setAchievements(calculated);
+    localStorage.setItem(getStorageKey('achievementsSeen'), JSON.stringify(seen));
+    if (firstNew) {
+      setNewlyUnlocked(firstNew);
+      setShowUnlockModal(true);
+    }
   };
 
   const filteredAchievements = filter === 'all' 
@@ -203,7 +161,8 @@ export function Achievements() {
     <div className="achievements-page">
       <div className="container">
         <div className="achievements-header">
-          <h1>🏆 Başarılar</h1>
+          <h1><Trophy size="1em" aria-hidden="true" /> Başarılar</h1>
+          {loadError && <p className="error-banner" role="alert">Başarılar hesaplanamadı, sayfayı yenile.</p>}
           <div className="achievements-stats">
             <span className="stat-text">{unlockedCount} / {totalCount}</span>
             <div className="stat-bar">
@@ -223,7 +182,7 @@ export function Achievements() {
               className={`filter-btn ${filter === key ? 'active' : ''}`}
               onClick={() => setFilter(key)}
             >
-              <span className="filter-icon">{icon}</span>
+              <span className="filter-icon"><AppIcon name={icon} /></span>
               <span className="filter-label">{label}</span>
             </button>
           ))}
@@ -238,7 +197,7 @@ export function Achievements() {
               style={{ '--rarity-color': rarityColors[achievement.rarity] } as React.CSSProperties}
             >
               <div className="achievement-icon">
-                {achievement.unlocked ? achievement.icon : '🔒'}
+                {achievement.unlocked ? <AppIcon name={achievement.icon} /> : <Lock size="1em" aria-hidden="true" />}
               </div>
               
               <div className="achievement-info">
@@ -263,7 +222,7 @@ export function Achievements() {
                 
                 {achievement.unlocked && achievement.unlockedDate && (
                   <span className="unlock-date">
-                    ✅ {new Date(achievement.unlockedDate).toLocaleDateString('tr-TR')}
+                    <CircleCheck size="1em" aria-hidden="true" /> {new Date(achievement.unlockedDate).toLocaleDateString('tr-TR')}
                   </span>
                 )}
               </div>
@@ -286,15 +245,15 @@ export function Achievements() {
       {showUnlockModal && newlyUnlocked && (
         <div className="modal-overlay" onClick={() => setShowUnlockModal(false)}>
           <div 
-            className="unlock-modal"
+            className="unlock-modal force-dark"
             onClick={e => e.stopPropagation()}
             style={{ '--rarity-color': rarityColors[newlyUnlocked.rarity] } as React.CSSProperties}
           >
             <div className="unlock-animation">
-              <div className="unlock-icon">{newlyUnlocked.icon}</div>
-              <div className="sparkles">✨</div>
+              <div className="unlock-icon"><AppIcon name={newlyUnlocked.icon} /></div>
+              <div className="sparkles"><Sparkles size="1em" aria-hidden="true" /></div>
             </div>
-            <h2>🎉 Başarı Açıldı!</h2>
+            <h2><PartyPopper size="1em" aria-hidden="true" /> Başarı Açıldı!</h2>
             <h3>{newlyUnlocked.title}</h3>
             <p>{newlyUnlocked.description}</p>
             <button className="btn-primary" onClick={() => setShowUnlockModal(false)}>

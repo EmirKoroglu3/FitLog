@@ -7,8 +7,9 @@
   margin-bottom: 1.5rem;
 }
 
+
 /* Tab Navigation */
-.tab-nav {
+.body-tracking-page .tab-nav {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 2rem;
@@ -18,7 +19,7 @@
   width: fit-content;
 }
 
-.tab-btn {
+.body-tracking-page .tab-btn {
   padding: 0.75rem 1.5rem;
   background: transparent;
   border: none;
@@ -29,60 +30,61 @@
   transition: all var(--transition-fast);
 }
 
-.tab-btn.active {
+.body-tracking-page .tab-btn.active {
   background: var(--color-accent-primary);
-  color: white;
+  color: var(--on-primary);
 }
 
-.tab-btn:hover:not(.active) {
+.body-tracking-page .tab-btn:hover:not(.active) {
   color: var(--color-text-primary);
 }
 
+
 /* Water Tracking */
-.water-tracking {
+.body-tracking-page .water-tracking {
   display: grid;
   grid-template-columns: 1fr 350px;
   gap: 2rem;
 }
 
-.water-main {
+.body-tracking-page .water-main {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 3rem;
 }
 
-.water-circle-container {
+.body-tracking-page .water-circle-container {
   margin-bottom: 2rem;
 }
 
-.water-circle {
+.body-tracking-page .water-circle {
   position: relative;
   width: 280px;
   height: 280px;
 }
 
-.water-circle svg {
+.body-tracking-page .water-circle svg {
   width: 100%;
   height: 100%;
   transform: rotate(-90deg);
 }
 
-.water-bg {
+.body-tracking-page .water-bg {
   fill: none;
   stroke: var(--color-bg-secondary);
   stroke-width: 12;
 }
 
-.water-progress {
+.body-tracking-page .water-progress {
   fill: none;
-  stroke: #3b82f6;
+  stroke: var(--info);
   stroke-width: 12;
   stroke-linecap: round;
   transition: stroke-dashoffset 0.5s ease;
 }
 
-.water-info {
+.body-tracking-page .water-info {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -90,33 +92,34 @@
   text-align: center;
 }
 
-.water-icon {
+.body-tracking-page .water-icon {
   font-size: 3rem;
   display: block;
   margin-bottom: 0.5rem;
 }
 
-.water-count {
+.body-tracking-page .water-count {
   font-size: 4rem;
   font-weight: 800;
-  color: #3b82f6;
+  color: var(--info);
   display: block;
   line-height: 1;
 }
 
-.water-goal {
+.body-tracking-page .water-goal {
   font-size: 1rem;
   color: var(--color-text-secondary);
 }
 
+
 /* Water Actions */
-.water-actions {
+.body-tracking-page .water-actions {
   display: flex;
   gap: 1.5rem;
   margin-bottom: 1.5rem;
 }
 
-.water-btn {
+.body-tracking-page .water-btn {
   width: 70px;
   height: 70px;
   border-radius: 50%;
@@ -127,33 +130,34 @@
   transition: all var(--transition-fast);
 }
 
-.water-btn.add {
-  background: #3b82f6;
-  color: white;
+.body-tracking-page .water-btn.add {
+  background: var(--info);
+  color: var(--on-primary);
 }
 
-.water-btn.add:hover {
-  background: #2563eb;
+.body-tracking-page .water-btn.add:hover {
+  background: var(--info);
   transform: scale(1.1);
 }
 
-.water-btn.remove {
+.body-tracking-page .water-btn.remove {
   background: var(--color-bg-secondary);
   color: var(--color-text-secondary);
 }
 
-.water-btn.remove:hover {
-  background: #ef4444;
-  color: white;
+.body-tracking-page .water-btn.remove:hover {
+  background: var(--danger);
+  color: var(--on-primary);
 }
 
+
 /* Quick Add */
-.quick-add {
+.body-tracking-page .quick-add {
   display: flex;
   gap: 0.75rem;
 }
 
-.quick-btn {
+.body-tracking-page .quick-btn {
   padding: 0.5rem 1rem;
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
@@ -163,19 +167,20 @@
   transition: all var(--transition-fast);
 }
 
-.quick-btn:hover {
-  border-color: #3b82f6;
-  color: #3b82f6;
+.body-tracking-page .quick-btn:hover {
+  border-color: var(--info);
+  color: var(--info);
 }
 
+
 /* Goal Reached */
-.goal-reached {
+.body-tracking-page .goal-reached {
   margin-top: 2rem;
   padding: 1rem 2rem;
-  background: rgba(34, 197, 94, 0.1);
-  border: 1px solid #22c55e;
+  background: color-mix(in srgb, var(--success) 10%, transparent);
+  border: 1px solid var(--success);
   border-radius: var(--radius-lg);
-  color: #22c55e;
+  color: var(--success);
   font-weight: 600;
   animation: pulse 2s infinite;
 }
@@ -185,26 +190,27 @@
   50% { transform: scale(1.02); }
 }
 
+
 /* Water Sidebar */
-.water-sidebar {
+.body-tracking-page .water-sidebar {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-.water-goal-card h3,
-.water-stats h3,
-.water-history h3 {
+.body-tracking-page .water-goal-card h3,
+.body-tracking-page .water-stats h3,
+.body-tracking-page .water-history h3 {
   margin-bottom: 1rem;
   font-size: 1rem;
 }
 
-.goal-selector {
+.body-tracking-page .goal-selector {
   display: flex;
   gap: 0.5rem;
 }
 
-.goal-btn {
+.body-tracking-page .goal-btn {
   flex: 1;
   padding: 0.75rem;
   background: var(--color-bg-secondary);
@@ -216,37 +222,39 @@
   transition: all var(--transition-fast);
 }
 
-.goal-btn.active {
-  border-color: #3b82f6;
-  color: #3b82f6;
+.body-tracking-page .goal-btn.active {
+  border-color: var(--info);
+  color: var(--info);
 }
 
-.goal-info {
+.body-tracking-page .goal-info {
   text-align: center;
   color: var(--color-text-muted);
   font-size: 0.85rem;
   margin-top: 0.5rem;
 }
 
+
 /* Water Stats */
-.stat-row {
+.body-tracking-page .stat-row {
   display: flex;
   justify-content: space-between;
   padding: 0.75rem 0;
   border-bottom: 1px solid var(--color-border);
 }
 
-.stat-row:last-child {
+.body-tracking-page .stat-row:last-child {
   border-bottom: none;
 }
 
-.stat-row .stat-value {
+.body-tracking-page .stat-row .stat-value {
   font-weight: 600;
-  color: #3b82f6;
+  color: var(--info);
 }
 
+
 /* Water History */
-.history-bars {
+.body-tracking-page .history-bars {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
@@ -254,51 +262,53 @@
   padding-top: 1rem;
 }
 
-.history-bar-container {
+.body-tracking-page .history-bar-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 30px;
 }
 
-.history-bar {
+.body-tracking-page .history-bar {
   width: 100%;
-  background: linear-gradient(180deg, #3b82f6, #60a5fa);
+  background: linear-gradient(180deg, var(--info), var(--info));
   border-radius: 4px 4px 0 0;
   min-height: 5px;
   transition: height 0.3s ease;
 }
 
-.history-bar.complete {
-  background: linear-gradient(180deg, #22c55e, #4ade80);
+.body-tracking-page .history-bar.complete {
+  background: linear-gradient(180deg, var(--success), var(--success));
 }
 
-.history-day {
+.body-tracking-page .history-day {
   font-size: 0.7rem;
   color: var(--color-text-muted);
   margin-top: 0.5rem;
 }
 
+
 /* Body Measurements */
-.body-measurements {
+.body-tracking-page .body-measurements {
   display: flex;
   flex-direction: column;
   gap: 2rem;
 }
 
-.measurements-header {
+.body-tracking-page .measurements-header {
   display: flex;
   justify-content: flex-end;
 }
 
+
 /* Measurement Summary */
-.measurement-summary {
+.body-tracking-page .measurement-summary {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 1.5rem;
 }
 
-.summary-card {
+.body-tracking-page .summary-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -306,77 +316,78 @@
   text-align: center;
 }
 
-.summary-card .summary-icon {
+.body-tracking-page .summary-card .summary-icon {
   font-size: 2rem;
   margin-bottom: 0.5rem;
 }
 
-.summary-card .summary-value {
+.body-tracking-page .summary-card .summary-value {
   font-size: 2rem;
   font-weight: 700;
   color: var(--color-accent-primary);
 }
 
-.summary-card .summary-label {
+.body-tracking-page .summary-card .summary-label {
   font-size: 0.85rem;
   color: var(--color-text-muted);
   margin-top: 0.25rem;
 }
 
-.weight-change {
+.body-tracking-page .weight-change {
   font-size: 0.85rem;
   padding: 0.25rem 0.5rem;
   border-radius: var(--radius-sm);
   margin-top: 0.5rem;
 }
 
-.weight-change.gain {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
+.body-tracking-page .weight-change.gain {
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+  color: var(--danger);
 }
 
-.weight-change.loss {
-  background: rgba(34, 197, 94, 0.1);
-  color: #22c55e;
+.body-tracking-page .weight-change.loss {
+  background: color-mix(in srgb, var(--success) 10%, transparent);
+  color: var(--success);
 }
+
 
 /* Measurements History */
-.measurements-history {
+.body-tracking-page .measurements-history {
   padding: 1.5rem;
 }
 
-.measurements-history h3 {
+.body-tracking-page .measurements-history h3 {
   margin-bottom: 1.5rem;
 }
 
-.measurements-table-container {
+.body-tracking-page .measurements-table-container {
   overflow-x: auto;
 }
 
-.measurements-table {
+.body-tracking-page .measurements-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.measurements-table th,
-.measurements-table td {
+.body-tracking-page .measurements-table th,
+.body-tracking-page .measurements-table td {
   padding: 0.75rem;
   text-align: center;
   border-bottom: 1px solid var(--color-border);
 }
 
-.measurements-table th {
+.body-tracking-page .measurements-table th {
   font-size: 0.8rem;
   color: var(--color-text-muted);
   font-weight: 500;
   text-transform: uppercase;
 }
 
-.measurements-table td {
+.body-tracking-page .measurements-table td {
   font-size: 0.9rem;
 }
 
-.btn-icon {
+.body-tracking-page .btn-icon {
   padding: 0.5rem;
   background: transparent;
   border: none;
@@ -385,69 +396,69 @@
   transition: opacity var(--transition-fast);
 }
 
-.btn-icon:hover {
+.body-tracking-page .btn-icon:hover {
   opacity: 1;
 }
 
+
 /* Empty State */
-.empty-state {
+.body-tracking-page .empty-state {
   text-align: center;
   padding: 3rem;
 }
 
-.empty-icon {
+.body-tracking-page .empty-icon {
   font-size: 4rem;
   display: block;
   margin-bottom: 1rem;
 }
 
-.empty-state p {
+.body-tracking-page .empty-state p {
   color: var(--color-text-secondary);
   margin-bottom: 1.5rem;
 }
 
+
 /* Measurement Modal */
-.measurement-modal {
+.body-tracking-page .measurement-modal {
   max-width: 600px;
   width: 90%;
 }
 
-.measurement-modal h4 {
+.body-tracking-page .measurement-modal h4 {
   margin: 1.5rem 0 1rem;
   color: var(--color-text-secondary);
   font-size: 0.9rem;
 }
 
-.form-row {
+.body-tracking-page .form-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 1rem;
 }
 
+
 /* Responsive */
 @media (max-width: 968px) {
-  .water-tracking {
+  .body-tracking-page .water-tracking {
     grid-template-columns: 1fr;
   }
   
-  .water-sidebar {
+  .body-tracking-page .water-sidebar {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  }
-}
+  }}
 
 @media (max-width: 480px) {
-  .water-circle {
+  .body-tracking-page .water-circle {
     width: 220px;
     height: 220px;
   }
   
-  .water-count {
+  .body-tracking-page .water-count {
     font-size: 3rem;
   }
   
-  .measurement-summary {
+  .body-tracking-page .measurement-summary {
     grid-template-columns: 1fr 1fr;
-  }
-}
-
+  }}

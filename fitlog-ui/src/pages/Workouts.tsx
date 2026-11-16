@@ -4,6 +4,17 @@ import workoutService from '../services/workoutService';
 import { exerciseCategories, searchExercises, ExerciseItem, getExercisesByCategory } from '../data/exerciseDatabase';
 import { workoutTemplates, programCategories, ProgramTemplate, getTemplatesByCategory, DayTemplate, ExerciseTemplate } from '../data/workoutTemplates';
 import './Workouts.css';
+import { ArrowLeft, BedDouble, Check, CircleX, ClipboardList, Dumbbell, Lightbulb, Pencil, Plus, Search, Trash2, X } from 'lucide-react';
+import { AppIcon } from '../components/AppIcon';
+
+const templateCategoryIcon: Record<string, string> = {
+  beginner: 'Sprout',
+  hypertrophy: 'BicepsFlexed',
+  strength: 'Zap',
+  'weight-loss': 'Flame',
+  'glute-focus': 'Target',
+  general: 'Heart',
+};
 
 // Düzenlenebilir şablon tipi
 interface EditableExercise extends ExerciseTemplate {
@@ -280,7 +291,7 @@ export function Workouts() {
         for (const exercise of day.exercises) {
           await workoutService.createExercise({
             workoutDayId: newDay.id,
-            name: `${exercise.icon} ${exercise.name}`,
+            name: exercise.name,
             setCount: exercise.sets,
             reps: exercise.reps,
             weight: exercise.weight,
@@ -375,7 +386,7 @@ export function Workouts() {
     if (!selectedProgram || !selectedDayId || !exerciseForm.name) return;
     try {
       const exerciseName = selectedExercise 
-        ? `${selectedExercise.icon} ${exerciseForm.name}`
+        ? exerciseForm.name
         : exerciseForm.name;
 
       const newExercise = await workoutService.createExercise({
@@ -524,7 +535,7 @@ export function Workouts() {
     <div className="workouts-page">
       <div className="container">
         <div className="workouts-header">
-          <h1>🏋️ Antrenman Programları</h1>
+          <h1><Dumbbell size="1em" aria-hidden="true" /> Antrenman Programları</h1>
           <button className="btn-primary" onClick={() => setShowProgramModal(true)}>
             + Yeni Program
           </button>
@@ -551,7 +562,7 @@ export function Workouts() {
                       className="btn-icon btn-delete"
                       onClick={(e) => { e.stopPropagation(); handleDeleteProgram(program.id); }}
                     >
-                      🗑️
+                      <Trash2 size="1em" aria-hidden="true" />
                     </button>
                   </li>
                 ))}
@@ -600,13 +611,13 @@ export function Workouts() {
                               className="btn-icon"
                               onClick={() => openExerciseModal(day.id)}
                             >
-                              ➕
+                              <Plus size="1em" aria-hidden="true" />
                             </button>
                             <button 
                               className="btn-icon btn-delete"
                               onClick={() => handleDeleteDay(day.id)}
                             >
-                              🗑️
+                              <Trash2 size="1em" aria-hidden="true" />
                             </button>
                           </div>
                         </div>
@@ -667,14 +678,14 @@ export function Workouts() {
                                           onClick={() => saveExerciseEdit(day.id, exercise.id)}
                                           title="Kaydet"
                                         >
-                                          ✓
+                                          <Check size="1em" aria-hidden="true" />
                                         </button>
                                         <button 
                                           className="btn-icon btn-cancel"
                                           onClick={cancelEditingExercise}
                                           title="İptal"
                                         >
-                                          ✕
+                                          <X size="1em" aria-hidden="true" />
                                         </button>
                                       </td>
                                     </>
@@ -689,14 +700,14 @@ export function Workouts() {
                                           onClick={() => startEditingExercise(exercise)}
                                           title="Düzenle"
                                         >
-                                          ✏️
+                                          <Pencil size="1em" aria-hidden="true" />
                                         </button>
                                         <button 
                                           className="btn-icon btn-delete small"
                                           onClick={() => handleDeleteExercise(day.id, exercise.id)}
                                           title="Sil"
                                         >
-                                          ✕
+                                          <X size="1em" aria-hidden="true" />
                                         </button>
                                       </td>
                                     </>
@@ -737,7 +748,7 @@ export function Workouts() {
                     className="mode-option template-option"
                     onClick={() => setProgramMode('template')}
                   >
-                    <span className="mode-icon">📋</span>
+                    <span className="mode-icon"><ClipboardList size="1em" aria-hidden="true" /></span>
                     <h3>Hazır Şablon Kullan</h3>
                     <p>Push-Pull-Legs, Full Body, Bro Split gibi hazır programlardan seç</p>
                   </div>
@@ -746,7 +757,7 @@ export function Workouts() {
                     className="mode-option custom-option"
                     onClick={() => setProgramMode('custom')}
                   >
-                    <span className="mode-icon">✏️</span>
+                    <span className="mode-icon"><Pencil size="1em" aria-hidden="true" /></span>
                     <h3>Kendi Programımı Oluştur</h3>
                     <p>Sıfırdan kendi antrenman programını tasarla</p>
                   </div>
@@ -768,7 +779,7 @@ export function Workouts() {
                   className="back-button"
                   onClick={() => setProgramMode('select')}
                 >
-                  ← Geri
+                  <ArrowLeft size="1em" aria-hidden="true" /> Geri
                 </button>
 
                 <div className="template-categories">
@@ -779,8 +790,7 @@ export function Workouts() {
                       className={`category-btn ${templateCategory === cat.id ? 'active' : ''}`}
                       onClick={() => handleTemplateCategory(cat.id)}
                     >
-                      <span className="category-icon">{cat.icon}</span>
-                      <span className="category-name">{cat.name}</span>
+                                            <span className="category-name">{cat.name}</span>
                     </button>
                   ))}
                 </div>
@@ -793,7 +803,7 @@ export function Workouts() {
                       onClick={() => initEditableTemplate(template)}
                     >
                       <div className="template-header">
-                        <span className="template-icon">{template.icon}</span>
+                        <span className="template-icon"><AppIcon name={templateCategoryIcon[template.category] ?? 'Dumbbell'} /></span>
                         <div className="template-info">
                           <h4>{template.name}</h4>
                           <span className="template-meta">
@@ -827,15 +837,15 @@ export function Workouts() {
                   className="back-button"
                   onClick={() => { setSelectedTemplate(null); setEditableTemplate(null); }}
                 >
-                  ← Geri
+                  <ArrowLeft size="1em" aria-hidden="true" /> Geri
                 </button>
 
                 <div className="template-preview-header">
-                  <span className="preview-icon">{selectedTemplate.icon}</span>
+                  <span className="preview-icon"><AppIcon name={templateCategoryIcon[selectedTemplate.category] ?? 'Dumbbell'} /></span>
                   <div>
                     <h3>{editableTemplate.name}</h3>
                     <p>{editableTemplate.description}</p>
-                    <span className="edit-hint">💡 Egzersizleri düzenleyebilir, ağırlık ekleyebilir veya kaldırabilirsin</span>
+                    <span className="edit-hint"><Lightbulb size="1em" aria-hidden="true" /> Egzersizleri düzenleyebilir, ağırlık ekleyebilir veya kaldırabilirsin</span>
                   </div>
                 </div>
 
@@ -845,7 +855,7 @@ export function Workouts() {
                       <div className="week-day-header">
                         <span className="week-day-badge">{dayNames[day.dayOfWeek]}</span>
                         <span className="week-day-name">
-                          {day.exercises.length === 0 ? '😴 Off Day' : day.name}
+                          {day.exercises.length === 0 ? <><BedDouble size="1em" aria-hidden="true" /> Dinlenme günü</> : day.name}
                         </span>
                         {day.exercises.length > 0 && (
                           <button 
@@ -854,7 +864,7 @@ export function Workouts() {
                             onClick={() => makeOffDay(day.id)}
                             title="Off Day Yap"
                           >
-                            ❌
+                            <CircleX size="1em" aria-hidden="true" />
                           </button>
                         )}
                       </div>
@@ -864,7 +874,7 @@ export function Workouts() {
                           {day.exercises.map((ex) => (
                             <div key={ex.id} className="editable-exercise">
                               <div className="exercise-main">
-                                <span className="exercise-icon">{ex.icon}</span>
+                                <span className="exercise-icon"><Dumbbell size="1em" aria-hidden="true" /></span>
                                 <span className="exercise-name">{ex.name}</span>
                                 <button 
                                   type="button"
@@ -931,7 +941,7 @@ export function Workouts() {
                                   className="search-result-item"
                                   onClick={() => addExerciseToTemplateDay(day.id, ex)}
                                 >
-                                  <span>{ex.icon} {ex.name}</span>
+                                  <span>{ex.name}</span>
                                   <span className="muscle-group">{ex.muscleGroup}</span>
                                 </div>
                               ))}
@@ -982,7 +992,7 @@ export function Workouts() {
                   className="back-button"
                   onClick={() => setProgramMode('select')}
                 >
-                  ← Geri
+                  <ArrowLeft size="1em" aria-hidden="true" /> Geri
                 </button>
 
                 <div className="form-group">
@@ -1070,7 +1080,7 @@ export function Workouts() {
                   <div className="search-input-wrapper">
                     <input
                       type="text"
-                      placeholder="🔍 Egzersiz ara... (örn: bench press, squat, deadlift)"
+                      placeholder="Egzersiz ara... (örn: bench press, squat, deadlift)"
                       value={searchQuery}
                       onChange={e => setSearchQuery(e.target.value)}
                       onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
@@ -1086,7 +1096,7 @@ export function Workouts() {
                           setShowSearchResults(false);
                         }}
                       >
-                        ✕
+                        <X size="1em" aria-hidden="true" />
                       </button>
                     )}
                   </div>
@@ -1100,8 +1110,7 @@ export function Workouts() {
                         className={`category-btn ${activeCategory === cat.id ? 'active' : ''}`}
                         onClick={() => handleCategoryClick(cat.id)}
                       >
-                        <span className="category-icon">{cat.icon}</span>
-                        <span className="category-name">{cat.name}</span>
+                                                <span className="category-name">{cat.name}</span>
                       </button>
                     ))}
                   </div>
@@ -1116,7 +1125,7 @@ export function Workouts() {
                           onClick={() => selectExercise(exercise)}
                         >
                           <div className="exercise-result-left">
-                            <span className="exercise-icon">{exercise.icon}</span>
+                            <span className="exercise-icon"><Dumbbell size="1em" aria-hidden="true" /></span>
                             <div className="exercise-info">
                               <span className="exercise-name">{exercise.name}</span>
                               <span className="exercise-muscle">{exercise.muscleGroup}</span>
@@ -1134,7 +1143,7 @@ export function Workouts() {
 
                   {showSearchResults && searchResults.length === 0 && searchQuery.length >= 2 && (
                     <div className="no-results">
-                      <span>🔍</span>
+                      <span><Search size="1em" aria-hidden="true" /></span>
                       <p>"{searchQuery}" için sonuç bulunamadı</p>
                     </div>
                   )}
@@ -1146,7 +1155,7 @@ export function Workouts() {
                 <>
                   <div className="selected-exercise-info">
                     <div className="selected-exercise-header">
-                      <span className="selected-icon">{selectedExercise.icon}</span>
+                      <span className="selected-icon"><Dumbbell size="1em" aria-hidden="true" /></span>
                       <div>
                         <h3>{selectedExercise.name}</h3>
                         <p>{selectedExercise.muscleGroup} • {selectedExercise.equipment}</p>

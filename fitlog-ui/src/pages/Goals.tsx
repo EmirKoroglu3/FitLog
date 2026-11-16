@@ -1,6 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../store/AuthContext';
 import './Goals.css';
+import { BarChart3, BookOpen, Calculator, CalendarDays, CircleCheck, Pin, Save, Target, Trash2, TrendingUp } from 'lucide-react';
+import { AppIcon } from '../components/AppIcon';
+import { goalsApi, type FitnessGoal, type GoalCategory, type SaveGoalRequest } from '../services/trackingService';
+import { toLocalDateInput } from '../utils/dateTime';
+
+const fromApiGoal = (g: FitnessGoal) => ({
+  id: g.id,
+  title: g.title,
+  category: g.category,
+  targetValue: g.targetValue,
+  currentValue: g.currentValue,
+  unit: g.unit,
+  deadline: g.deadline ?? undefined,
+  createdAt: g.createdAt,
+  completed: g.completed,
+});
 
 interface Goal {
   id: string;
@@ -15,6 +31,7 @@ interface Goal {
 }
 
 interface OneRMRecord {
+  id: string;
   exercise: string;
   weight: number;
   date: string;
@@ -39,15 +56,14 @@ export function Goals() {
   const [calcExercise, setCalcExercise] = useState('');
   const [oneRMRecords, setOneRMRecords] = useState<OneRMRecord[]>([]);
 
-  // Kullanıcı bazlı localStorage key
-  const getStorageKey = (key: string) => user ? `${key}_${user.id}` : key;
+  const [error, setError] = useState<string | null>(null);
 
   const categoryOptions = [
-    { value: 'strength', label: 'Güç/Kaldırma', icon: '🏋️' },
-    { value: 'weight', label: 'Kilo', icon: '⚖️' },
-    { value: 'body', label: 'Vücut Ölçüsü', icon: '📏' },
-    { value: 'habit', label: 'Alışkanlık', icon: '✅' },
-    { value: 'nutrition', label: 'Beslenme', icon: '🍎' }
+    { value: 'strength', label: 'Güç/Kaldırma', icon: 'Dumbbell' },
+    { value: 'weight', label: 'Kilo', icon: 'Scale' },
+    { value: 'body', label: 'Vücut Ölçüsü', icon: 'Ruler' },
+    { value: 'habit', label: 'Alışkanlık', icon: 'CircleCheck' },
+    { value: 'nutrition', label: 'Beslenme', icon: 'Apple' }
   ];
 
   const commonExercises = [
@@ -57,50 +73,58 @@ export function Goals() {
 
   useEffect(() => {
     if (!user) return;
-    
-    const savedGoals = localStorage.getItem(getStorageKey('fitnessGoals'));
-    const savedRecords = localStorage.getItem(getStorageKey('oneRMRecords'));
-    
-    if (savedGoals) setGoals(JSON.parse(savedGoals));
-    if (savedRecords) setOneRMRecords(JSON.parse(savedRecords));
+    Promise.all([goalsApi.list(), goalsApi.oneRepMax()])
+      .then(([g, r]) => {
+        setGoals(g.map(fromApiGoal));
+        // oldest first, so "latest" is the last element
+        setOneRMRecords(r.map(x => ({ id: x.id, exercise: x.exerciseName, weight: x.weightKg, date: x.date })).reverse());
+      })
+      .catch(() => setError('Hedefler yüklenemedi.'));
   }, [user]);
 
-  const saveGoal = () => {
-    const goal: Goal = {
-      id: Date.now().toString(),
-      title: newGoal.title || '',
-      category: newGoal.category as Goal['category'] || 'strength',
-      targetValue: newGoal.targetValue || 0,
-      currentValue: newGoal.currentValue || 0,
-      unit: newGoal.unit || '',
-      deadline: newGoal.deadline,
-      createdAt: new Date().toISOString(),
-      completed: false
-    };
-    
-    const updated = [...goals, goal];
-    setGoals(updated);
-    localStorage.setItem(getStorageKey('fitnessGoals'), JSON.stringify(updated));
-    setShowGoalModal(false);
-    setNewGoal({ category: 'strength' });
+  const toRequest = (g: Partial<Goal>): SaveGoalRequest => ({
+    title: (g.title || '').trim(),
+    category: (g.category as GoalCategory) || 'strength',
+    targetValue: Number(g.targetValue) || 0,
+    currentValue: Number(g.currentValue) || 0,
+    unit: g.unit || '',
+    deadline: g.deadline || null,
+    completed: !!g.completed,
+  });
+
+  const saveGoal = async () => {
+    if (!newGoal.title?.trim()) return;
+    try {
+      const created = await goalsApi.create(toRequest(newGoal));
+      setGoals(gs => [fromApiGoal(created), ...gs]);
+      setShowGoalModal(false);
+      setNewGoal({ category: 'strength' });
+    } catch {
+      setError('Hedef kaydedilemedi.');
+    }
   };
 
-  const updateGoalProgress = (id: string, currentValue: number) => {
-    const updated = goals.map(g => {
-      if (g.id === id) {
-        const completed = currentValue >= g.targetValue;
-        return { ...g, currentValue, completed };
-      }
-      return g;
-    });
-    setGoals(updated);
-    localStorage.setItem(getStorageKey('fitnessGoals'), JSON.stringify(updated));
+  const updateGoalProgress = async (id: string, currentValue: number) => {
+    const goal = goals.find(g => g.id === id);
+    if (!goal) return;
+    const next = { ...goal, currentValue, completed: currentValue >= goal.targetValue };
+    setGoals(gs => gs.map(g => (g.id === id ? next : g)));
+    try {
+      await goalsApi.update(id, toRequest(next));
+    } catch {
+      setGoals(gs => gs.map(g => (g.id === id ? goal : g)));
+      setError('İlerleme kaydedilemedi.');
+    }
   };
 
-  const deleteGoal = (id: string) => {
-    const updated = goals.filter(g => g.id !== id);
-    setGoals(updated);
-    localStorage.setItem(getStorageKey('fitnessGoals'), JSON.stringify(updated));
+  const deleteGoal = async (id: string) => {
+    if (!confirm('Bu hedef silinsin mi?')) return;
+    try {
+      await goalsApi.remove(id);
+      setGoals(gs => gs.filter(g => g.id !== id));
+    } catch {
+      setError('Hedef silinemedi.');
+    }
   };
 
   // 1RM Hesaplama (Brzycki Formülü)
@@ -112,19 +136,15 @@ export function Goals() {
     setCalcResult(Math.round(oneRM * 10) / 10);
   };
 
-  const save1RMRecord = () => {
+  const save1RMRecord = async () => {
     if (!calcResult || !calcExercise) return;
-    
-    const record: OneRMRecord = {
-      exercise: calcExercise,
-      weight: calcResult,
-      date: new Date().toISOString()
-    };
-    
-    const updated = [...oneRMRecords, record];
-    setOneRMRecords(updated);
-    localStorage.setItem(getStorageKey('oneRMRecords'), JSON.stringify(updated));
-    setShowCalcModal(true);
+    try {
+      const r = await goalsApi.addOneRepMax({ exerciseName: calcExercise, weightKg: calcResult, date: toLocalDateInput() });
+      setOneRMRecords(rs => [...rs, { id: r.id, exercise: r.exerciseName, weight: r.weightKg, date: r.date }]);
+      setShowCalcModal(true);
+    } catch {
+      setError('Rekor kaydedilemedi.');
+    }
   };
 
   const getPercentages = (oneRM: number) => {
@@ -151,15 +171,21 @@ export function Goals() {
   };
 
   const getCategoryIcon = (category: string) => {
-    return categoryOptions.find(c => c.value === category)?.icon || '🎯';
+    return <AppIcon name={categoryOptions.find(c => c.value === category)?.icon ?? 'Target'} />;
   };
 
   return (
     <div className="goals-page">
       <div className="container">
         <div className="goals-header">
-          <h1>🎯 Hedefler & Araçlar</h1>
+          <h1><Target size="1em" aria-hidden="true" /> Hedefler & Araçlar</h1>
         </div>
+
+        {error && (
+          <div className="error-banner" role="alert">
+            {error}
+          </div>
+        )}
 
         {/* Tab Navigation */}
         <div className="tab-nav">
@@ -167,13 +193,13 @@ export function Goals() {
             className={`tab-btn ${activeTab === 'goals' ? 'active' : ''}`}
             onClick={() => setActiveTab('goals')}
           >
-            🎯 Hedeflerim
+            <Target size="1em" aria-hidden="true" /> Hedeflerim
           </button>
           <button 
             className={`tab-btn ${activeTab === 'calculator' ? 'active' : ''}`}
             onClick={() => setActiveTab('calculator')}
           >
-            🔢 1RM Hesaplayıcı
+            <Calculator size="1em" aria-hidden="true" /> 1RM Hesaplayıcı
           </button>
         </div>
 
@@ -188,11 +214,11 @@ export function Goals() {
 
             {/* Aktif Hedefler */}
             <div className="goals-section">
-              <h2>📌 Aktif Hedefler</h2>
+              <h2><Pin size="1em" aria-hidden="true" /> Aktif Hedefler</h2>
               
               {goals.filter(g => !g.completed).length === 0 ? (
                 <div className="empty-state card">
-                  <span className="empty-icon">🎯</span>
+                  <span className="empty-icon"><Target size="1em" aria-hidden="true" /></span>
                   <p>Henüz aktif hedef yok</p>
                   <button className="btn-primary" onClick={() => setShowGoalModal(true)}>
                     İlk Hedefini Belirle
@@ -214,7 +240,7 @@ export function Goals() {
                           className="btn-icon delete"
                           onClick={() => deleteGoal(goal.id)}
                         >
-                          🗑️
+                          <Trash2 size="1em" aria-hidden="true" />
                         </button>
                       </div>
                       
@@ -243,7 +269,7 @@ export function Goals() {
 
                       {goal.deadline && (
                         <div className="goal-deadline">
-                          📅 {new Date(goal.deadline).toLocaleDateString('tr-TR')}
+                          <CalendarDays size="1em" aria-hidden="true" /> {new Date(`${goal.deadline}T00:00`).toLocaleDateString('tr-TR')}
                         </div>
                       )}
                     </div>
@@ -255,18 +281,18 @@ export function Goals() {
             {/* Tamamlanan Hedefler */}
             {goals.filter(g => g.completed).length > 0 && (
               <div className="goals-section completed-section">
-                <h2>✅ Tamamlanan Hedefler</h2>
+                <h2><CircleCheck size="1em" aria-hidden="true" /> Tamamlanan Hedefler</h2>
                 <div className="completed-goals">
                   {goals.filter(g => g.completed).map(goal => (
                     <div key={goal.id} className="completed-goal-item">
-                      <span className="check">✅</span>
+                      <span className="check"><CircleCheck size="1em" aria-hidden="true" /></span>
                       <span className="title">{goal.title}</span>
                       <span className="value">{goal.targetValue} {goal.unit}</span>
                       <button 
                         className="btn-icon"
                         onClick={() => deleteGoal(goal.id)}
                       >
-                        🗑️
+                        <Trash2 size="1em" aria-hidden="true" />
                       </button>
                     </div>
                   ))}
@@ -280,7 +306,7 @@ export function Goals() {
             <div className="calc-layout">
               {/* Hesaplayıcı */}
               <div className="calculator-card card">
-                <h2>🔢 1RM Hesaplayıcı</h2>
+                <h2><Calculator size="1em" aria-hidden="true" /> 1RM Hesaplayıcı</h2>
                 <p className="calc-description">
                   Kaldırdığınız ağırlık ve tekrar sayısına göre tahmini maksimum kaldırma ağırlığınızı hesaplayın.
                 </p>
@@ -343,13 +369,13 @@ export function Goals() {
                         className="btn-secondary btn-save"
                         onClick={save1RMRecord}
                       >
-                        💾 Kaydet
+                        <Save size="1em" aria-hidden="true" /> Kaydet
                       </button>
                     )}
 
                     {/* Yüzde Tablosu */}
                     <div className="percentages-table">
-                      <h4>📊 Antrenman Yüzdeleri</h4>
+                      <h4><BarChart3 size="1em" aria-hidden="true" /> Antrenman Yüzdeleri</h4>
                       <table>
                         <thead>
                           <tr>
@@ -376,7 +402,7 @@ export function Goals() {
               {/* 1RM Geçmişi */}
               <div className="records-sidebar">
                 <div className="records-card card">
-                  <h3>📈 1RM Rekorlarım</h3>
+                  <h3><TrendingUp size="1em" aria-hidden="true" /> 1RM Rekorlarım</h3>
                   
                   {oneRMRecords.length === 0 ? (
                     <p className="no-records">Henüz kayıt yok</p>
@@ -391,7 +417,7 @@ export function Goals() {
                             <span className="record-exercise">{exercise}</span>
                             <span className="record-weight">{record.weight} kg</span>
                             <span className="record-date">
-                              {new Date(record.date).toLocaleDateString('tr-TR')}
+                              {new Date(`${record.date}T00:00`).toLocaleDateString('tr-TR')}
                             </span>
                           </div>
                         );
@@ -402,7 +428,7 @@ export function Goals() {
 
                 {/* Formül Açıklaması */}
                 <div className="formula-card card">
-                  <h3>📚 Brzycki Formülü</h3>
+                  <h3><BookOpen size="1em" aria-hidden="true" /> Brzycki Formülü</h3>
                   <div className="formula">
                     <code>1RM = W × (36 / (37 - R))</code>
                   </div>
@@ -425,7 +451,7 @@ export function Goals() {
         <div className="modal-overlay" onClick={() => setShowGoalModal(false)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>🎯 Yeni Hedef</h2>
+              <h2><Target size="1em" aria-hidden="true" /> Yeni Hedef</h2>
               <button className="btn-close" onClick={() => setShowGoalModal(false)}>×</button>
             </div>
             
@@ -448,7 +474,7 @@ export function Goals() {
                 >
                   {categoryOptions.map(opt => (
                     <option key={opt.value} value={opt.value}>
-                      {opt.icon} {opt.label}
+                      {opt.label}
                     </option>
                   ))}
                 </select>
@@ -515,7 +541,7 @@ export function Goals() {
         <div className="modal-overlay" onClick={() => setShowCalcModal(false)}>
           <div className="modal-content small" onClick={e => e.stopPropagation()}>
             <div className="success-modal">
-              <span className="success-icon">✅</span>
+              <span className="success-icon"><CircleCheck size="1em" aria-hidden="true" /></span>
               <h3>{calcExercise} için 1RM kaydedildi!</h3>
               <p>{calcResult} kg</p>
               <button className="btn-primary" onClick={() => setShowCalcModal(false)}>

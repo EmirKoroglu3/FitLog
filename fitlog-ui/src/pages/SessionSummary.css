@@ -1,0 +1,92 @@
+.summary-page {
+  padding: 2rem 0 4rem;
+}
+
+.summary-page .container {
+  max-width: 640px;
+}
+
+.summary-page .summary-loading {
+  display: grid;
+  place-items: center;
+  min-height: 40vh;
+}
+
+.summary-page .back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.summary-page .summary-card {
+  padding: 2rem;
+  border-radius: var(--radius-xl);
+  background: #18181b;
+  color: #fafafa;
+  border-top: 6px solid #ea580c;
+}
+
+.summary-page .summary-card .eyebrow {
+  color: #fb923c;
+  text-transform: capitalize;
+  letter-spacing: 0.04em;
+}
+
+.summary-page .summary-card h1 {
+  color: #fafafa;
+  font-size: 2.8rem;
+  text-transform: uppercase;
+  margin: 0.25rem 0 1.5rem;
+}
+
+.summary-page .summary-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #3f3f46;
+}
+
+.summary-page .summary-stats strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.summary-page .summary-stats span {
+  color: #a1a1aa;
+  font-size: 0.9rem;
+}
+
+.summary-page .summary-lines {
+  list-style: none;
+  margin-top: 1rem;
+}
+
+.summary-page .summary-lines li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #27272a;
+  color: #d4d4d8;
+}
+
+.summary-page .summary-lines strong {
+  color: #fafafa;
+}
+
+.summary-page .summary-notes {
+  margin-top: 1rem;
+  color: #a1a1aa;
+}
+
+.summary-page .summary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}

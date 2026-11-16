@@ -1,0 +1,87 @@
+.macro-progress {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem 1.5rem;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.macro-progress.empty {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--text-2);
+}
+
+.macro-progress.empty svg {
+  color: var(--primary);
+}
+
+.macro-row-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.9rem;
+}
+
+.macro-name {
+  font-weight: 600;
+}
+
+.macro-values {
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.macro-values strong {
+  color: var(--text);
+}
+
+.macro-bar {
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--surface-hover);
+  overflow: hidden;
+}
+
+.macro-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary);
+  transition: width var(--transition-slow);
+}
+
+.macro-bar.protein > span { background: #ea580c; }
+.macro-bar.carb > span { background: var(--info); }
+.macro-bar.fat > span { background: var(--warning); }
+.macro-bar.over > span { background: var(--danger); }
+
+.macro-left {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.macro-left.over {
+  color: var(--danger);
+}
+
+@media (max-width: 900px) {
+  .macro-progress {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .macro-progress {
+    grid-template-columns: 1fr;
+  }
+}

@@ -2,6 +2,7 @@ import { useState, FormEvent } from 'react';
 import aiCoachService from '../services/aiCoachService';
 import type { AiCoachAnalysisResponse } from '../types/aicoach';
 import './Coach.css';
+import { Bot, CircleCheck, CircleX, ClipboardList, TriangleAlert } from 'lucide-react';
 
 const GOAL_LABELS: Record<number, string> = {
   0: 'Bulk (Kilo al)',
@@ -48,7 +49,7 @@ export function Coach() {
     <div className="coach-page">
       <div className="container">
         <section className="coach-header animate-slideUp">
-          <h1>🤖 AI Koç</h1>
+          <h1><Bot size="1em" aria-hidden="true" /> AI Koç</h1>
           <p>Son 30 günlük antrenman ve beslenme verine göre kişiselleştirilmiş öneri al.</p>
         </section>
 
@@ -125,14 +126,16 @@ export function Coach() {
 
         {result && (
           <div className="coach-result animate-slideUp">
-            <h2>📋 Sonuçlar</h2>
+            <h2><ClipboardList size="1em" aria-hidden="true" /> Sonuçlar</h2>
 
             <div className="result-metrics">
               <h3>Hesaplanan metrikler</h3>
               <p>Ortalama haftalık kalori: <strong>{result.calculatedMetrics.averageWeeklyCalories.toFixed(0)}</strong></p>
               <p>Ortalama haftalık protein: <strong>{result.calculatedMetrics.averageWeeklyProtein.toFixed(0)} g</strong></p>
               <p>Makro (P/C/Y): %{result.calculatedMetrics.proteinPercent.toFixed(0)} / %{result.calculatedMetrics.carbsPercent.toFixed(0)} / %{result.calculatedMetrics.fatPercent.toFixed(0)}</p>
-              <p>Progressive overload: {result.calculatedMetrics.progressiveOverloadDetected ? '✅ Evet' : '❌ Hayır'}</p>
+              <p>Progressive overload: {result.calculatedMetrics.progressiveOverloadDetected
+                  ? <><CircleCheck size="1em" aria-hidden="true" /> Evet</>
+                  : <><CircleX size="1em" aria-hidden="true" /> Hayır</>}</p>
               {result.calculatedMetrics.plateauDetected && (
                 <p className="plateau-warn">Plateau: {result.calculatedMetrics.plateauExercises.join(', ')}</p>
               )}
@@ -156,7 +159,7 @@ export function Coach() {
             </div>
             {result.plateauWarning && (
               <div className="result-warning">
-                <h3>⚠️ Plateau uyarısı</h3>
+                <h3><TriangleAlert size="1em" aria-hidden="true" /> Plateau uyarısı</h3>
                 <p>{result.plateauWarning}</p>
               </div>
             )}

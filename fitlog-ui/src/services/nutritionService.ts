@@ -1,4 +1,5 @@
 import apiClient from '../api/client';
+import { localDayRange } from '../utils/dateTime';
 import {
   NutritionLogDto,
   CreateNutritionLogRequest,
@@ -20,9 +21,12 @@ export const nutritionService = {
     return response.data;
   },
 
-  async getDailySummary(date?: string): Promise<NutritionSummaryDto> {
-    const params = date ? `?date=${date}` : '';
-    const response = await apiClient.get<NutritionSummaryDto>(`/nutrition/summary${params}`);
+  /** Totals for the user's *local* day (defaults to today). */
+  async getDailySummary(day: Date = new Date()): Promise<NutritionSummaryDto> {
+    const { start, end } = localDayRange(day);
+    const response = await apiClient.get<NutritionSummaryDto>('/nutrition/summary', {
+      params: { start, end },
+    });
     return response.data;
   },
 

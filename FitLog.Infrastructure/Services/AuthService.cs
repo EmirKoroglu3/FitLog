@@ -5,7 +5,9 @@ using System.Text;
 using FitLog.Application.DTOs.Auth;
 using FitLog.Application.Interfaces;
 using FitLog.Infrastructure.Identity;
+using FitLog.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -22,12 +24,16 @@ public class AuthService : IAuthService
     private readonly IEmailSender _emailSender;
     private readonly IConfiguration _configuration;
 
+    private readonly FitLogDbContext _db;
+
     public AuthService(
         UserManager<ApplicationUser> userManager,
         IOptions<JwtSettings> jwtSettings,
         IEmailSender emailSender,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        FitLogDbContext db)
     {
+        _db = db;
         _userManager = userManager;
         _jwtSettings = jwtSettings.Value;
         _emailSender = emailSender;
@@ -69,11 +75,7 @@ public class AuthService : IAuthService
         }
 
         var token = GenerateJwtToken(user);
-        var refreshToken = GenerateRefreshToken();
-
-        user.RefreshToken = refreshToken;
-        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationInDays);
-        await _userManager.UpdateAsync(user);
+        var refreshToken = await IssueRefreshTokenAsync(user.Id, cancellationToken);
 
         return new AuthResponse
         {
@@ -117,11 +119,7 @@ public class AuthService : IAuthService
         }
 
         var token = GenerateJwtToken(user);
-        var refreshToken = GenerateRefreshToken();
-
-        user.RefreshToken = refreshToken;
-        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationInDays);
-        await _userManager.UpdateAsync(user);
+        var refreshToken = await IssueRefreshTokenAsync(user.Id, cancellationToken);
 
         return new AuthResponse
         {
@@ -142,20 +140,22 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponse?> RefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
     {
-        var users = _userManager.Users.Where(u => u.RefreshToken == refreshToken).ToList();
-        var user = users.FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(refreshToken)) return null;
 
-        if (user == null || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+        var hash = HashToken(refreshToken);
+        var stored = await _db.UserRefreshTokens.FirstOrDefaultAsync(t => t.TokenHash == hash, cancellationToken);
+        if (stored == null || stored.ExpiresAt <= DateTime.UtcNow)
         {
             return null;
         }
 
-        var newToken = GenerateJwtToken(user);
-        var newRefreshToken = GenerateRefreshToken();
+        var user = await _userManager.FindByIdAsync(stored.UserId.ToString());
+        if (user == null) return null;
 
-        user.RefreshToken = newRefreshToken;
-        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationInDays);
-        await _userManager.UpdateAsync(user);
+        // Rotate: this device's old token stops working, other devices are unaffected.
+        _db.UserRefreshTokens.Remove(stored);
+        var newToken = GenerateJwtToken(user);
+        var newRefreshToken = await IssueRefreshTokenAsync(user.Id, cancellationToken);
 
         return new AuthResponse
         {
@@ -256,6 +256,9 @@ public class AuthService : IAuthService
             };
         }
 
+        // A new password signs out every device
+        await _db.UserRefreshTokens.Where(t => t.UserId == user.Id).ExecuteDeleteAsync(cancellationToken);
+
         return new AuthResponse
         {
             Success = true,
@@ -286,6 +289,30 @@ public class AuthService : IAuthService
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+
+    /// <summary>Creates a refresh token for one device and stores only its hash.</summary>
+    private async Task<string> IssueRefreshTokenAsync(Guid userId, CancellationToken ct)
+    {
+        var raw = GenerateRefreshToken();
+        var now = DateTime.UtcNow;
+
+        // Housekeeping: drop this user's expired tokens
+        await _db.UserRefreshTokens.Where(t => t.UserId == userId && t.ExpiresAt <= now).ExecuteDeleteAsync(ct);
+
+        _db.UserRefreshTokens.Add(new UserRefreshToken
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            TokenHash = HashToken(raw),
+            CreatedAt = now,
+            ExpiresAt = now.AddDays(_jwtSettings.RefreshTokenExpirationInDays),
+        });
+        await _db.SaveChangesAsync(ct);
+        return raw;
+    }
+
+    private static string HashToken(string token) =>
+        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
 
     private static string GenerateRefreshToken()
     {

@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../store/AuthContext';
 import './BodyTracking.css';
+import { ProgressPhotos } from '../components/ProgressPhotos';
+import { toLocalDateInput } from '../utils/dateTime';
+import { useSettings } from '../store/SettingsContext';
+import { cmToUnit, formatLength, formatNumber, formatWeight, kgToUnit, unitToCm, unitToKg, type LengthUnit, type WeightUnit } from '../utils/units';
+import { bodyApi, type BodyMeasurement as ApiMeasurement } from '../services/trackingService';
+import { Camera, BarChart3, BicepsFlexed, CalendarDays, ClipboardList, Droplet, PartyPopper, Ruler, Scale, Target, Trash2 } from 'lucide-react';
 
 interface WaterLog {
   date: string;
@@ -21,10 +27,45 @@ interface BodyMeasurement {
   neck?: number;
 }
 
+/** Form values are typed in the user's units; the API stores kg / cm. */
+const toApi = (m: Partial<BodyMeasurement>, fallbackDate: string, wu: WeightUnit, lu: LengthUnit) => {
+  const len = (v?: number) => (v == null || Number.isNaN(v) ? null : unitToCm(v, lu));
+  return {
+    date: m.date || fallbackDate,
+    weightKg: m.weight == null || Number.isNaN(m.weight) ? null : unitToKg(m.weight, wu),
+    bodyFatPercent: m.bodyFat ?? null,
+    chest: len(m.chest),
+    waist: len(m.waist),
+    hips: len(m.hips),
+    biceps: len(m.biceps),
+    thigh: len(m.thighs),
+    calf: len(m.calves),
+    neck: len(m.neck),
+  };
+};
+
+const fromApi = (m: ApiMeasurement): BodyMeasurement => ({
+  id: m.id,
+  date: m.date,
+  weight: m.weightKg ?? undefined,
+  bodyFat: m.bodyFatPercent ?? undefined,
+  chest: m.chest ?? undefined,
+  waist: m.waist ?? undefined,
+  hips: m.hips ?? undefined,
+  biceps: m.biceps ?? undefined,
+  thighs: m.thigh ?? undefined,
+  calves: m.calf ?? undefined,
+  neck: m.neck ?? undefined,
+});
+
 export function BodyTracking() {
   const { user } = useAuth();
-  const today = new Date().toISOString().split('T')[0];
-  const [waterGoal, setWaterGoal] = useState(8);
+  const { settings, update: updateSettings } = useSettings();
+  const today = toLocalDateInput();
+  const waterGoal = settings.waterGoalGlasses;
+  const wUnit = settings.weightUnit;
+  const lUnit = settings.measurementUnit;
+  const len = (cm?: number) => (cm == null ? '-' : formatLength(cm, lUnit));
   const [todayWater, setTodayWater] = useState(0);
   const [waterLogs, setWaterLogs] = useState<WaterLog[]>([]);
   const [measurements, setMeasurements] = useState<BodyMeasurement[]>([]);
@@ -32,79 +73,58 @@ export function BodyTracking() {
   const [newMeasurement, setNewMeasurement] = useState<Partial<BodyMeasurement>>({
     date: today
   });
-  const [activeTab, setActiveTab] = useState<'water' | 'body'>('water');
-
-  // Kullanıcı bazlı localStorage key
-  const getStorageKey = (key: string) => user ? `${key}_${user.id}` : key;
+  const [activeTab, setActiveTab] = useState<'water' | 'body' | 'photos'>('water');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
-    
-    // LocalStorage'dan verileri yükle - kullanıcı bazlı
-    const savedWaterLogs = localStorage.getItem(getStorageKey('waterLogs'));
-    const savedMeasurements = localStorage.getItem(getStorageKey('bodyMeasurements'));
-    const savedWaterGoal = localStorage.getItem(getStorageKey('waterGoal'));
-    
-    if (savedWaterLogs) {
-      const logs: WaterLog[] = JSON.parse(savedWaterLogs);
-      setWaterLogs(logs);
-      const todayLog = logs.find(l => l.date === today);
-      if (todayLog) setTodayWater(todayLog.glasses);
-    }
-    
-    if (savedMeasurements) {
-      setMeasurements(JSON.parse(savedMeasurements));
-    }
-    
-    if (savedWaterGoal) {
-      setWaterGoal(parseInt(savedWaterGoal));
-    }
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 30);
+    Promise.all([bodyApi.water(toLocalDateInput(weekAgo), today), bodyApi.measurements()])
+      .then(([water, ms]) => {
+        setWaterLogs(water);
+        setTodayWater(water.find(l => l.date === today)?.glasses ?? 0);
+        setMeasurements(ms.map(fromApi));
+      })
+      .catch(() => setError('Veriler yüklenemedi.'));
   }, [user]);
 
-  const addWater = (amount: number = 1) => {
+  const addWater = async (amount: number = 1) => {
     const newAmount = Math.max(0, todayWater + amount);
+    const previous = todayWater;
     setTodayWater(newAmount);
-    
-    const updatedLogs = waterLogs.filter(l => l.date !== today);
-    updatedLogs.push({ date: today, glasses: newAmount });
-    setWaterLogs(updatedLogs);
-    localStorage.setItem(getStorageKey('waterLogs'), JSON.stringify(updatedLogs));
+    setWaterLogs(logs => [...logs.filter(l => l.date !== today), { date: today, glasses: newAmount }]);
+    try {
+      await bodyApi.setWater(today, newAmount);
+    } catch {
+      setTodayWater(previous);
+      setError('Su kaydı kaydedilemedi.');
+    }
   };
 
   const updateWaterGoal = (goal: number) => {
-    setWaterGoal(goal);
-    localStorage.setItem(getStorageKey('waterGoal'), goal.toString());
+    updateSettings({ waterGoalGlasses: goal }).catch(() => setError('Hedef kaydedilemedi.'));
   };
 
-  const saveMeasurement = () => {
-    const measurement: BodyMeasurement = {
-      id: Date.now().toString(),
-      date: newMeasurement.date || today,
-      weight: newMeasurement.weight,
-      bodyFat: newMeasurement.bodyFat,
-      chest: newMeasurement.chest,
-      waist: newMeasurement.waist,
-      hips: newMeasurement.hips,
-      biceps: newMeasurement.biceps,
-      thighs: newMeasurement.thighs,
-      calves: newMeasurement.calves,
-      neck: newMeasurement.neck
-    };
-    
-    const updatedMeasurements = [...measurements, measurement].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
-    
-    setMeasurements(updatedMeasurements);
-    localStorage.setItem(getStorageKey('bodyMeasurements'), JSON.stringify(updatedMeasurements));
-    setShowMeasurementModal(false);
-    setNewMeasurement({ date: today });
+  const saveMeasurement = async () => {
+    try {
+      const saved = fromApi(await bodyApi.addMeasurement(toApi(newMeasurement, today, wUnit, lUnit)));
+      setMeasurements(ms => [...ms, saved].sort((a, b) => b.date.localeCompare(a.date)));
+      setShowMeasurementModal(false);
+      setNewMeasurement({ date: today });
+    } catch {
+      setError('Ölçüm kaydedilemedi. Değerleri kontrol et.');
+    }
   };
 
-  const deleteMeasurement = (id: string) => {
-    const updatedMeasurements = measurements.filter(m => m.id !== id);
-    setMeasurements(updatedMeasurements);
-    localStorage.setItem(getStorageKey('bodyMeasurements'), JSON.stringify(updatedMeasurements));
+  const deleteMeasurement = async (id: string) => {
+    if (!confirm('Bu ölçüm silinsin mi?')) return;
+    try {
+      await bodyApi.deleteMeasurement(id);
+      setMeasurements(ms => ms.filter(m => m.id !== id));
+    } catch {
+      setError('Ölçüm silinemedi.');
+    }
   };
 
   const getProgressPercent = (current: number, goal: number) => {
@@ -114,7 +134,7 @@ export function BodyTracking() {
   const getWeeklyWaterAverage = () => {
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
-    const weekLogs = waterLogs.filter(l => new Date(l.date) >= weekAgo);
+    const weekLogs = waterLogs.filter(l => l.date >= toLocalDateInput(weekAgo));
     if (weekLogs.length === 0) return 0;
     return (weekLogs.reduce((sum, l) => sum + l.glasses, 0) / weekLogs.length).toFixed(1);
   };
@@ -142,7 +162,13 @@ export function BodyTracking() {
   return (
     <div className="body-tracking-page">
       <div className="container">
-        <h1>📏 Vücut Takibi</h1>
+        <h1><Ruler size="1em" aria-hidden="true" /> Vücut Takibi</h1>
+
+        {error && (
+          <div className="error-banner" role="alert">
+            {error}
+          </div>
+        )}
 
         {/* Tab Navigation */}
         <div className="tab-nav">
@@ -150,17 +176,25 @@ export function BodyTracking() {
             className={`tab-btn ${activeTab === 'water' ? 'active' : ''}`}
             onClick={() => setActiveTab('water')}
           >
-            💧 Su Takibi
+            <Droplet size="1em" aria-hidden="true" /> Su Takibi
           </button>
           <button 
             className={`tab-btn ${activeTab === 'body' ? 'active' : ''}`}
             onClick={() => setActiveTab('body')}
           >
-            📐 Vücut Ölçüleri
+            <Ruler size="1em" aria-hidden="true" /> Vücut Ölçüleri
+          </button>
+          <button
+            className={`tab-btn ${activeTab === 'photos' ? 'active' : ''}`}
+            onClick={() => setActiveTab('photos')}
+          >
+            <Camera size="1em" aria-hidden="true" /> Fotoğraflar
           </button>
         </div>
 
-        {activeTab === 'water' ? (
+        {activeTab === 'photos' ? (
+          <ProgressPhotos />
+        ) : activeTab === 'water' ? (
           /* Su Takibi Tab */
           <div className="water-tracking">
             <div className="water-main card">
@@ -180,7 +214,7 @@ export function BodyTracking() {
                     />
                   </svg>
                   <div className="water-info">
-                    <span className="water-icon">💧</span>
+                    <span className="water-icon"><Droplet size="1em" aria-hidden="true" /></span>
                     <span className="water-count">{todayWater}</span>
                     <span className="water-goal">/ {waterGoal} bardak</span>
                   </div>
@@ -203,14 +237,14 @@ export function BodyTracking() {
                     className="quick-btn"
                     onClick={() => addWater(num)}
                   >
-                    +{num} 💧
+                    +{num} <Droplet size="1em" aria-hidden="true" />
                   </button>
                 ))}
               </div>
 
               {todayWater >= waterGoal && (
                 <div className="goal-reached">
-                  🎉 Günlük hedefinize ulaştınız!
+                  <PartyPopper size="1em" aria-hidden="true" /> Günlük hedefinize ulaştınız!
                 </div>
               )}
             </div>
@@ -218,7 +252,7 @@ export function BodyTracking() {
             <div className="water-sidebar">
               {/* Hedef Ayarı */}
               <div className="water-goal-card card">
-                <h3>🎯 Günlük Hedef</h3>
+                <h3><Target size="1em" aria-hidden="true" /> Günlük Hedef</h3>
                 <div className="goal-selector">
                   {[6, 8, 10, 12].map(goal => (
                     <button
@@ -235,7 +269,7 @@ export function BodyTracking() {
 
               {/* İstatistikler */}
               <div className="water-stats card">
-                <h3>📊 İstatistikler</h3>
+                <h3><BarChart3 size="1em" aria-hidden="true" /> İstatistikler</h3>
                 <div className="stat-row">
                   <span>Bugün</span>
                   <span className="stat-value">{todayWater} bardak</span>
@@ -254,12 +288,12 @@ export function BodyTracking() {
 
               {/* Son 7 Gün */}
               <div className="water-history card">
-                <h3>📅 Son 7 Gün</h3>
+                <h3><CalendarDays size="1em" aria-hidden="true" /> Son 7 Gün</h3>
                 <div className="history-bars">
                   {Array.from({ length: 7 }).map((_, i) => {
                     const date = new Date();
                     date.setDate(date.getDate() - (6 - i));
-                    const dateStr = date.toISOString().split('T')[0];
+                    const dateStr = toLocalDateInput(date);
                     const log = waterLogs.find(l => l.date === dateStr);
                     const percent = log ? getProgressPercent(log.glasses, waterGoal) : 0;
                     
@@ -294,20 +328,20 @@ export function BodyTracking() {
             {/* Özet Kartları */}
             <div className="measurement-summary">
               <div className="summary-card card">
-                <span className="summary-icon">⚖️</span>
+                <span className="summary-icon"><Scale size="1em" aria-hidden="true" /></span>
                 <span className="summary-value">
-                  {getLatestMeasurement('weight') || '-'} kg
+                  {formatWeight(getLatestMeasurement('weight') as number | undefined, wUnit)}
                 </span>
                 <span className="summary-label">Son Kilo</span>
                 {weightChange !== null && (
                   <span className={`weight-change ${weightChange > 0 ? 'gain' : 'loss'}`}>
-                    {weightChange > 0 ? '+' : ''}{weightChange.toFixed(1)} kg
+                    {weightChange > 0 ? '+' : ''}{formatWeight(weightChange, wUnit)}
                   </span>
                 )}
               </div>
               
               <div className="summary-card card">
-                <span className="summary-icon">📊</span>
+                <span className="summary-icon"><BarChart3 size="1em" aria-hidden="true" /></span>
                 <span className="summary-value">
                   {getLatestMeasurement('bodyFat') || '-'}%
                 </span>
@@ -315,17 +349,17 @@ export function BodyTracking() {
               </div>
               
               <div className="summary-card card">
-                <span className="summary-icon">📏</span>
+                <span className="summary-icon"><Ruler size="1em" aria-hidden="true" /></span>
                 <span className="summary-value">
-                  {getLatestMeasurement('waist') || '-'} cm
+                  {len(getLatestMeasurement('waist') as number | undefined)}
                 </span>
                 <span className="summary-label">Bel</span>
               </div>
               
               <div className="summary-card card">
-                <span className="summary-icon">💪</span>
+                <span className="summary-icon"><BicepsFlexed size="1em" aria-hidden="true" /></span>
                 <span className="summary-value">
-                  {getLatestMeasurement('biceps') || '-'} cm
+                  {len(getLatestMeasurement('biceps') as number | undefined)}
                 </span>
                 <span className="summary-label">Biceps</span>
               </div>
@@ -333,11 +367,11 @@ export function BodyTracking() {
 
             {/* Ölçüm Geçmişi */}
             <div className="measurements-history card">
-              <h3>📋 Ölçüm Geçmişi</h3>
+              <h3><ClipboardList size="1em" aria-hidden="true" /> Ölçüm Geçmişi</h3>
               
               {measurements.length === 0 ? (
                 <div className="empty-state">
-                  <span className="empty-icon">📐</span>
+                  <span className="empty-icon"><Ruler size="1em" aria-hidden="true" /></span>
                   <p>Henüz ölçüm eklenmedi</p>
                   <button 
                     className="btn-primary"
@@ -352,7 +386,7 @@ export function BodyTracking() {
                     <thead>
                       <tr>
                         <th>Tarih</th>
-                        <th>Kilo (kg)</th>
+                        <th>Kilo ({wUnit})</th>
                         <th>Yağ (%)</th>
                         <th>Göğüs</th>
                         <th>Bel</th>
@@ -365,20 +399,20 @@ export function BodyTracking() {
                     <tbody>
                       {measurements.map(m => (
                         <tr key={m.id}>
-                          <td>{new Date(m.date).toLocaleDateString('tr-TR')}</td>
-                          <td>{m.weight || '-'}</td>
+                          <td>{new Date(`${m.date}T00:00`).toLocaleDateString('tr-TR')}</td>
+                          <td>{m.weight != null ? formatNumber(kgToUnit(m.weight, wUnit), 1) : '-'}</td>
                           <td>{m.bodyFat || '-'}</td>
-                          <td>{m.chest || '-'}</td>
-                          <td>{m.waist || '-'}</td>
-                          <td>{m.hips || '-'}</td>
-                          <td>{m.biceps || '-'}</td>
-                          <td>{m.thighs || '-'}</td>
+                          <td>{m.chest != null ? formatNumber(cmToUnit(m.chest, lUnit), 1) : '-'}</td>
+                          <td>{m.waist != null ? formatNumber(cmToUnit(m.waist, lUnit), 1) : '-'}</td>
+                          <td>{m.hips != null ? formatNumber(cmToUnit(m.hips, lUnit), 1) : '-'}</td>
+                          <td>{m.biceps != null ? formatNumber(cmToUnit(m.biceps, lUnit), 1) : '-'}</td>
+                          <td>{m.thighs != null ? formatNumber(cmToUnit(m.thighs, lUnit), 1) : '-'}</td>
                           <td>
                             <button 
                               className="btn-icon delete"
                               onClick={() => deleteMeasurement(m.id)}
                             >
-                              🗑️
+                              <Trash2 size="1em" aria-hidden="true" />
                             </button>
                           </td>
                         </tr>
@@ -397,7 +431,7 @@ export function BodyTracking() {
         <div className="modal-overlay" onClick={() => setShowMeasurementModal(false)}>
           <div className="modal-content measurement-modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>📏 Yeni Ölçüm</h2>
+              <h2><Ruler size="1em" aria-hidden="true" /> Yeni Ölçüm</h2>
               <button className="btn-close" onClick={() => setShowMeasurementModal(false)}>×</button>
             </div>
             
@@ -413,7 +447,7 @@ export function BodyTracking() {
               
               <div className="form-row">
                 <div className="form-group">
-                  <label>Kilo (kg)</label>
+                  <label>Kilo ({wUnit})</label>
                   <input 
                     type="number" 
                     step="0.1"
@@ -434,7 +468,7 @@ export function BodyTracking() {
                 </div>
               </div>
 
-              <h4>📐 Çevre Ölçüleri (cm)</h4>
+              <h4><Ruler size="1em" aria-hidden="true" /> Çevre Ölçüleri ({lUnit === 'cm' ? 'cm' : 'inç'})</h4>
               
               <div className="form-row">
                 <div className="form-group">

@@ -1,0 +1,127 @@
+.workout-tools {
+  width: 100%;
+  max-width: 520px;
+  margin: 1.25rem auto 0;
+}
+
+.tool-tabs {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tool-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.9rem;
+  border-radius: var(--radius-full);
+  background: var(--surface-2);
+  color: var(--text-2);
+  border: 1px solid var(--border);
+}
+
+.tool-tabs button:hover,
+.tool-tabs button.active {
+  color: var(--text);
+  border-color: var(--primary);
+}
+
+.tool-panel {
+  margin-top: 0.75rem;
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  text-align: left;
+  color: var(--text-2);
+  font-size: 0.95rem;
+}
+
+.tool-panel p + p {
+  margin-top: 0.5rem;
+}
+
+.tool-panel .muted {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.plates {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  overflow-x: auto;
+}
+
+.plates::before {
+  content: '';
+  width: 36px;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--border-strong);
+  flex-shrink: 0;
+}
+
+.plate {
+  display: grid;
+  place-items: center;
+  min-width: 30px;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.warmup-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.warmup-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.45rem 0.7rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.tool-panel .btn-secondary {
+  width: 100%;
+  padding: 0.6rem 1rem;
+}
+
+.tool-panel.guide ol {
+  margin: 0.6rem 0 0 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: var(--text);
+}
+
+.tool-panel .tip {
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
+  background: var(--primary-soft);
+  color: var(--text);
+}
+
+.tool-panel .muscles strong {
+  color: var(--text);
+}

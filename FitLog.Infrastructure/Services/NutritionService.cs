@@ -96,13 +96,22 @@ public class NutritionService : INutritionService
 
     public async Task<NutritionSummaryDto> GetDailySummaryAsync(Guid userId, DateTime date, CancellationToken cancellationToken = default)
     {
+        var dayStart = DateTime.SpecifyKind(date.Date, DateTimeKind.Utc);
+        return await GetSummaryForRangeAsync(userId, dayStart, dayStart.AddDays(1), cancellationToken);
+    }
+
+    public async Task<NutritionSummaryDto> GetSummaryForRangeAsync(Guid userId, DateTime start, DateTime end, CancellationToken cancellationToken = default)
+    {
+        var from = start.ToUniversalTime();
+        var to = end.ToUniversalTime();
+
         var logs = await _context.NutritionLogs
-            .Where(n => n.UserId == userId && n.Date.Date == date.Date)
+            .Where(n => n.UserId == userId && n.Date >= from && n.Date < to)
             .ToListAsync(cancellationToken);
 
         return new NutritionSummaryDto
         {
-            Date = date,
+            Date = from,
             TotalCalories = logs.Sum(l => l.Calories),
             TotalProtein = logs.Sum(l => l.Protein),
             TotalCarbohydrates = logs.Sum(l => l.Carbohydrates ?? 0),
