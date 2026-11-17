@@ -466,3 +466,31 @@
   .body-tracking-page .measurement-summary {
     grid-template-columns: 1fr 1fr;
   }}
+/* Auto body-fat estimate inside the measurement form */
+.body-tracking-page .bodyfat-estimate {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-height: 2.9rem;
+  padding: 0.5rem 0.8rem;
+  border-radius: var(--radius-md);
+  background: var(--primary-soft);
+  color: var(--text);
+}
+
+.body-tracking-page .bodyfat-estimate strong {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  color: var(--primary-solid);
+}
+
+.body-tracking-page .bodyfat-estimate span {
+  font-size: 0.78rem;
+  color: var(--text-2);
+}
+
+.body-tracking-page .bodyfat-estimate.empty {
+  background: var(--surface-2);
+}

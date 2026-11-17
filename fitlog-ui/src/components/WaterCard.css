@@ -1,0 +1,111 @@
+.water-card {
+  margin-bottom: 1.5rem;
+}
+
+.water-card .water-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.water-card .water-card-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.water-card .water-card-total {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
+.water-card .water-card-total svg {
+  align-self: center;
+  color: var(--info);
+}
+
+.water-card .water-card-total small {
+  font-size: 1rem;
+  color: var(--text-2);
+}
+
+.water-card .water-card-sub {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.85rem;
+  color: var(--text-2);
+}
+
+.water-card .water-card-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.water-card .water-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  min-width: 2.75rem;
+  height: 2.75rem;
+  padding: 0 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.water-card .water-btn.add {
+  border-color: transparent;
+  background: var(--info);
+  color: #fff;
+}
+
+.water-card .water-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.water-card .water-card-bar {
+  height: 0.6rem;
+  border-radius: var(--radius-full);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.water-card .water-card-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--info);
+  transition: width var(--transition-base);
+}
+
+.water-card .water-card-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.6rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.water-card .water-card-foot a {
+  font-weight: 600;
+  color: var(--primary-solid);
+}
+
+.water-card .water-card-error {
+  color: var(--danger);
+}

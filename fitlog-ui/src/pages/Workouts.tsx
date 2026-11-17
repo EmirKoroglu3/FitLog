@@ -7,6 +7,7 @@ import './Workouts.css';
 import { ArrowLeft, BedDouble, Check, CircleX, ClipboardList, Dumbbell, Lightbulb, Pencil, Plus, Search, Trash2, X } from 'lucide-react';
 import { AppIcon } from '../components/AppIcon';
 import { useConfirm } from '../components/ConfirmProvider';
+import { WEEK_ORDER, byMondayFirst } from '../utils/weekdays';
 
 const templateCategoryIcon: Record<string, string> = {
   beginner: 'Sprout',
@@ -125,10 +126,10 @@ export function Workouts() {
 
   // Şablon seçildiğinde düzenlenebilir hale getir
   const initEditableTemplate = (template: ProgramTemplate) => {
-    // Haftanın 7 günü için tam liste oluştur (0=Pazar, 6=Cumartesi)
+    // Haftanın 7 günü için tam liste oluştur (Pazartesi başta, Pazar sonda)
     const allDays: EditableDay[] = [];
     
-    for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
+    for (const dayOfWeek of WEEK_ORDER) {
       const existingDay = template.days.find(d => d.dayOfWeek === dayOfWeek);
       
       if (existingDay) {
@@ -603,12 +604,7 @@ export function Workouts() {
                     </div>
                   ) : (
                     [...selectedProgram.workoutDays]
-                      .sort((a, b) => {
-                        // Pazartesi'den başla (1), Pazar sona (0 -> 7)
-                        const orderA = a.dayOfWeek === 0 ? 7 : a.dayOfWeek;
-                        const orderB = b.dayOfWeek === 0 ? 7 : b.dayOfWeek;
-                        return orderA - orderB;
-                      })
+                      .sort(byMondayFirst)
                       .map(day => (
                       <div key={day.id} className="day-card card">
                         <div className="day-header">
@@ -1049,8 +1045,8 @@ export function Workouts() {
                   value={dayForm.dayOfWeek}
                   onChange={e => setDayForm({...dayForm, dayOfWeek: parseInt(e.target.value)})}
                 >
-                  {dayNames.map((name, index) => (
-                    <option key={index} value={index}>{name}</option>
+                  {WEEK_ORDER.map((dow) => (
+                    <option key={dow} value={dow}>{dayNames[dow]}</option>
                   ))}
                 </select>
               </div>

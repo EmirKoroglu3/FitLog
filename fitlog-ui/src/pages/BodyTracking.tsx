@@ -8,6 +8,9 @@ import { cmToUnit, formatLength, formatNumber, formatWeight, kgToUnit, unitToCm,
 import { bodyApi, type BodyMeasurement as ApiMeasurement } from '../services/trackingService';
 import { Camera, BarChart3, BicepsFlexed, CalendarDays, ClipboardList, Droplet, PartyPopper, Ruler, Scale, Target, Trash2 } from 'lucide-react';
 import { useConfirm } from '../components/ConfirmProvider';
+import profileService from '../services/profileService';
+import type { ProfileDto } from '../types/profile';
+import { ageFromBirthDate, estimateBodyFat } from '../utils/bodyFat';
 
 interface WaterLog {
   date: string;
@@ -77,6 +80,7 @@ export function BodyTracking() {
   });
   const [activeTab, setActiveTab] = useState<'water' | 'body' | 'photos'>('water');
   const [error, setError] = useState<string | null>(null);
+  const [profile, setProfile] = useState<ProfileDto | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -89,7 +93,22 @@ export function BodyTracking() {
         setMeasurements(ms.map(fromApi));
       })
       .catch(() => setError('Veriler yüklenemedi.'));
+    profileService.getProfile().then(setProfile).catch(() => {});
   }, [user]);
+
+  // Body fat is estimated from the profile + this measurement instead of being typed in
+  const toCm = (v?: number) => (v == null || Number.isNaN(v) ? undefined : unitToCm(v, lUnit));
+  const formWeightKg = newMeasurement.weight == null || Number.isNaN(newMeasurement.weight) ? undefined : unitToKg(newMeasurement.weight, wUnit);
+  const bodyFatEstimate = estimateBodyFat({
+    gender: profile?.gender,
+    heightCm: profile?.height,
+    weightKg: formWeightKg ?? measurements.find((m) => m.weight != null)?.weight ?? profile?.weight,
+    ageYears: profile?.age ?? ageFromBirthDate(profile?.birthDate),
+    waistCm: toCm(newMeasurement.waist),
+    neckCm: toCm(newMeasurement.neck),
+    hipCm: toCm(newMeasurement.hips),
+  });
+  const isFemaleProfile = (profile?.gender ?? '').toLocaleLowerCase('tr-TR').startsWith('kad');
 
   const addWater = async (amount: number = 1) => {
     const newAmount = Math.max(0, todayWater + amount);
@@ -110,7 +129,8 @@ export function BodyTracking() {
 
   const saveMeasurement = async () => {
     try {
-      const saved = fromApi(await bodyApi.addMeasurement(toApi(newMeasurement, today, wUnit, lUnit)));
+      const withEstimate = { ...newMeasurement, bodyFat: bodyFatEstimate?.percent };
+      const saved = fromApi(await bodyApi.addMeasurement(toApi(withEstimate, today, wUnit, lUnit)));
       setMeasurements(ms => [...ms, saved].sort((a, b) => b.date.localeCompare(a.date)));
       setShowMeasurementModal(false);
       setNewMeasurement({ date: today });
@@ -347,7 +367,7 @@ export function BodyTracking() {
                 <span className="summary-value">
                   {getLatestMeasurement('bodyFat') || '-'}%
                 </span>
-                <span className="summary-label">Vücut Yağı</span>
+                <span className="summary-label">Vücut Yağı (tahmini)</span>
               </div>
               
               <div className="summary-card card">
@@ -459,14 +479,19 @@ export function BodyTracking() {
                   />
                 </div>
                 <div className="form-group">
-                  <label>Vücut Yağı (%)</label>
-                  <input 
-                    type="number" 
-                    step="0.1"
-                    placeholder="15"
-                    value={newMeasurement.bodyFat || ''}
-                    onChange={e => setNewMeasurement({...newMeasurement, bodyFat: parseFloat(e.target.value) || undefined})}
-                  />
+                  <label>Vücut Yağı (tahmini)</label>
+                  <div className={`bodyfat-estimate ${bodyFatEstimate ? '' : 'empty'}`} aria-live="polite">
+                    <strong>{bodyFatEstimate ? `%${formatNumber(bodyFatEstimate.percent, 1)}` : '–'}</strong>
+                    <span>
+                      {!profile?.height
+                        ? 'Tahmin için profilinde boy olmalı.'
+                        : bodyFatEstimate?.method === 'navy'
+                          ? 'Bel ve boyun ölçüne göre (ABD Donanması yöntemi)'
+                          : bodyFatEstimate
+                            ? `Boy-kilo-yaşa göre kaba tahmin. Bel + boyun${isFemaleProfile ? ' + kalça' : ''} girersen daha doğru olur.`
+                            : 'Kilonu gir, otomatik hesaplansın.'}
+                    </span>
+                  </div>
                 </div>
               </div>
 

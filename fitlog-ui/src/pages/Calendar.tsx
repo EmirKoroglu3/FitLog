@@ -9,6 +9,7 @@ import { sessionsApi } from '../services/trackingService';
 import { CardioModal } from '../components/CardioModal';
 import { HeartPulse, Share2, ArrowLeft, ArrowRight, BarChart3, BedDouble, CalendarDays, Check, CircleCheck, Dumbbell, Flame, Lightbulb, MapPin, Play, Timer, Trash2 } from 'lucide-react';
 import { useConfirm } from '../components/ConfirmProvider';
+import { mondayIndex } from '../utils/weekdays';
 
 interface WorkoutLog {
   sessionIds: string[];
@@ -38,7 +39,7 @@ export function Calendar() {
     'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
   ];
 
-  const dayNames = ['Pzr', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
+  const dayNames = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Pzr']; // grid header, Monday first
   const dayNamesFull = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
 
   // Kullanıcı bazlı localStorage key'leri
@@ -129,7 +130,7 @@ export function Calendar() {
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
-    const startingDay = firstDay.getDay();
+    const startingDay = mondayIndex(firstDay.getDay()); // empty cells before the 1st (Monday-first grid)
     
     return { daysInMonth, startingDay };
   };

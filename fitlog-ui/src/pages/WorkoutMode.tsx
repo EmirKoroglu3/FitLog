@@ -12,6 +12,7 @@ import { CardioModal } from '../components/CardioModal';
 import './WorkoutMode.css';
 import { HeartPulse, ArrowLeft, ArrowRight, BedDouble, BicepsFlexed, CalendarDays, Check, Circle, CircleCheck, CircleDot, ClipboardList, Dumbbell, Flag, Hourglass, MapPin, NotebookPen, PartyPopper, Pause, Play, Plus, Repeat, Timer, Trophy, Weight, Wind } from 'lucide-react';
 import { useConfirm } from '../components/ConfirmProvider';
+import { byMondayFirst } from '../utils/weekdays';
 
 /** Previous working sets per exercise name, newest session first. */
 type LastPerformance = Record<string, SessionSet[]>;
@@ -425,8 +426,8 @@ export function WorkoutMode() {
                 <div className="day-selection">
                   <h3><CalendarDays size="1em" aria-hidden="true" /> Gün Seç</h3>
                   <div className="day-cards">
-                    {selectedProgram.workoutDays
-                      .sort((a, b) => a.dayOfWeek - b.dayOfWeek)
+                    {[...selectedProgram.workoutDays]
+                      .sort(byMondayFirst)
                       .map(day => {
                         const isOffDay = day.exercises.length === 0;
                         const isToday = day.dayOfWeek === todayDayOfWeek;

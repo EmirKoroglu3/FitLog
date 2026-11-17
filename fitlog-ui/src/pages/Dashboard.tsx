@@ -9,8 +9,10 @@ import './Dashboard.css';
 import { MacroProgress } from '../components/MacroProgress';
 import { SupplementChecklist } from '../components/SupplementChecklist';
 import { BurnCard } from '../components/BurnCard';
+import { WaterCard } from '../components/WaterCard';
 import { ArrowRight, Beef, BicepsFlexed, Dumbbell, Flame, Nut, Pill, Salad, Wheat } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext';
+import { byMondayFirst } from '../utils/weekdays';
 
 export function Dashboard() {
   const { t } = useI18n();
@@ -97,6 +99,8 @@ export function Dashboard() {
 
         <BurnCard caloriesIn={nutritionSummary?.totalCalories} />
 
+        <WaterCard />
+
         <SupplementChecklist compact />
 
         {/* Quick Actions */}
@@ -135,7 +139,7 @@ export function Dashboard() {
                   <h3>{program.name}</h3>
                   <p className="text-muted">{program.description || 'Açıklama yok'}</p>
                   <div className="program-days">
-                    {program.workoutDays.slice(0, 3).map((day) => (
+                    {[...program.workoutDays].sort(byMondayFirst).slice(0, 3).map((day) => (
                       <span key={day.id} className="day-badge">
                         {getDayName(day.dayOfWeek)}
                       </span>
