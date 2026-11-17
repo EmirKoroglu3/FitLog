@@ -1,0 +1,28 @@
+# Render Blueprint: one free web service for the API (database lives on Neon).
+# Secrets use `sync: false`, so Render asks for them in the dashboard instead of reading them from git.
+services:
+  - type: web
+    name: fitlog-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: ConnectionStrings__DefaultConnection
+        sync: false # Neon: Host=...;Database=...;Username=...;Password=...;SSL Mode=Require
+      - key: JwtSettings__Secret
+        generateValue: true
+      - key: Cors__AllowedOrigins__0
+        value: https://emirkoroglu.online
+      - key: Cors__AllowedOrigins__1
+        value: https://www.emirkoroglu.online
+      - key: FrontendUrl
+        value: https://emirkoroglu.online
+      - key: SendGrid__ApiKey
+        sync: false
+      - key: SendGrid__FromEmail
+        sync: false
+      - key: Database__AutoMigrate
+        value: "true"

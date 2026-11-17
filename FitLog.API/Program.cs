@@ -3,6 +3,10 @@ using FitLog.API.Services;
 using FitLog.Application;
 using FitLog.Application.Interfaces;
 using FitLog.Infrastructure;
+using System.Threading.RateLimiting;
+using FitLog.Infrastructure.Persistence;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -60,26 +64,53 @@ builder.Services.AddHttpContextAccessor();
 // Current User Service
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
-// CORS
+// CORS: allowed origins come from configuration (Cors__AllowedOrigins__0=https://... in production)
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+if (builder.Environment.IsDevelopment())
+{
+    allowedOrigins = allowedOrigins.Concat(new[] { "http://localhost:5173", "http://localhost:4173" }).ToArray();
+}
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins(
-                "http://localhost:5173", 
-                "http://localhost:5174",
-                "http://localhost:5175",
-                "http://localhost:5176",
-                "http://localhost:5177",
-                "http://localhost:3000"
-              )
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
     });
 });
 
+// Behind Render's proxy: trust X-Forwarded-For/Proto so HTTPS redirection and client IPs are correct
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
+// Brute-force protection for login/register/password reset: 10 requests per minute per IP
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("auth", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
+});
+
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
+
+app.UseForwardedHeaders();
+
+// Apply pending EF Core migrations on startup (single instance on Render). Disable with Database__AutoMigrate=false.
+if (app.Configuration.GetValue("Database:AutoMigrate", true))
+{
+    using var scope = app.Services.CreateScope();
+    scope.ServiceProvider.GetRequiredService<FitLogDbContext>().Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -94,9 +125,10 @@ if (app.Environment.IsDevelopment())
 // Global Exception Handling
 app.UseExceptionHandling();
 
-// HTTPS Redirection - Production'da aktif
+// HTTPS Redirection + HSTS - Production'da aktif
 if (!app.Environment.IsDevelopment())
 {
+    app.UseHsts();
     app.UseHttpsRedirection();
 }
 
@@ -104,9 +136,11 @@ if (!app.Environment.IsDevelopment())
 app.UseCors("AllowFrontend");
 
 // Authentication & Authorization
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapHealthChecks("/health");
 app.MapControllers();
 
 app.Run();

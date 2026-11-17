@@ -2,6 +2,7 @@ using FitLog.Application.DTOs.Auth;
 using FitLog.Application.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace FitLog.API.Controllers;
 
@@ -10,6 +11,7 @@ namespace FitLog.API.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[EnableRateLimiting("auth")]
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;

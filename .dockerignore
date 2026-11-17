@@ -1,0 +1,12 @@
+**/bin
+**/obj
+**/node_modules
+fitlog-ui
+testsprite_tests
+.git
+.vs
+.vscode
+.local
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/*.user
