@@ -9,6 +9,7 @@ import './Nutrition.css';
 import { MacroProgress } from '../components/MacroProgress';
 import { localDayRange, localInputsToIso, toLocalDateInput, toLocalTimeInput } from '../utils/dateTime';
 import { Beef, ChevronLeft, ChevronRight, Copy, Flame, Nut, Pencil, Plus, Salad, Search, Star, Trash2, Utensils, Wheat, X } from 'lucide-react';
+import { useConfirm } from '../components/ConfirmProvider';
 
 type Mode = 'serving' | 'gram';
 
@@ -56,6 +57,7 @@ const emptyCustom = { name: '', servingSize: '100', servingUnit: 'g', calories: 
 const addDays = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
 
 export function Nutrition() {
+  const { confirm } = useConfirm();
   const { user } = useAuth();
   const { settings, update: updateSettings } = useSettings();
   const [day, setDay] = useState(() => addDays(new Date(), 0));
@@ -203,7 +205,7 @@ export function Nutrition() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Bu kaydı silmek istediğinizden emin misiniz?')) return;
+    if (!(await confirm({ title: 'Öğün silinsin mi?', message: 'Bu öğün kaydı kalıcı olarak silinecek.', confirmText: 'Sil', danger: true }))) return;
     try {
       await nutritionService.deleteLog(id);
       setLogs(logs.filter((l) => l.id !== id));
@@ -226,7 +228,7 @@ export function Nutrition() {
         setError('Önceki günde kopyalanacak öğün yok.');
         return;
       }
-      if (!confirm(`${prevLogs.length} öğün ${day.toLocaleDateString('tr-TR')} tarihine kopyalansın mı?`)) return;
+      if (!(await confirm({ title: 'Öğünler kopyalansın mı?', message: `Önceki günün ${prevLogs.length} öğünü ${day.toLocaleDateString('tr-TR')} tarihine aynı saatlerle eklenecek.`, confirmText: 'Kopyala' }))) return;
       for (const l of prevLogs) {
         await nutritionService.createLog({
           date: localInputsToIso(toLocalDateInput(day), toLocalTimeInput(new Date(l.date))),
@@ -362,7 +364,7 @@ export function Nutrition() {
   };
 
   const deleteCustomFood = async (food: FoodItem) => {
-    if (!confirm(`"${food.name}" silinsin mi?`)) return;
+    if (!(await confirm({ title: `"${food.name}" silinsin mi?`, message: 'Bu yiyecek listenden kaldırılır; eski öğün kayıtların etkilenmez.', confirmText: 'Sil', danger: true }))) return;
     try {
       await customFoodsApi.remove(food.id.slice(CUSTOM_PREFIX.length));
       setCustomFoods((c) => c.filter((f) => f.id !== food.id));

@@ -10,12 +10,13 @@ public class AiCoachAnalysisRequestValidator : AbstractValidator<AiCoachAnalysis
 {
     public AiCoachAnalysisRequestValidator()
     {
+        // 0 = use the value from the profile / latest measurement
         RuleFor(x => x.Height)
-            .GreaterThan(0).WithMessage("Boy 0'dan büyük olmalıdır.")
+            .Must(h => h == 0 || h >= 100).WithMessage("Boy 100 cm'den büyük olmalıdır.")
             .LessThanOrEqualTo(300).WithMessage("Boy geçerli bir değer olmalıdır (cm).");
 
         RuleFor(x => x.Weight)
-            .GreaterThan(0).WithMessage("Kilo 0'dan büyük olmalıdır.")
+            .Must(w => w == 0 || w >= 30).WithMessage("Kilo 30 kg'dan büyük olmalıdır.")
             .LessThanOrEqualTo(500).WithMessage("Kilo geçerli bir değer olmalıdır (kg).");
 
         RuleFor(x => x.BodyFatPercentage)

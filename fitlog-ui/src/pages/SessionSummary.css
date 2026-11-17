@@ -23,19 +23,21 @@
 .summary-page .summary-card {
   padding: 2rem;
   border-radius: var(--radius-xl);
-  background: #18181b;
-  color: #fafafa;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
   border-top: 6px solid #ea580c;
+  box-shadow: var(--shadow-md);
 }
 
 .summary-page .summary-card .eyebrow {
-  color: #fb923c;
+  color: var(--primary-solid);
   text-transform: capitalize;
   letter-spacing: 0.04em;
 }
 
 .summary-page .summary-card h1 {
-  color: #fafafa;
+  color: var(--text);
   font-size: 2.8rem;
   text-transform: uppercase;
   margin: 0.25rem 0 1.5rem;
@@ -46,7 +48,7 @@
   flex-wrap: wrap;
   gap: 1.5rem 2.5rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid #3f3f46;
+  border-bottom: 1px solid var(--border);
 }
 
 .summary-page .summary-stats strong {
@@ -57,7 +59,7 @@
 }
 
 .summary-page .summary-stats span {
-  color: #a1a1aa;
+  color: var(--text-muted);
   font-size: 0.9rem;
 }
 
@@ -71,17 +73,17 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 0.6rem 0;
-  border-bottom: 1px solid #27272a;
-  color: #d4d4d8;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-2);
 }
 
 .summary-page .summary-lines strong {
-  color: #fafafa;
+  color: var(--text);
 }
 
 .summary-page .summary-notes {
   margin-top: 1rem;
-  color: #a1a1aa;
+  color: var(--text-muted);
 }
 
 .summary-page .summary-actions {

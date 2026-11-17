@@ -3,6 +3,7 @@ import { AuthProvider } from './store/AuthContext';
 import { ThemeProvider } from './store/ThemeContext';
 import { SettingsProvider, useSettings } from './store/SettingsContext';
 import { I18nProvider, useI18n } from './i18n/I18nContext';
+import { ConfirmProvider } from './components/ConfirmProvider';
 import { useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -43,6 +44,7 @@ function App() {
     <I18nProvider>
     <AuthProvider>
     <SettingsProvider>
+    <ConfirmProvider>
       <BrowserRouter>
         <LanguageSync />
         <Navbar />
@@ -75,6 +77,7 @@ function App() {
           </Routes>
         </main>
       </BrowserRouter>
+    </ConfirmProvider>
     </SettingsProvider>
     </AuthProvider>
     </I18nProvider>

@@ -11,6 +11,7 @@ import { WorkoutTools } from '../components/WorkoutTools';
 import { CardioModal } from '../components/CardioModal';
 import './WorkoutMode.css';
 import { HeartPulse, ArrowLeft, ArrowRight, BedDouble, BicepsFlexed, CalendarDays, Check, Circle, CircleCheck, CircleDot, ClipboardList, Dumbbell, Flag, Hourglass, MapPin, NotebookPen, PartyPopper, Pause, Play, Plus, Repeat, Timer, Trophy, Weight, Wind } from 'lucide-react';
+import { useConfirm } from '../components/ConfirmProvider';
 
 /** Previous working sets per exercise name, newest session first. */
 type LastPerformance = Record<string, SessionSet[]>;
@@ -25,6 +26,7 @@ const BEEP =
   'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2teleB0HOnHc+Y1uDA0se/D/o3YNFR9P6P+5jBEOGULZ8sSdGREWNsTnxqciGQ8wpNbMq0QhExqXwtDAdD8WHot/2/+FRCUbZnfi/55OJRpCUNz9p1omHCk+0f61eCYaMzC++reKKR4qKKjqw50qISkfoNzGqjQnJxWN0M+zQiwlDYHM37NFLSQHdsjmvVYtIwVrxea8XT0lCWPC5rtiRSoKXLzluWtMKgtXteC3dVQpDF6y3rB+WiQOYa7dq4ZeHxBeotuojGIbE1ie1qWQZhgWUJjRo5ZpFBhKksyhnWwRGkWLx52hcQ4cQIfCm6V2DBw9g76YqXoKHzl+uZasfAggNHqzk69/ByM4ebKPsIEFJjh4r4uwgwMoPnmsjbGDBys+eKiLs4QCLT93pYu0hQEvPXaijLWGADA8daCKtoYAMTt0nYm3hwAxOnOaibiHADI5cpWIuIgAMjlyko+3hwAzOXGQjrWGADQ4cI6NtYUANDdvjIy0hAA1NW6KirODADY0bYmJsoIANjNsiImxgQA3M2uGh7CAADY0aoaGr38ANjNphYWufgA3MmmDg6x9ADcyZ4KCq3wAODFmgYGqewA4MGV/f6l6ADkwZH5+qHkAOS9jfX2neAA6L2J8fKZ3ADovYXt7pXYAOy5gem1/dAAA';
 
 export function WorkoutMode() {
+  const { confirm } = useConfirm();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { settings } = useSettings();
@@ -341,8 +343,8 @@ export function WorkoutMode() {
     }
   };
 
-  const exitWorkout = () => {
-    if (inProgress && !confirm('Kaydedilmemiş setlerin var. Antrenmanı bitirip kaydetmek için "Bitir"i kullan. Yine de çıkılsın mı?')) return;
+  const exitWorkout = async () => {
+    if (inProgress && !(await confirm({ title: 'Antrenmandan çıkılsın mı?', message: 'Kaydedilmemiş setlerin var. Kaydetmek için önce "Bitir"e bas. Çıkarsan bu setler kaybolur.', confirmText: 'Kaydetmeden çık', cancelText: 'Antrenmana dön', danger: true }))) return;
     navigate('/workouts');
   };
 
@@ -355,7 +357,7 @@ export function WorkoutMode() {
   // Loading
   if (loading) {
     return (
-      <div className="workout-mode-page force-dark">
+      <div className="workout-mode-page">
         <div className="loading-container">
           <div className="loading-spinner"><Hourglass size="1em" aria-hidden="true" /> Yükleniyor...</div>
         </div>
@@ -369,7 +371,7 @@ export function WorkoutMode() {
     const todayDayOfWeek = new Date().getDay();
     
     return (
-      <div className="workout-mode-page force-dark">
+      <div className="workout-mode-page">
         <div className="program-select-container">
           <div className="select-header">
             <h1><Timer size="1em" aria-hidden="true" /> Antrenman Başlat</h1>
@@ -479,7 +481,7 @@ export function WorkoutMode() {
   if (!currentExercise) return null;
 
   return (
-    <div className="workout-mode-page force-dark">
+    <div className="workout-mode-page">
       {/* Header */}
       <div className="workout-mode-header">
         <button className="btn-back" onClick={exitWorkout}>

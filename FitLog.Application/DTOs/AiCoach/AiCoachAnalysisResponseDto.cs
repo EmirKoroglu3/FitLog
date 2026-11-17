@@ -11,6 +11,14 @@ public class AiCoachAnalysisResponseDto
     public string MacroSuggestion { get; set; } = string.Empty;
     public string PlateauWarning { get; set; } = string.Empty;
     public string RawAiRecommendation { get; set; } = string.Empty;
+    /// <summary>Short overall summary sentence.</summary>
+    public string Summary { get; set; } = string.Empty;
+    /// <summary>Personal findings, most important first.</summary>
+    public List<CoachInsightDto> Insights { get; set; } = new();
+    public CoachTargetsDto Targets { get; set; } = new();
+    public CoachStatsDto Stats { get; set; } = new();
+    /// <summary>rules | openai</summary>
+    public string Source { get; set; } = "rules";
     public AiCoachCalculatedMetricsDto CalculatedMetrics { get; set; } = new();
 }
 

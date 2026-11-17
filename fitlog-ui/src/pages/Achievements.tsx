@@ -245,7 +245,7 @@ export function Achievements() {
       {showUnlockModal && newlyUnlocked && (
         <div className="modal-overlay" onClick={() => setShowUnlockModal(false)}>
           <div 
-            className="unlock-modal force-dark"
+            className="unlock-modal"
             onClick={e => e.stopPropagation()}
             style={{ '--rarity-color': rarityColors[newlyUnlocked.rarity] } as React.CSSProperties}
           >

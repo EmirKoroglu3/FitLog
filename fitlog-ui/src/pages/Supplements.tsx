@@ -5,8 +5,10 @@ import { supplementCategories, searchSupplements, SupplementItem, getSupplements
 import './Supplements.css';
 import { SupplementChecklist } from '../components/SupplementChecklist';
 import { AlarmClock, FlaskConical, NotebookPen, Pencil, Pill, Search, Trash2, X } from 'lucide-react';
+import { useConfirm } from '../components/ConfirmProvider';
 
 export function Supplements() {
+  const { confirm } = useConfirm();
   const [supplements, setSupplements] = useState<SupplementDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -88,7 +90,7 @@ export function Supplements() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Bu takviyeyi silmek istediğinizden emin misiniz?')) return;
+    if (!(await confirm({ title: 'Takviye silinsin mi?', message: 'Takviye ve "bugün aldım" işaretleri silinecek.', confirmText: 'Sil', danger: true }))) return;
     try {
       await supplementService.deleteSupplement(id);
       setSupplements(supplements.filter(s => s.id !== id));

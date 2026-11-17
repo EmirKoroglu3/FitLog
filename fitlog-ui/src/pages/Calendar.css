@@ -693,3 +693,33 @@
   display: flex;
   gap: 0.5rem;
 }
+
+
+/* Month navigation: centre the arrow inside the circle */
+.calendar-page .calendar-nav button {
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  line-height: 0;
+}
+
+.calendar-page .calendar-nav button:hover {
+  color: var(--on-primary);
+}
+
+/* Keep day-cell labels inside the cell */
+.calendar-page .calendar-day {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.calendar-page .workout-indicator {
+  max-width: 100%;
+  min-width: 0;
+  padding: 0 4px;
+}
+
+.calendar-page .workout-name-mini {
+  display: block;
+  font-size: 0.65rem;
+}

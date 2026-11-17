@@ -5,6 +5,7 @@ import { BarChart3, BookOpen, Calculator, CalendarDays, CircleCheck, Pin, Save, 
 import { AppIcon } from '../components/AppIcon';
 import { goalsApi, type FitnessGoal, type GoalCategory, type SaveGoalRequest } from '../services/trackingService';
 import { toLocalDateInput } from '../utils/dateTime';
+import { useConfirm } from '../components/ConfirmProvider';
 
 const fromApiGoal = (g: FitnessGoal) => ({
   id: g.id,
@@ -38,6 +39,7 @@ interface OneRMRecord {
 }
 
 export function Goals() {
+  const { confirm } = useConfirm();
   const { user } = useAuth();
   const [goals, setGoals] = useState<Goal[]>([]);
   const [showGoalModal, setShowGoalModal] = useState(false);
@@ -118,7 +120,7 @@ export function Goals() {
   };
 
   const deleteGoal = async (id: string) => {
-    if (!confirm('Bu hedef silinsin mi?')) return;
+    if (!(await confirm({ title: 'Hedef silinsin mi?', confirmText: 'Sil', danger: true }))) return;
     try {
       await goalsApi.remove(id);
       setGoals(gs => gs.filter(g => g.id !== id));

@@ -6,6 +6,7 @@ import { workoutTemplates, programCategories, ProgramTemplate, getTemplatesByCat
 import './Workouts.css';
 import { ArrowLeft, BedDouble, Check, CircleX, ClipboardList, Dumbbell, Lightbulb, Pencil, Plus, Search, Trash2, X } from 'lucide-react';
 import { AppIcon } from '../components/AppIcon';
+import { useConfirm } from '../components/ConfirmProvider';
 
 const templateCategoryIcon: Record<string, string> = {
   beginner: 'Sprout',
@@ -34,6 +35,7 @@ interface EditableTemplate {
 }
 
 export function Workouts() {
+  const { confirm, toast } = useConfirm();
   const [programs, setPrograms] = useState<WorkoutProgramDto[]>([]);
   const [selectedProgram, setSelectedProgram] = useState<WorkoutProgramDto | null>(null);
   const [loading, setLoading] = useState(true);
@@ -333,12 +335,20 @@ export function Workouts() {
   };
 
   const handleDeleteProgram = async (id: string) => {
-    if (!confirm('Bu programı silmek istediğinizden emin misiniz?')) return;
+    const program = programs.find(p => p.id === id);
+    const ok = await confirm({
+      title: `"${program?.name ?? 'Program'}" silinsin mi?`,
+      message: 'Program, günleri ve egzersizleri silinecek. Daha önce yaptığın antrenman kayıtları takvimde ve ilerlemende kalır.',
+      confirmText: 'Programı Sil',
+      danger: true,
+    });
+    if (!ok) return;
     try {
       await workoutService.deleteProgram(id);
       const updated = programs.filter(p => p.id !== id);
       setPrograms(updated);
       setSelectedProgram(updated.length > 0 ? updated[0] : null);
+      toast('Program silindi.', 'success');
     } catch (err) {
       setError('Program silinirken hata oluştu');
     }

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using FitLog.Application.DTOs.AiCoach;
+using FitLog.Infrastructure.Services.Coach;
 using FitLog.Application.Interfaces;
 using FitLog.Application.Services;
 using FitLog.Domain.Entities;
@@ -41,55 +42,76 @@ public class AiCoachService : IAiCoachService
         AiCoachAnalysisRequestDto request,
         CancellationToken cancellationToken = default)
     {
-        var cacheKey = $"AiCoach:{userId}:{request.Height}:{request.Weight}:{request.Goal}:{request.WeeklyWorkoutFrequency}";
+        var now = DateTime.UtcNow;
+        var since = now.AddDays(-56);
+
+        // Real performed workouts (not program templates), meals and weigh-ins
+        var sessions = await _context.WorkoutSessions.AsNoTracking()
+            .Where(s => s.UserId == userId && s.StartedAt >= since)
+            .Select(s => new CoachSession(
+                s.StartedAt,
+                s.Type == SessionType.Cardio,
+                s.DurationSeconds,
+                s.Sets.Select(x => new CoachSet(x.ExerciseName, x.Reps, x.WeightKg, x.Rpe, x.IsWarmup)).ToList()))
+            .ToListAsync(cancellationToken);
+
+        var meals = await _context.NutritionLogs.AsNoTracking()
+            .Where(n => n.UserId == userId && n.Date >= now.AddDays(-28))
+            .Select(n => new CoachMeal(n.Date, n.Calories, n.Protein))
+            .ToListAsync(cancellationToken);
+
+        var weighIns = await _context.BodyMeasurements.AsNoTracking()
+            .Where(m => m.UserId == userId && m.WeightKg != null && m.Date >= DateOnly.FromDateTime(now.AddDays(-60)))
+            .Select(m => new CoachWeighIn(m.Date, m.WeightKg!.Value))
+            .ToListAsync(cancellationToken);
+
+        var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+        var weight = request.Weight > 0 ? request.Weight : weighIns.OrderBy(w => w.Date).LastOrDefault()?.WeightKg ?? user?.Weight ?? 75;
+        var height = request.Height > 0 ? request.Height : user?.Height ?? 175;
+        int? age = user?.BirthDate is { } bd ? (int)((now - bd).TotalDays / 365.25) : null;
+        var profile = new CoachProfile(height, weight, age, user?.Gender, request.Goal, Math.Max(1, request.WeeklyWorkoutFrequency));
+
+        // New data → new analysis: include data volume in the cache key
+        var cacheKey = $"AiCoach:{userId}:{height}:{weight}:{request.Goal}:{request.WeeklyWorkoutFrequency}:{sessions.Count}:{meals.Count}:{weighIns.Count}";
         if (_settings.CacheDurationMinutes > 0 && _cache.TryGetValue(cacheKey, out AiCoachAnalysisResponseDto? cached))
-        {
-            _logger.LogInformation("AI Coach analizi cache'den döndü. UserId: {UserId}", userId);
             return cached!;
-        }
 
-        var since = DateTime.UtcNow.AddDays(-30);
+        var (insights, targets, stats, summary) = CoachAnalyzer.Analyze(profile, sessions, meals, weighIns, now);
+        var metrics = LegacyMetrics(sessions, meals, insights);
+        var trainingSummary = string.Join("\n", insights.Where(i => i.Category is "training" or "recovery").Select(i => $"- {i.Title}: {i.Metric}"));
+        var nutritionSummary = string.Join("\n", insights.Where(i => i.Category is "nutrition" or "body").Select(i => $"- {i.Title}: {i.Metric}"));
 
-        var exercises = await _context.Exercises
-            .Include(e => e.WorkoutDay)
-            .ThenInclude(wd => wd.WorkoutProgram)
-            .Where(e => e.WorkoutDay.WorkoutProgram.UserId == userId && e.CreatedDate >= since)
-            .ToListAsync(cancellationToken);
-
-        var exerciseLogs = exercises.Select(e => new ExerciseLogRow(e.Name, e.SetCount, e.Reps, e.Weight, e.CreatedDate)).ToList();
-
-        var nutritionLogs = await _context.NutritionLogs
-            .Where(n => n.UserId == userId && n.Date >= since.Date)
-            .ToListAsync(cancellationToken);
-
-        var metrics = CalculateMetrics(exerciseLogs, nutritionLogs, since);
-        var trainingSummary = BuildTrainingSummary(metrics);
-        var nutritionSummary = BuildNutritionSummary(metrics);
-
-        var prompt = BuildPrompt(request, trainingSummary, nutritionSummary, metrics);
-        string aiResponse = string.Empty;
-        AiCoachAnalysisResponseDto response;
-
-        if (_settings.UseDemoMode)
+        var response = new AiCoachAnalysisResponseDto
         {
-            _logger.LogInformation("AI Coach demo modu aktif. OpenAI çağrısı yapılmayacak. UserId: {UserId}", userId);
-            response = BuildDemoResponse(request, trainingSummary, nutritionSummary, metrics);
-            aiResponse = response.RawAiRecommendation ?? string.Empty;
-        }
-        else
+            Summary = summary,
+            Insights = insights,
+            Targets = targets,
+            Stats = stats,
+            Source = "rules",
+            CalculatedMetrics = metrics,
+            TrainingAdvice = string.Join(" ", insights.Where(i => i.Category is "training" or "recovery").Select(i => i.Action)),
+            NutritionAdvice = string.Join(" ", insights.Where(i => i.Category == "nutrition").Select(i => i.Action)),
+            BulkCutRecommendation = insights.FirstOrDefault(i => i.Category == "body")?.Action ?? string.Empty,
+            MacroSuggestion = $"Günlük ~{targets.Calories} kcal: {targets.ProteinG} g protein, {targets.CarbsG} g karbonhidrat, {targets.FatG} g yağ.",
+            PlateauWarning = string.Join(" ", insights.Where(i => i.Title.Contains("durmuş")).Select(i => i.Action)),
+        };
+
+        // Optional: a free-text commentary from OpenAI on top of the rule-based findings
+        string aiResponse = string.Join("\n\n", insights.Select(i => $"{i.Title}\n{i.Metric}\n{i.Detail}\n→ {i.Action}"));
+        if (!_settings.UseDemoMode)
         {
             try
             {
+                var prompt = BuildPrompt(request, trainingSummary, nutritionSummary, metrics);
                 aiResponse = await _openAiClient.GetCompletionAsync(prompt, cancellationToken);
-                response = ParseAiResponse(aiResponse, metrics);
+                response.Source = "openai";
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "OpenAI çağrısı başarısız. Demo moda düşülüyor. UserId: {UserId}", userId);
-                response = BuildDemoResponse(request, trainingSummary, nutritionSummary, metrics);
-                aiResponse = response.RawAiRecommendation ?? aiResponse ?? string.Empty;
+                _logger.LogWarning(ex, "OpenAI çağrısı başarısız, kural tabanlı analiz kullanılıyor. UserId: {UserId}", userId);
             }
         }
+        response.RawAiRecommendation = aiResponse;
 
         var report = new AiCoachReport
         {
@@ -267,6 +289,24 @@ public class AiCoachService : IAiCoachService
             RawAiRecommendation = raw,
             CalculatedMetrics = metrics
         };
+    }
+
+    /// <summary>Keeps the older metrics block filled from real session data.</summary>
+    private static AiCoachCalculatedMetricsDto LegacyMetrics(List<CoachSession> sessions, List<CoachMeal> meals, List<CoachInsightDto> insights)
+    {
+        var m = new AiCoachCalculatedMetricsDto();
+        foreach (var g in sessions.SelectMany(s => s.Sets).Where(x => !x.IsWarmup).GroupBy(x => x.Exercise))
+            m.WeeklyVolumePerExercise[g.Key] = Math.Round(g.Sum(x => x.WeightKg * x.Reps) / 8m, 0);
+        var days = meals.Select(x => x.Date.Date).Distinct().Count();
+        if (days > 0)
+        {
+            m.AverageWeeklyCalories = meals.Sum(x => x.Calories) / (decimal)days * 7;
+            m.AverageWeeklyProtein = meals.Sum(x => x.Protein) / days * 7;
+        }
+        m.ProgressiveOverloadDetected = insights.Any(i => i.Title.Contains("güçleniyorsun"));
+        m.PlateauExercises = insights.Where(i => i.Title.Contains("durmuş")).Select(i => i.Title.Split(':')[0]).ToList();
+        m.PlateauDetected = m.PlateauExercises.Count > 0;
+        return m;
     }
 
     private static string BuildPrompt(

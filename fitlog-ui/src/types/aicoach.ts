@@ -20,7 +20,43 @@ export interface AiCoachCalculatedMetrics {
   plateauExercises: string[];
 }
 
+export type InsightSeverity = 'good' | 'info' | 'warning';
+export type InsightCategory = 'training' | 'nutrition' | 'body' | 'recovery';
+
+export interface CoachInsight {
+  category: InsightCategory;
+  severity: InsightSeverity;
+  title: string;
+  metric?: string | null;
+  detail: string;
+  action: string;
+}
+
+export interface CoachTargets {
+  bmr: number;
+  tdee: number;
+  calories: number;
+  proteinG: number;
+  carbsG: number;
+  fatG: number;
+}
+
+export interface CoachStats {
+  sessionsPerWeek: number;
+  loggedNutritionDays: number;
+  averageDailyCalories: number;
+  averageDailyProtein: number;
+  proteinPerKg: number;
+  weightChangePerWeek?: number | null;
+  bodyWeightKg: number;
+}
+
 export interface AiCoachAnalysisResponse {
+  summary: string;
+  insights: CoachInsight[];
+  targets: CoachTargets;
+  stats: CoachStats;
+  source: 'rules' | 'openai';
   trainingAdvice: string;
   nutritionAdvice: string;
   bulkCutRecommendation: string;

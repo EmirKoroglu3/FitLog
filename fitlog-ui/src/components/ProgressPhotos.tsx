@@ -3,6 +3,7 @@ import { Camera, Columns2, Trash2, Upload } from 'lucide-react';
 import { bodyApi, type ProgressPhoto } from '../services/trackingService';
 import { toLocalDateInput } from '../utils/dateTime';
 import './ProgressPhotos.css';
+import { useConfirm } from './ConfirmProvider';
 
 const POSES: Record<ProgressPhoto['pose'], string> = { front: 'Ön', side: 'Yan', back: 'Arka' };
 const MAX_SIDE = 1080;
@@ -23,6 +24,7 @@ const formatDate = (d: string) =>
   new Date(`${d}T00:00`).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
 
 export function ProgressPhotos() {
+  const { confirm } = useConfirm();
   const [photos, setPhotos] = useState<ProgressPhoto[]>([]);
   const [urls, setUrls] = useState<Record<string, string>>({});
   const [pose, setPose] = useState<ProgressPhoto['pose']>('front');
@@ -72,7 +74,7 @@ export function ProgressPhotos() {
   };
 
   const remove = async (id: string) => {
-    if (!confirm('Bu fotoğraf kalıcı olarak silinsin mi?')) return;
+    if (!(await confirm({ title: 'Fotoğraf silinsin mi?', message: 'Bu işlem geri alınamaz.', confirmText: 'Sil', danger: true }))) return;
     await bodyApi.deletePhoto(id);
     setPhotos((p) => p.filter((x) => x.id !== id));
     setCompare((c) => c.filter((x) => x !== id));

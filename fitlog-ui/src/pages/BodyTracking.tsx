@@ -7,6 +7,7 @@ import { useSettings } from '../store/SettingsContext';
 import { cmToUnit, formatLength, formatNumber, formatWeight, kgToUnit, unitToCm, unitToKg, type LengthUnit, type WeightUnit } from '../utils/units';
 import { bodyApi, type BodyMeasurement as ApiMeasurement } from '../services/trackingService';
 import { Camera, BarChart3, BicepsFlexed, CalendarDays, ClipboardList, Droplet, PartyPopper, Ruler, Scale, Target, Trash2 } from 'lucide-react';
+import { useConfirm } from '../components/ConfirmProvider';
 
 interface WaterLog {
   date: string;
@@ -59,6 +60,7 @@ const fromApi = (m: ApiMeasurement): BodyMeasurement => ({
 });
 
 export function BodyTracking() {
+  const { confirm } = useConfirm();
   const { user } = useAuth();
   const { settings, update: updateSettings } = useSettings();
   const today = toLocalDateInput();
@@ -118,7 +120,7 @@ export function BodyTracking() {
   };
 
   const deleteMeasurement = async (id: string) => {
-    if (!confirm('Bu ölçüm silinsin mi?')) return;
+    if (!(await confirm({ title: 'Ölçüm silinsin mi?', confirmText: 'Sil', danger: true }))) return;
     try {
       await bodyApi.deleteMeasurement(id);
       setMeasurements(ms => ms.filter(m => m.id !== id));

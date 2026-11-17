@@ -8,6 +8,7 @@ import { toLocalDateInput } from '../utils/dateTime';
 import { sessionsApi } from '../services/trackingService';
 import { CardioModal } from '../components/CardioModal';
 import { HeartPulse, Share2, ArrowLeft, ArrowRight, BarChart3, BedDouble, CalendarDays, Check, CircleCheck, Dumbbell, Flame, Lightbulb, MapPin, Play, Timer, Trash2 } from 'lucide-react';
+import { useConfirm } from '../components/ConfirmProvider';
 
 interface WorkoutLog {
   sessionIds: string[];
@@ -20,6 +21,7 @@ interface WorkoutLog {
 }
 
 export function Calendar() {
+  const { confirm, toast } = useConfirm();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -179,18 +181,20 @@ export function Calendar() {
       setWorkoutLogs(toDailyLogs(await sessionsApi.list(), programs));
       setSelectedDate(null);
     } catch {
-      alert('Antrenman kaydedilemedi, tekrar dene.');
+      toast('Antrenman kaydedilemedi, tekrar dene.', 'error');
     }
   };
 
   const removeWorkout = async (dateStr: string) => {
     const log = workoutLogs.find(l => l.date === dateStr);
-    if (!log || !confirm('Bu günün antrenman kaydı (setler dahil) silinsin mi?')) return;
+    if (!log) return;
+    if (!(await confirm({ title: 'Antrenman kaydı silinsin mi?', message: 'Bu güne ait antrenman ve kardiyo kayıtları (setler dahil) silinecek. Bu işlem geri alınamaz.', confirmText: 'Sil', danger: true }))) return;
     try {
       await Promise.all(log.sessionIds.map(id => sessionsApi.remove(id)));
       setWorkoutLogs(workoutLogs.filter(l => l.date !== dateStr));
+      toast('Antrenman kaydı silindi.', 'success');
     } catch {
-      alert('Silinemedi, tekrar dene.');
+      toast('Silinemedi, tekrar dene.', 'error');
     }
   };
 
@@ -228,7 +232,9 @@ export function Calendar() {
         {completedWorkout ? (
           <div className="workout-indicator completed">
             <span className="workout-icon"><CircleCheck size="1em" aria-hidden="true" /></span>
-            <span className="workout-name-mini">{completedWorkout.dayName}</span>
+            <span className="workout-name-mini" title={completedWorkout.dayName}>
+              {completedWorkout.sessionIds.length > 1 ? `${completedWorkout.sessionIds.length} kayıt` : completedWorkout.dayName}
+            </span>
           </div>
         ) : plannedWorkout && plannedWorkout.exercises.length > 0 ? (
           <div className="workout-indicator planned">
@@ -292,9 +298,9 @@ export function Calendar() {
             )}
             
             <div className="calendar-nav">
-              <button onClick={() => navigateMonth(-1)}><ArrowLeft size="1em" aria-hidden="true" /></button>
+              <button onClick={() => navigateMonth(-1)} aria-label="Önceki ay"><ArrowLeft size={18} aria-hidden="true" /></button>
               <h2>{monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}</h2>
-              <button onClick={() => navigateMonth(1)}><ArrowRight size="1em" aria-hidden="true" /></button>
+              <button onClick={() => navigateMonth(1)} aria-label="Sonraki ay"><ArrowRight size={18} aria-hidden="true" /></button>
             </div>
 
             <div className="calendar-grid">
