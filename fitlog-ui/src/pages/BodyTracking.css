@@ -304,7 +304,7 @@
 /* Measurement Summary */
 .body-tracking-page .measurement-summary {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
   gap: 1.5rem;
 }
 
@@ -433,7 +433,7 @@
 
 .body-tracking-page .form-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(120px, 100%), 1fr));
   gap: 1rem;
 }
 
@@ -441,15 +441,19 @@
 /* Responsive */
 @media (max-width: 968px) {
   .body-tracking-page .water-tracking {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   
   .body-tracking-page .water-sidebar {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
   }}
 
 @media (max-width: 480px) {
+  .body-tracking-page .water-main {
+    padding: 1.5rem 1rem;
+  }
+
   .body-tracking-page .water-circle {
     width: 220px;
     height: 220px;

@@ -18,6 +18,8 @@ public class SmtpEmailSender : IEmailSender
         _configuration = configuration;
     }
 
+    public bool IsConfigured => !string.IsNullOrWhiteSpace(_configuration["Smtp:Host"]);
+
     public async Task SendEmailAsync(string to, string subject, string htmlBody, CancellationToken cancellationToken = default)
     {
         var smtpSection = _configuration.GetSection("Smtp");

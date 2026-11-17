@@ -1,3 +1,4 @@
+import { foodMatchScore } from './foodSearch';
 // Yiyecek veritabanı - 100 gram başına besin değerleri
 export interface FoodItem {
   id: string;
@@ -21,6 +22,8 @@ export const foodCategories = [
   { id: 'snacks', name: 'Atıştırmalıklar', icon: '🥜' },
   { id: 'drinks', name: 'İçecekler', icon: '🥤' },
   { id: 'meals', name: 'Hazır Yemekler', icon: '🍲' },
+  { id: 'soups', name: 'Çorbalar', icon: '🥣' },
+  { id: 'desserts', name: 'Tatlılar', icon: '🍰' },
 ];
 
 export const foodDatabase: FoodItem[] = [
@@ -630,7 +633,7 @@ export const foodDatabase: FoodItem[] = [
   {
     id: 'lentil-soup',
     name: 'Mercimek Çorbası',
-    category: 'meals',
+    category: 'soups',
     servingSize: 250,
     servingUnit: 'ml (1 kase)',
     calories: 180,
@@ -642,7 +645,7 @@ export const foodDatabase: FoodItem[] = [
   {
     id: 'chicken-soup',
     name: 'Tavuk Çorbası',
-    category: 'meals',
+    category: 'soups',
     servingSize: 250,
     servingUnit: 'ml (1 kase)',
     calories: 75,
@@ -820,16 +823,51 @@ export const foodDatabase: FoodItem[] = [
   { id: 'cheese-toast', name: 'Kaşarlı Tost', category: 'meals', servingSize: 1, servingUnit: 'adet (150g)', calories: 380, protein: 17, carbohydrates: 38, fat: 17, icon: '🥪' },
   { id: 'pizza-slice', name: 'Pizza (Karışık)', category: 'meals', servingSize: 1, servingUnit: 'dilim (110g)', calories: 285, protein: 12, carbohydrates: 36, fat: 10, icon: '🍕' },
   { id: 'hamburger', name: 'Hamburger', category: 'meals', servingSize: 1, servingUnit: 'adet (250g)', calories: 550, protein: 28, carbohydrates: 45, fat: 28, icon: '🍔' },
+
+  // ÇORBALAR (1 kase ≈ 250 ml, yaklaşık değerler)
+  { id: 'ezogelin-soup', name: 'Ezogelin Çorbası', category: 'soups', servingSize: 250, servingUnit: 'ml', calories: 150, protein: 7, carbohydrates: 24, fat: 3, icon: '🥣' },
+  { id: 'yayla-soup', name: 'Yayla Çorbası', category: 'soups', servingSize: 250, servingUnit: 'ml', calories: 140, protein: 6, carbohydrates: 16, fat: 6, icon: '🥣' },
+  { id: 'tomato-soup', name: 'Domates Çorbası', category: 'soups', servingSize: 250, servingUnit: 'ml', calories: 120, protein: 3, carbohydrates: 16, fat: 5, icon: '🥣' },
+  { id: 'tarhana-soup', name: 'Tarhana Çorbası', category: 'soups', servingSize: 250, servingUnit: 'ml', calories: 130, protein: 5, carbohydrates: 20, fat: 3.5, icon: '🥣' },
+  { id: 'mushroom-soup', name: 'Kremalı Mantar Çorbası', category: 'soups', servingSize: 250, servingUnit: 'ml', calories: 160, protein: 4, carbohydrates: 12, fat: 11, icon: '🥣' },
+  { id: 'vegetable-soup', name: 'Sebze Çorbası', category: 'soups', servingSize: 250, servingUnit: 'ml', calories: 90, protein: 3, carbohydrates: 14, fat: 2.5, icon: '🥣' },
+  { id: 'iskembe-soup', name: 'İşkembe Çorbası', category: 'soups', servingSize: 250, servingUnit: 'ml', calories: 190, protein: 14, carbohydrates: 6, fat: 12, icon: '🥣' },
+  { id: 'kelle-paca-soup', name: 'Kelle Paça Çorbası', category: 'soups', servingSize: 250, servingUnit: 'ml', calories: 210, protein: 16, carbohydrates: 4, fat: 14, icon: '🥣' },
+  { id: 'broccoli-soup', name: 'Kremalı Brokoli Çorbası', category: 'soups', servingSize: 250, servingUnit: 'ml', calories: 150, protein: 5, carbohydrates: 12, fat: 9, icon: '🥣' },
+  { id: 'sehriye-soup', name: 'Şehriye Çorbası', category: 'soups', servingSize: 250, servingUnit: 'ml', calories: 110, protein: 4, carbohydrates: 18, fat: 2.5, icon: '🥣' },
+  { id: 'dugun-soup', name: 'Düğün Çorbası', category: 'soups', servingSize: 250, servingUnit: 'ml', calories: 180, protein: 12, carbohydrates: 10, fat: 10, icon: '🥣' },
+
+  // TATLILAR (porsiyon başına, yaklaşık değerler)
+  { id: 'baklava', name: 'Baklava (Fıstıklı)', category: 'desserts', servingSize: 1, servingUnit: 'dilim (40g)', calories: 170, protein: 3, carbohydrates: 18, fat: 10, icon: '🥮' },
+  { id: 'kunefe', name: 'Künefe', category: 'desserts', servingSize: 1, servingUnit: 'porsiyon (150g)', calories: 500, protein: 12, carbohydrates: 55, fat: 26, icon: '🧀' },
+  { id: 'sutlac', name: 'Sütlaç', category: 'desserts', servingSize: 1, servingUnit: 'kase (200g)', calories: 250, protein: 7, carbohydrates: 40, fat: 7, icon: '🍮' },
+  { id: 'kazandibi', name: 'Kazandibi', category: 'desserts', servingSize: 1, servingUnit: 'porsiyon (150g)', calories: 230, protein: 6, carbohydrates: 36, fat: 7, icon: '🍮' },
+  { id: 'tavuk-gogsu-tatli', name: 'Tavuk Göğsü (Tatlı)', category: 'desserts', servingSize: 1, servingUnit: 'porsiyon (150g)', calories: 220, protein: 6, carbohydrates: 34, fat: 6.5, icon: '🍮' },
+  { id: 'revani', name: 'Revani', category: 'desserts', servingSize: 1, servingUnit: 'dilim (80g)', calories: 290, protein: 4, carbohydrates: 50, fat: 8, icon: '🍰' },
+  { id: 'kemalpasa', name: 'Kemalpaşa', category: 'desserts', servingSize: 3, servingUnit: 'adet (60g)', calories: 200, protein: 4, carbohydrates: 36, fat: 4.5, icon: '🍯' },
+  { id: 'lokma', name: 'Lokma', category: 'desserts', servingSize: 5, servingUnit: 'adet (75g)', calories: 280, protein: 3, carbohydrates: 40, fat: 12, icon: '🍩' },
+  { id: 'asure', name: 'Aşure', category: 'desserts', servingSize: 1, servingUnit: 'kase (200g)', calories: 300, protein: 6, carbohydrates: 62, fat: 4, icon: '🥣' },
+  { id: 'profiterol', name: 'Profiterol', category: 'desserts', servingSize: 1, servingUnit: 'porsiyon (150g)', calories: 380, protein: 6, carbohydrates: 42, fat: 21, icon: '🍫' },
+  { id: 'ice-cream', name: 'Dondurma (Sade)', category: 'desserts', servingSize: 2, servingUnit: 'top (100g)', calories: 210, protein: 3.5, carbohydrates: 24, fat: 11, icon: '🍨' },
+  { id: 'chocolate-cake', name: 'Çikolatalı Pasta', category: 'desserts', servingSize: 1, servingUnit: 'dilim (100g)', calories: 380, protein: 5, carbohydrates: 48, fat: 19, icon: '🍰' },
+  { id: 'cheesecake', name: 'Cheesecake', category: 'desserts', servingSize: 1, servingUnit: 'dilim (100g)', calories: 320, protein: 6, carbohydrates: 26, fat: 22, icon: '🍰' },
+  { id: 'tiramisu', name: 'Tiramisu', category: 'desserts', servingSize: 1, servingUnit: 'dilim (100g)', calories: 290, protein: 5, carbohydrates: 28, fat: 17, icon: '🍰' },
+  { id: 'magnolia', name: 'Magnolia', category: 'desserts', servingSize: 1, servingUnit: 'kase (150g)', calories: 300, protein: 5, carbohydrates: 38, fat: 14, icon: '🍮' },
+  { id: 'cookie', name: 'Kurabiye', category: 'desserts', servingSize: 2, servingUnit: 'adet (30g)', calories: 150, protein: 2, carbohydrates: 19, fat: 7.5, icon: '🍪' },
+  { id: 'tahin-helva', name: 'Tahin Helvası', category: 'desserts', servingSize: 50, servingUnit: 'g', calories: 270, protein: 6, carbohydrates: 27, fat: 16, icon: '🍯' },
+  { id: 'lokum', name: 'Lokum', category: 'desserts', servingSize: 2, servingUnit: 'adet (30g)', calories: 105, protein: 0, carbohydrates: 26, fat: 0.2, icon: '🍬' },
+  { id: 'protein-pudding', name: 'Proteinli Puding', category: 'desserts', servingSize: 1, servingUnit: 'kase (200g)', calories: 160, protein: 20, carbohydrates: 14, fat: 3, icon: '🍮' },
 ];
 
 // Yiyecek arama fonksiyonu
 export function searchFoods(query: string): FoodItem[] {
   if (!query.trim()) return [];
-  const lowerQuery = query.toLowerCase().trim();
-  return foodDatabase.filter(food => 
-    food.name.toLowerCase().includes(lowerQuery) ||
-    food.category.toLowerCase().includes(lowerQuery)
-  );
+  const categoryName = (id: string) => foodCategories.find((c) => c.id === id)?.name ?? '';
+  return foodDatabase
+    .map((food) => ({ food, score: foodMatchScore(query, food.name, [categoryName(food.category)]) }))
+    .filter((r) => r.score > 0)
+    .sort((a, b) => b.score - a.score || a.food.name.localeCompare(b.food.name, 'tr'))
+    .map((r) => r.food);
 }
 
 // Kategoriye göre yiyecekleri getir

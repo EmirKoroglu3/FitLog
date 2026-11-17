@@ -19,10 +19,9 @@ services:
       - key: Cors__AllowedOrigins__1
         value: https://www.emirkoroglu.online
       - key: FrontendUrl
-        value: https://emirkoroglu.online
-      - key: SendGrid__ApiKey
-        sync: false
-      - key: SendGrid__FromEmail
+        value: https://www.emirkoroglu.online
+      # Password-reset email (Resend HTTP API; Render free blocks SMTP)
+      - key: Resend__ApiKey
         sync: false
       - key: Database__AutoMigrate
         value: "true"

@@ -103,7 +103,7 @@
 
 :is(.nutrition-page, .nutrition-loading) .meals-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
   gap: 1rem;
 }
 
@@ -215,7 +215,14 @@
 :is(.nutrition-page, .nutrition-loading) .food-modal {
   max-width: 700px;
   max-height: 90vh;
+  max-height: 90dvh;
   overflow-y: auto;
+}
+
+/* Grid cells may shrink below their content (stops date/time inputs widening the modal) */
+.nutrition-page .form-row > *,
+.nutrition-page .macros-row > * {
+  min-width: 0;
 }
 
 

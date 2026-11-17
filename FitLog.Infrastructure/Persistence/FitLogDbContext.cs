@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using FitLog.Domain.Entities;
 using FitLog.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
@@ -10,8 +11,11 @@ namespace FitLog.Infrastructure.Persistence;
 /// FitLog veritabanı context sınıfı.
 /// Identity ve entity'leri yönetir.
 /// </summary>
-public class FitLogDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
+public class FitLogDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>, IDataProtectionKeyContext
 {
+    /// <summary>ASP.NET Data Protection keys (sign password-reset tokens); stored here so they survive restarts.</summary>
+    public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
+
     public FitLogDbContext(DbContextOptions<FitLogDbContext> options) : base(options)
     {
     }

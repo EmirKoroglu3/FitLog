@@ -18,10 +18,14 @@ export function ForgotPassword() {
 
     try {
       const response = await authService.forgotPassword(email);
-      setMessage(
-        response.message ||
-          'Eğer bu email ile kayıtlı bir hesabın varsa, şifre sıfırlama bağlantısı gönderildi.'
-      );
+      if (response.success === false) {
+        setError(response.message || 'Şifre sıfırlama e-postası gönderilemedi.');
+      } else {
+        setMessage(
+          response.message ||
+            'Eğer bu email ile kayıtlı bir hesabın varsa, şifre sıfırlama bağlantısı gönderildi.'
+        );
+      }
     } catch (err: any) {
       const apiMessage = err?.response?.data?.message as string | undefined;
       setError(apiMessage || 'İşlem sırasında bir hata oluştu.');
@@ -38,7 +42,7 @@ export function ForgotPassword() {
           <p>{t("Hesabına ait email adresini gir, sana şifre sıfırlama bağlantısı gönderelim.")}</p>
         </div>
 
-        {message && <div className="error-message" style={{ borderColor: 'var(--color-accent-success)', color: 'var(--color-accent-success)', background: 'rgba(34,197,94,0.08)' }}>{message}</div>}
+        {message && <div className="success-banner" role="status">{message}</div>}
         {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit} className="auth-form">

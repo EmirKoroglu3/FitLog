@@ -66,6 +66,7 @@
 
 .progress-page .chart-card {
   margin-bottom: 1.25rem;
+  min-width: 0; /* let chart.js canvases shrink inside grid rows */
 }
 
 .progress-page .chart-head {
@@ -198,6 +199,6 @@
   }
 
   .progress-page .chart-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }

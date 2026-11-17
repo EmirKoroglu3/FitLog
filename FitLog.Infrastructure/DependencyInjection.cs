@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using System.Text;
 using FitLog.Application.Interfaces;
 using FitLog.Application.Services;
@@ -73,7 +74,23 @@ public static class DependencyInjection
         services.AddScoped<INutritionService, NutritionService>();
         services.AddScoped<ISupplementService, SupplementService>();
         services.AddScoped<IProfileService, ProfileService>();
-        services.AddScoped<IEmailSender, SendGridEmailService>();
+        // Email: Resend (HTTP API) > SendGrid > log-only in Development.
+        // With nothing configured in production, IsConfigured is false and forgot-password says so.
+        if (!string.IsNullOrWhiteSpace(configuration["Resend:ApiKey"]))
+            services.AddHttpClient<IEmailSender, ResendEmailService>();
+        else if (!string.IsNullOrWhiteSpace(configuration["SendGrid:ApiKey"]))
+            services.AddScoped<IEmailSender, SendGridEmailService>();
+        else if (string.Equals(configuration["ASPNETCORE_ENVIRONMENT"], "Development", StringComparison.OrdinalIgnoreCase))
+            services.AddScoped<IEmailSender, LogOnlyEmailSender>();
+        else
+            services.AddHttpClient<IEmailSender, ResendEmailService>();
+
+        // Reset links stay valid for 1 hour, and the keys that sign them live in the database
+        // so they survive Render restarts / free-tier spin-downs.
+        services.Configure<DataProtectionTokenProviderOptions>(o => o.TokenLifespan = TimeSpan.FromHours(1));
+        services.AddDataProtection()
+            .SetApplicationName("FitLog")
+            .PersistKeysToDbContext<FitLogDbContext>();
 
         // OpenAI & AI Coach
         services.Configure<OpenAiSettings>(configuration.GetSection(OpenAiSettings.SectionName));

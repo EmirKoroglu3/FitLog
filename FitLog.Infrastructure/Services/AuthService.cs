@@ -9,6 +9,7 @@ using FitLog.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -25,15 +26,18 @@ public class AuthService : IAuthService
     private readonly IConfiguration _configuration;
 
     private readonly FitLogDbContext _db;
+    private readonly ILogger<AuthService> _logger;
 
     public AuthService(
         UserManager<ApplicationUser> userManager,
         IOptions<JwtSettings> jwtSettings,
         IEmailSender emailSender,
         IConfiguration configuration,
-        FitLogDbContext db)
+        FitLogDbContext db,
+        ILogger<AuthService> logger)
     {
         _db = db;
+        _logger = logger;
         _userManager = userManager;
         _jwtSettings = jwtSettings.Value;
         _emailSender = emailSender;
@@ -176,48 +180,54 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponse> ForgotPasswordAsync(ForgotPasswordRequest request, CancellationToken cancellationToken = default)
     {
-        var user = await _userManager.FindByEmailAsync(request.Email);
+        const string genericMessage = "Eğer bu email ile kayıtlı bir hesabın varsa, şifre sıfırlama bağlantısı gönderildi. Gelen kutunu ve spam klasörünü kontrol et.";
 
-        // Kullanıcıyı bulamasak bile, hesap var/yok bilgisini sızdırmamak için her zaman aynı cevabı döneriz.
-        if (user == null)
+        // Same answer for every email, so this can't be used to discover which accounts exist
+        if (!_emailSender.IsConfigured)
         {
+            _logger.LogError("Password reset requested but no email provider is configured (Resend:ApiKey).");
             return new AuthResponse
             {
-                Success = true,
-                Message = "Eğer bu email ile kayıtlı bir hesabın varsa, şifre sıfırlama bağlantısı gönderildi."
+                Success = false,
+                Message = "Şifre sıfırlama e-postası şu an gönderilemiyor. Lütfen daha sonra tekrar dene."
             };
         }
 
+        var user = await _userManager.FindByEmailAsync(request.Email);
+        if (user == null)
+            return new AuthResponse { Success = true, Message = genericMessage };
+
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        var frontendUrl = (Environment.GetEnvironmentVariable("FrontendUrl")
+            ?? _configuration["FrontendUrl"]
+            ?? "http://localhost:5173").TrimEnd('/');
+        var resetLink = $"{frontendUrl}/reset-password?userId={user.Id}&token={Uri.EscapeDataString(token)}";
+        var name = System.Net.WebUtility.HtmlEncode(user.Name);
 
-        // Şifre sıfırlama linkini oluştur
-        var encodedToken = Uri.EscapeDataString(token);
-        
-        // Frontend URL'i önce environment variable'dan al (production için),
-        // yoksa appsettings.json'dan al, yoksa varsayılan olarak localhost kullan
-        // Production'da: FrontendUrl environment variable olarak ayarla
-        // Örnek: set FrontendUrl=https://fitlog.com (Windows) veya export FrontendUrl=https://fitlog.com (Linux/Mac)
-        var frontendUrl = Environment.GetEnvironmentVariable("FrontendUrl") 
-            ?? _configuration["FrontendUrl"] 
-            ?? "http://localhost:5173";
-        
-        var resetLink = $"{frontendUrl}/reset-password?userId={user.Id}&token={encodedToken}";
+        var body = $"""
+            <div style="font-family:Arial,Helvetica,sans-serif;max-width:480px;margin:0 auto;padding:24px;color:#1c1917">
+              <h2 style="margin:0 0 16px;color:#ea580c">FitLog</h2>
+              <p>Merhaba {name},</p>
+              <p>Şifreni sıfırlamak için aşağıdaki butona tıkla. Bağlantı <strong>1 saat</strong> geçerli.</p>
+              <p style="margin:28px 0">
+                <a href="{resetLink}" style="background:#ea580c;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;font-weight:bold">Şifremi Sıfırla</a>
+              </p>
+              <p style="font-size:13px;color:#57534e">Buton çalışmazsa bu adresi tarayıcına yapıştır:<br><a href="{resetLink}" style="color:#ea580c;word-break:break-all">{resetLink}</a></p>
+              <p style="font-size:13px;color:#57534e">Bu isteği sen yapmadıysan bu e-postayı görmezden gelebilirsin; şifren değişmez.</p>
+            </div>
+            """;
 
-        var subject = "FitLog - Şifre Sıfırlama";
-        var body = $@"
-            <p>Merhaba {user.Name},</p>
-            <p>Şifreni sıfırlamak için aşağıdaki bağlantıya tıklayabilirsin:</p>
-            <p><a href=""{resetLink}"">Şifremi Sıfırla</a></p>
-            <p>Eğer bu isteği sen yapmadıysan bu e-postayı dikkate alma.</p>
-        ";
-
-        await _emailSender.SendEmailAsync(user.Email!, subject, body, cancellationToken);
-
-        return new AuthResponse
+        try
         {
-            Success = true,
-            Message = "Eğer bu email ile kayıtlı bir hesabın varsa, şifre sıfırlama bağlantısı gönderildi."
-        };
+            await _emailSender.SendEmailAsync(user.Email!, "FitLog - Şifre Sıfırlama", body, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            // Logged, but the reply stays generic so it doesn't reveal that the account exists
+            _logger.LogError(ex, "Password reset email could not be sent.");
+        }
+
+        return new AuthResponse { Success = true, Message = genericMessage };
     }
 
     public async Task<AuthResponse> ResetPasswordAsync(ResetPasswordRequest request, CancellationToken cancellationToken = default)

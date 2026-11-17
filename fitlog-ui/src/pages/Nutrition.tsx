@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { NutritionLogDto, NutritionSummaryDto } from '../types/nutrition';
 import nutritionService from '../services/nutritionService';
 import { foodCategories, searchFoods, FoodItem, getFoodsByCategory, foodDatabase } from '../data/foodDatabase';
+import { foodMatchScore } from '../data/foodSearch';
 import { customFoodsApi, type CustomFood } from '../services/trackingService';
 import { useSettings } from '../store/SettingsContext';
 import { useAuth } from '../store/AuthContext';
@@ -108,8 +109,7 @@ export function Nutrition() {
 
   useEffect(() => {
     if (searchQuery.length >= 2) {
-      const q = searchQuery.toLocaleLowerCase('tr-TR');
-      setSearchResults([...customFoods.filter((f) => f.name.toLocaleLowerCase('tr-TR').includes(q)), ...searchFoods(searchQuery)]);
+      setSearchResults([...customFoods.filter((f) => foodMatchScore(searchQuery, f.name) > 0), ...searchFoods(searchQuery)]);
       setShowSearchResults(true);
       setActiveCategory(null);
     } else if (searchQuery.length === 0) {

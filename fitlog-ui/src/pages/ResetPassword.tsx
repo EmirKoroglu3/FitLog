@@ -65,18 +65,7 @@ export function ResetPassword() {
           <p>Yeni şifreni belirle.</p>
         </div>
 
-        {message && (
-          <div
-            className="error-message"
-            style={{
-              borderColor: 'var(--color-accent-success)',
-              color: 'var(--color-accent-success)',
-              background: 'rgba(34,197,94,0.08)',
-            }}
-          >
-            {message}
-          </div>
-        )}
+        {message && <div className="success-banner" role="status">{message}</div>}
         {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit} className="auth-form">

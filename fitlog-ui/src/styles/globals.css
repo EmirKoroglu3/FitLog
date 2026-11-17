@@ -128,6 +128,27 @@
 html {
   font-size: 16px;
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Never let the page pan sideways on phones (the "wobble" when swiping) */
+html,
+body {
+  overflow-x: hidden;
+}
+
+@supports (overflow-x: clip) {
+  html,
+  body {
+    overflow-x: clip; /* unlike hidden, keeps position: sticky working */
+  }
+}
+
+/* While a modal / dialog is open the page behind it must not scroll */
+body:has(.modal-overlay),
+body:has(.confirm-overlay) {
+  overflow: hidden;
 }
 
 body {
@@ -136,6 +157,7 @@ body {
   color: var(--text);
   line-height: 1.55;
   min-height: 100vh;
+  min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color var(--transition-base), color var(--transition-base);
@@ -460,6 +482,7 @@ button:disabled {
   background: rgba(15, 15, 17, 0.55);
   backdrop-filter: blur(3px);
   animation: fadeIn 150ms ease-out;
+  overscroll-behavior: contain;
 }
 
 .modal,
@@ -468,7 +491,11 @@ button:disabled {
   width: 100%;
   max-width: 520px;
   max-height: 90vh;
+  max-height: 90dvh; /* follows the iOS toolbar instead of jumping */
   overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain; /* scrolling the modal never drags the page */
+  -webkit-overflow-scrolling: touch;
   padding: 1.75rem;
   background: var(--surface);
   color: var(--text);
@@ -657,4 +684,37 @@ button:disabled {
   border: 1px solid color-mix(in srgb, var(--success) 35%, transparent);
   background: var(--success-soft);
   color: var(--success);
+}
+
+/* ---- Phone form fixes ---------------------------------------------------- */
+input,
+select,
+textarea {
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* iOS Safari: native date/time inputs ignore width:100% and collapse when empty */
+@supports (-webkit-touch-callout: none) {
+  input[type='date'],
+  input[type='time'],
+  input[type='datetime-local'] {
+    -webkit-appearance: none;
+    appearance: none;
+    display: block;
+    width: 100%;
+    min-height: 2.9rem;
+    text-align: left;
+  }
+
+  input[type='date']::-webkit-date-and-time-value,
+  input[type='time']::-webkit-date-and-time-value {
+    text-align: left;
+  }
+}
+
+/* Long words (food names, notes) wrap instead of widening the page */
+.card,
+.modal-content {
+  overflow-wrap: anywhere;
 }

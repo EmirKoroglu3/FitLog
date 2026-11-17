@@ -22,6 +22,8 @@ public class SendGridEmailService : IEmailSender
         _logger = logger;
     }
 
+    public bool IsConfigured => !string.IsNullOrWhiteSpace(_configuration["SendGrid:ApiKey"]);
+
     public async Task SendEmailAsync(string to, string subject, string htmlBody, CancellationToken cancellationToken = default)
     {
         var apiKey = _configuration["SendGrid:ApiKey"];
