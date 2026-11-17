@@ -13,11 +13,15 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator) {
     navigator.serviceWorker.register(`/sw.js?v=${encodeURIComponent(build)}`).catch(() => {});
   });
 
-  // When the user comes back to the app, check whether a newer build has been deployed.
+  // Check whether a newer build has been deployed: when the user comes back to the tab or window,
+  // when the connection returns, and every 5 minutes while the page stays open (~1 KB per check).
   // '/version-check' is rewritten to index.html by Vercel and bypasses the service worker cache.
   let notified = false;
+  let lastCheck = 0;
   const checkForUpdate = async () => {
     if (notified || document.visibilityState !== 'visible' || !navigator.onLine) return;
+    if (Date.now() - lastCheck < 30_000) return; // focus + visibilitychange often fire together
+    lastCheck = Date.now();
     try {
       const html = await (await fetch('/version-check', { cache: 'no-store' })).text();
       if (html.includes('/assets/index-') && !html.includes(build)) {
@@ -29,7 +33,9 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator) {
     }
   };
   document.addEventListener('visibilitychange', checkForUpdate);
-  setInterval(checkForUpdate, 30 * 60 * 1000);
+  window.addEventListener('focus', checkForUpdate);
+  window.addEventListener('online', checkForUpdate);
+  setInterval(checkForUpdate, 5 * 60 * 1000);
 }
 
 createRoot(document.getElementById('root')!).render(
