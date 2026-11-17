@@ -32,6 +32,8 @@ public class WorkoutSessionDto
     public string? Notes { get; set; }
     public string? CardioActivity { get; set; }
     public decimal? DistanceKm { get; set; }
+    public decimal? SpeedKmh { get; set; }
+    public decimal? InclinePercent { get; set; }
     public int? AverageHeartRate { get; set; }
     public int? CaloriesBurned { get; set; }
     public int SetCount { get; set; }
@@ -75,6 +77,10 @@ public class SaveWorkoutSessionRequest
     public string? CardioActivity { get; set; }
     [Range(0, 1000)]
     public decimal? DistanceKm { get; set; }
+    [Range(0, 40)]
+    public decimal? SpeedKmh { get; set; }
+    [Range(0, 40)]
+    public decimal? InclinePercent { get; set; }
     [Range(30, 250)]
     public int? AverageHeartRate { get; set; }
     [Range(0, 10000)]

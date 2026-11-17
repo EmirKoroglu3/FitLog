@@ -25,6 +25,10 @@ public class WorkoutSession : BaseEntity
     // Cardio details (used when Type == Cardio)
     public string? CardioActivity { get; set; }
     public decimal? DistanceKm { get; set; }
+    /// <summary>Treadmill speed in km/h (optional).</summary>
+    public decimal? SpeedKmh { get; set; }
+    /// <summary>Treadmill incline in percent (optional).</summary>
+    public decimal? InclinePercent { get; set; }
     public int? AverageHeartRate { get; set; }
     public int? CaloriesBurned { get; set; }
 

@@ -162,6 +162,8 @@ public class FitLogDbContext : IdentityDbContext<ApplicationUser, IdentityRole<G
             e.Property(x => x.Notes).HasMaxLength(1000);
             e.Property(x => x.CardioActivity).HasMaxLength(50);
             e.Property(x => x.DistanceKm).HasPrecision(8, 2);
+            e.Property(x => x.SpeedKmh).HasPrecision(5, 2);
+            e.Property(x => x.InclinePercent).HasPrecision(5, 2);
             e.HasIndex(x => new { x.UserId, x.StartedAt });
             e.HasMany(x => x.Sets).WithOne(x => x.WorkoutSession)
                 .HasForeignKey(x => x.WorkoutSessionId).OnDelete(DeleteBehavior.Cascade);

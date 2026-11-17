@@ -171,6 +171,8 @@ public class WorkoutSessionService : IWorkoutSessionService
         session.Notes = r.Notes;
         session.CardioActivity = r.CardioActivity;
         session.DistanceKm = r.DistanceKm;
+        session.SpeedKmh = r.SpeedKmh;
+        session.InclinePercent = r.InclinePercent;
         session.AverageHeartRate = r.AverageHeartRate;
         session.CaloriesBurned = r.CaloriesBurned;
 
@@ -206,6 +208,8 @@ public class WorkoutSessionService : IWorkoutSessionService
             Notes = s.Notes,
             CardioActivity = s.CardioActivity,
             DistanceKm = s.DistanceKm,
+            SpeedKmh = s.SpeedKmh,
+            InclinePercent = s.InclinePercent,
             AverageHeartRate = s.AverageHeartRate,
             CaloriesBurned = s.CaloriesBurned,
             SetCount = working.Count,

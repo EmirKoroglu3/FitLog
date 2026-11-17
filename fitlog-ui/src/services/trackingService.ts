@@ -27,6 +27,8 @@ export interface WorkoutSession {
   notes?: string | null;
   cardioActivity?: string | null;
   distanceKm?: number | null;
+  speedKmh?: number | null;
+  inclinePercent?: number | null;
   averageHeartRate?: number | null;
   caloriesBurned?: number | null;
   setCount: number;

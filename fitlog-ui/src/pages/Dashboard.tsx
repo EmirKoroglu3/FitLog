@@ -8,6 +8,7 @@ import workoutService from '../services/workoutService';
 import './Dashboard.css';
 import { MacroProgress } from '../components/MacroProgress';
 import { SupplementChecklist } from '../components/SupplementChecklist';
+import { BurnCard } from '../components/BurnCard';
 import { ArrowRight, Beef, BicepsFlexed, Dumbbell, Flame, Nut, Pill, Salad, Wheat } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext';
 
@@ -93,6 +94,8 @@ export function Dashboard() {
           </div>
           <MacroProgress summary={nutritionSummary} />
         </section>
+
+        <BurnCard caloriesIn={nutritionSummary?.totalCalories} />
 
         <SupplementChecklist compact />
 

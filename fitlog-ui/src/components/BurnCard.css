@@ -1,0 +1,121 @@
+.burn-card {
+  margin-bottom: 1.5rem;
+}
+
+.burn-card .burn-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.burn-card .burn-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.burn-card .burn-total {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
+.burn-card .burn-total svg {
+  color: var(--primary);
+  align-self: center;
+}
+
+.burn-card .burn-total small {
+  font-size: 1rem;
+  color: var(--text-2);
+}
+
+.burn-card .burn-balance {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.burn-card .burn-balance strong {
+  font-size: 1.05rem;
+  color: var(--text);
+}
+
+.burn-card .burn-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.burn-card .burn-list li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+}
+
+.burn-card .burn-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: var(--primary-soft);
+  color: var(--primary-solid);
+}
+
+.burn-card .burn-name {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+}
+
+.burn-card .burn-name em {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.burn-card .burn-kcal {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.burn-card .burn-empty {
+  color: var(--text-2);
+}
+
+.burn-card .burn-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  margin-top: 0.9rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.burn-card .burn-note svg {
+  margin-top: 0.15rem;
+}
+
+@media (max-width: 560px) {
+  .burn-card .burn-balance {
+    align-items: flex-start;
+  }
+}

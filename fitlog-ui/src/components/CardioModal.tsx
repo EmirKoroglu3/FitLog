@@ -26,6 +26,8 @@ export function CardioModal({ onClose, onSaved }: Props) {
     time: toLocalTimeInput(),
     minutes: '30',
     distance: '',
+    speed: '',
+    incline: '',
     heartRate: '',
     calories: '',
     notes: '',
@@ -36,7 +38,10 @@ export function CardioModal({ onClose, onSaved }: Props) {
   const num = (v: string) => (v.trim() === '' ? null : Number(v.replace(',', '.')));
   const minutes = num(form.minutes) ?? 0;
   const distance = num(form.distance);
+  const speed = num(form.speed);
+  const incline = num(form.incline);
   const pace = distance ? formatPace(minutes, distance) : null;
+  const showTreadmill = form.activity === 'Yürüyüş' || form.activity === 'Koşu';
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +60,9 @@ export function CardioModal({ onClose, onSaved }: Props) {
         startedAt: start,
         endedAt: new Date(new Date(start).getTime() + minutes * 60000).toISOString(),
         durationSeconds: Math.round(minutes * 60),
-        distanceKm: distance,
+        distanceKm: distance ?? (showTreadmill && speed ? Math.round(speed * (minutes / 60) * 100) / 100 : null),
+        speedKmh: showTreadmill ? speed : null,
+        inclinePercent: showTreadmill ? incline : null,
         averageHeartRate: num(form.heartRate),
         caloriesBurned: num(form.calories),
         notes: form.notes || null,
@@ -108,6 +115,18 @@ export function CardioModal({ onClose, onSaved }: Props) {
               <input id="c-dist" type="number" min="0" step="0.01" value={form.distance} onChange={(e) => setForm({ ...form, distance: e.target.value })} placeholder="ops." />
             </div>
           </div>
+          {showTreadmill && (
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="c-speed">Hız (km/s)</label>
+                <input id="c-speed" type="number" min="0" max="40" step="0.1" value={form.speed} onChange={(e) => setForm({ ...form, speed: e.target.value })} placeholder="örn. 5" />
+              </div>
+              <div className="form-group">
+                <label htmlFor="c-incline">Eğim (%)</label>
+                <input id="c-incline" type="number" min="0" max="40" step="0.5" value={form.incline} onChange={(e) => setForm({ ...form, incline: e.target.value })} placeholder="örn. 12" />
+              </div>
+            </div>
+          )}
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="c-hr">Ort. nabız</label>
@@ -115,7 +134,7 @@ export function CardioModal({ onClose, onSaved }: Props) {
             </div>
             <div className="form-group">
               <label htmlFor="c-kcal">Yakılan kcal</label>
-              <input id="c-kcal" type="number" min="0" value={form.calories} onChange={(e) => setForm({ ...form, calories: e.target.value })} placeholder="ops." />
+              <input id="c-kcal" type="number" min="0" value={form.calories} onChange={(e) => setForm({ ...form, calories: e.target.value })} placeholder="boş = otomatik" />
             </div>
           </div>
           {pace && (
