@@ -26,5 +26,11 @@ export interface NutritionSummaryDto {
   totalCarbohydrates: number;
   totalFat: number;
   mealCount: number;
+  /** Part of the totals that came from supplements marked as taken today. */
+  supplementCalories?: number;
+  supplementProtein?: number;
+  supplementCarbohydrates?: number;
+  supplementFat?: number;
+  supplementCount?: number;
 }
 

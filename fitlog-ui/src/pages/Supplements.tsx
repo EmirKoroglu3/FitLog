@@ -4,8 +4,25 @@ import supplementService from '../services/supplementService';
 import { supplementCategories, searchSupplements, SupplementItem, getSupplementsByCategory } from '../data/supplementDatabase';
 import './Supplements.css';
 import { SupplementChecklist } from '../components/SupplementChecklist';
-import { AlarmClock, FlaskConical, NotebookPen, Pencil, Pill, Search, Trash2, X } from 'lucide-react';
+import { AlarmClock, Beef, FlaskConical, NotebookPen, Pencil, Pill, Search, Trash2, X } from 'lucide-react';
 import { useConfirm } from '../components/ConfirmProvider';
+
+// Form keeps numbers as strings so fields can be empty; '' means "no value"
+const EMPTY_FORM = { name: '', dosage: '', timing: '', usageNote: '', calories: '', protein: '', carbohydrates: '', fat: '' };
+const numOrNull = (v: string) => (v.trim() === '' || Number.isNaN(Number(v)) ? null : Math.max(0, Number(v)));
+const str = (v?: number | null) => (v == null ? '' : String(v));
+
+/** "24 g protein · 120 kcal" for cards; null when the supplement has no nutrition values. */
+const fmt = (n: number) => n.toLocaleString('tr-TR', { maximumFractionDigits: 1 });
+const nutritionLine = (s: SupplementDto) => {
+  const parts = [
+    s.protein ? `${fmt(s.protein)} g protein` : '',
+    s.carbohydrates ? `${fmt(s.carbohydrates)} g karb` : '',
+    s.fat ? `${fmt(s.fat)} g yağ` : '',
+    s.calories ? `${fmt(s.calories)} kcal` : '',
+  ].filter(Boolean);
+  return parts.length ? parts.join(' · ') : null;
+};
 
 export function Supplements() {
   const { confirm } = useConfirm();
@@ -22,12 +39,7 @@ export function Supplements() {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [selectedSupplement, setSelectedSupplement] = useState<SupplementItem | null>(null);
 
-  const [form, setForm] = useState({
-    name: '',
-    dosage: '',
-    timing: '',
-    usageNote: ''
-  });
+  const [form, setForm] = useState(EMPTY_FORM);
 
   useEffect(() => {
     fetchSupplements();
@@ -72,7 +84,11 @@ export function Supplements() {
         name: form.name,
         dosage: form.dosage || undefined,
         timing: form.timing || undefined,
-        usageNote: form.usageNote || undefined
+        usageNote: form.usageNote || undefined,
+        calories: numOrNull(form.calories),
+        protein: numOrNull(form.protein),
+        carbohydrates: numOrNull(form.carbohydrates),
+        fat: numOrNull(form.fat)
       };
 
       if (editingSupplement) {
@@ -105,7 +121,11 @@ export function Supplements() {
       name: supplement.name,
       dosage: supplement.dosage || '',
       timing: supplement.timing || '',
-      usageNote: supplement.usageNote || ''
+      usageNote: supplement.usageNote || '',
+      calories: str(supplement.calories),
+      protein: str(supplement.protein),
+      carbohydrates: str(supplement.carbohydrates),
+      fat: str(supplement.fat)
     });
     setSelectedSupplement(null);
     setShowModal(true);
@@ -118,7 +138,7 @@ export function Supplements() {
     setSearchQuery('');
     setSearchResults([]);
     setActiveCategory(null);
-    setForm({ name: '', dosage: '', timing: '', usageNote: '' });
+    setForm(EMPTY_FORM);
   };
 
   const selectSupplement = (supp: SupplementItem) => {
@@ -127,7 +147,11 @@ export function Supplements() {
       ...form,
       name: supp.name,
       dosage: supp.defaultDosage,
-      timing: supp.timing[0] || ''
+      timing: supp.timing[0] || '',
+      calories: str(supp.nutrition?.calories),
+      protein: str(supp.nutrition?.protein),
+      carbohydrates: str(supp.nutrition?.carbohydrates),
+      fat: str(supp.nutrition?.fat)
     });
     setSearchQuery('');
     setShowSearchResults(false);
@@ -214,6 +238,14 @@ export function Supplements() {
                     </div>
                   )}
                 </div>
+
+                {nutritionLine(supplement) && (
+                  <div className="supplement-nutrition">
+                    <Beef size="1em" aria-hidden="true" />
+                    <span>{nutritionLine(supplement)}</span>
+                    <small>alındığı gün beslenmeye eklenir</small>
+                  </div>
+                )}
 
                 {supplement.usageNote && (
                   <div className="supplement-note">
@@ -325,7 +357,7 @@ export function Supplements() {
                       className="change-supplement-btn"
                       onClick={() => {
                         setSelectedSupplement(null);
-                        setForm({ name: '', dosage: '', timing: '', usageNote: '' });
+                        setForm(EMPTY_FORM);
                       }}
                     >
                       Değiştir
@@ -366,6 +398,33 @@ export function Supplements() {
                       </select>
                     </div>
                   </div>
+
+                  <fieldset className="supplement-nutrition-fields">
+                    <legend>1 servisin besin değeri (opsiyonel)</legend>
+                    <p className="field-hint">"Bugün aldım" işaretlediğin gün, panel ve beslenmedeki toplamlara eklenir. Ürün etiketine göre düzenleyebilirsin.</p>
+                    <div className="nutrition-grid">
+                      {([
+                        ['calories', 'Kalori (kcal)'],
+                        ['protein', 'Protein (g)'],
+                        ['carbohydrates', 'Karb (g)'],
+                        ['fat', 'Yağ (g)'],
+                      ] as const).map(([key, label]) => (
+                        <div className="form-group" key={key}>
+                          <label htmlFor={`supp-${key}`}>{label}</label>
+                          <input
+                            id={`supp-${key}`}
+                            type="number"
+                            inputMode="decimal"
+                            min="0"
+                            step={key === 'calories' ? '1' : '0.1'}
+                            value={form[key]}
+                            onChange={e => setForm({ ...form, [key]: e.target.value })}
+                            placeholder="0"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </fieldset>
 
                   <div className="form-group">
                     <label>Kullanım Notu (Opsiyonel)</label>

@@ -29,5 +29,12 @@ public class NutritionSummaryDto
     public decimal TotalCarbohydrates { get; set; }
     public decimal TotalFat { get; set; }
     public int MealCount { get; set; }
+
+    // Part of the totals above that came from supplements marked as taken (e.g. a whey shake)
+    public int SupplementCalories { get; set; }
+    public decimal SupplementProtein { get; set; }
+    public decimal SupplementCarbohydrates { get; set; }
+    public decimal SupplementFat { get; set; }
+    public int SupplementCount { get; set; }
 }
 

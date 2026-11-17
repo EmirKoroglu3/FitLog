@@ -7,6 +7,8 @@ export interface SupplementItem {
   timing: string[];
   benefits: string;
   icon: string;
+  /** Typical label values for one serving (defaultDosage); user can adjust to their product. */
+  nutrition?: { calories: number; protein: number; carbohydrates: number; fat: number };
 }
 
 export const supplementCategories = [
@@ -29,7 +31,8 @@ export const supplementDatabase: SupplementItem[] = [
     defaultDosage: '1 ölçek (30g)',
     timing: ['Antrenman Sonrası', 'Sabah', 'Ara Öğün'],
     benefits: 'Kas gelişimi, toparlanma',
-    icon: '🥛'
+    icon: '🥛',
+    nutrition: { calories: 120, protein: 24, carbohydrates: 3, fat: 1.5 }
   },
   {
     id: 'whey-isolate',
@@ -38,7 +41,8 @@ export const supplementDatabase: SupplementItem[] = [
     defaultDosage: '1 ölçek (30g)',
     timing: ['Antrenman Sonrası', 'Sabah'],
     benefits: 'Hızlı emilim, düşük yağ',
-    icon: '🥛'
+    icon: '🥛',
+    nutrition: { calories: 110, protein: 27, carbohydrates: 1, fat: 0.5 }
   },
   {
     id: 'casein',
@@ -47,16 +51,18 @@ export const supplementDatabase: SupplementItem[] = [
     defaultDosage: '1 ölçek (30g)',
     timing: ['Yatmadan Önce'],
     benefits: 'Yavaş salınım, gece toparlanma',
-    icon: '🌙'
+    icon: '🌙',
+    nutrition: { calories: 115, protein: 24, carbohydrates: 3, fat: 1 }
   },
   {
     id: 'mass-gainer',
     name: 'Mass Gainer',
     category: 'protein',
-    defaultDosage: '1-2 ölçek',
+    defaultDosage: '1 ölçek (100g)',
     timing: ['Antrenman Sonrası', 'Ara Öğün'],
     benefits: 'Kilo alma, kalori artışı',
-    icon: '💪'
+    icon: '💪',
+    nutrition: { calories: 380, protein: 15, carbohydrates: 75, fat: 3 }
   },
   {
     id: 'plant-protein',
@@ -65,7 +71,8 @@ export const supplementDatabase: SupplementItem[] = [
     defaultDosage: '1 ölçek (30g)',
     timing: ['Antrenman Sonrası', 'Ara Öğün'],
     benefits: 'Vegan seçenek',
-    icon: '🌱'
+    icon: '🌱',
+    nutrition: { calories: 115, protein: 21, carbohydrates: 4, fat: 2 }
   },
 
   // PERFORMANS
@@ -337,10 +344,11 @@ export const supplementDatabase: SupplementItem[] = [
     id: 'collagen',
     name: 'Kolajen',
     category: 'other',
-    defaultDosage: '10-15g',
+    defaultDosage: '10g',
     timing: ['Sabah', 'Akşam'],
     benefits: 'Eklem, cilt sağlığı',
-    icon: '✨'
+    icon: '✨',
+    nutrition: { calories: 36, protein: 9, carbohydrates: 0, fat: 0 }
   },
   {
     id: 'probiotics',

@@ -94,6 +94,12 @@ export function Dashboard() {
               </div>
             </div>
           </div>
+          {(nutritionSummary?.supplementCount ?? 0) > 0 && (
+            <p className="supplement-contribution">
+              <Pill size="1em" aria-hidden="true" />
+              {t('Takviyeler dahil')}: +{Number(nutritionSummary?.supplementProtein ?? 0).toFixed(0)} g protein, +{nutritionSummary?.supplementCalories ?? 0} kcal
+            </p>
+          )}
           <MacroProgress summary={nutritionSummary} />
         </section>
 
@@ -101,7 +107,10 @@ export function Dashboard() {
 
         <WaterCard />
 
-        <SupplementChecklist compact />
+        <SupplementChecklist
+          compact
+          onChange={() => nutritionService.getDailySummary().then(setNutritionSummary).catch(() => {})}
+        />
 
         {/* Quick Actions */}
         <section className="quick-actions animate-slideUp" style={{ animationDelay: '100ms' }}>

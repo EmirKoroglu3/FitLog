@@ -119,6 +119,9 @@ public class FitLogDbContext : IdentityDbContext<ApplicationUser, IdentityRole<G
             entity.Property(e => e.UsageNote).HasMaxLength(500);
             entity.Property(e => e.Dosage).HasMaxLength(100);
             entity.Property(e => e.Timing).HasMaxLength(100);
+            entity.Property(e => e.Protein).HasPrecision(6, 1);
+            entity.Property(e => e.Carbohydrates).HasPrecision(6, 1);
+            entity.Property(e => e.Fat).HasPrecision(6, 1);
             // UserId foreign key'i Users (ApplicationUser) tablosuna yönlendir
             entity.HasOne<ApplicationUser>()
                   .WithMany()

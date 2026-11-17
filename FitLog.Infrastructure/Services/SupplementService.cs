@@ -46,7 +46,11 @@ public class SupplementService : ISupplementService
             Name = request.Name,
             UsageNote = request.UsageNote,
             Dosage = request.Dosage,
-            Timing = request.Timing
+            Timing = request.Timing,
+            Calories = request.Calories,
+            Protein = request.Protein,
+            Carbohydrates = request.Carbohydrates,
+            Fat = request.Fat
         };
 
         await _unitOfWork.Supplements.AddAsync(supplement, cancellationToken);
@@ -64,6 +68,10 @@ public class SupplementService : ISupplementService
         supplement.UsageNote = request.UsageNote;
         supplement.Dosage = request.Dosage;
         supplement.Timing = request.Timing;
+        supplement.Calories = request.Calories;
+        supplement.Protein = request.Protein;
+        supplement.Carbohydrates = request.Carbohydrates;
+        supplement.Fat = request.Fat;
 
         await _unitOfWork.Supplements.UpdateAsync(supplement, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -87,7 +95,11 @@ public class SupplementService : ISupplementService
         Name = supplement.Name,
         UsageNote = supplement.UsageNote,
         Dosage = supplement.Dosage,
-        Timing = supplement.Timing
+        Timing = supplement.Timing,
+        Calories = supplement.Calories,
+        Protein = supplement.Protein,
+        Carbohydrates = supplement.Carbohydrates,
+        Fat = supplement.Fat
     };
 }
 

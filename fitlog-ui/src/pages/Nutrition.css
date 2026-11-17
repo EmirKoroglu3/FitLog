@@ -792,3 +792,14 @@
     justify-content: flex-end;
   }
 }
+
+.nutrition-page .supplement-contribution {
+  margin: -0.25rem 0 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text-2);
+}
+
+.nutrition-page .supplement-contribution a {
+  color: var(--primary-solid);
+  font-weight: 600;
+}

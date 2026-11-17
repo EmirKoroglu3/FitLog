@@ -260,3 +260,16 @@
     max-width: 100%;
   }
 }
+
+:is(.dashboard, .dashboard-loading) .supplement-contribution {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text-2);
+}
+
+:is(.dashboard, .dashboard-loading) .supplement-contribution svg {
+  color: var(--primary);
+}

@@ -60,6 +60,20 @@ public class AiCoachService : IAiCoachService
             .Select(n => new CoachMeal(n.Date, n.Calories, n.Protein))
             .ToListAsync(cancellationToken);
 
+        // Supplements taken (whey, gainer...) count toward intake, but only on days that also have
+        // meal logs: a shake alone shouldn't turn an unlogged day into a "logged" low-calorie day.
+        var supplementSince = DateOnly.FromDateTime(now.AddDays(-28));
+        var supplementIntakes = await (
+                from i in _context.SupplementIntakes.AsNoTracking()
+                join s in _context.Supplements.AsNoTracking() on i.SupplementId equals s.Id
+                where i.UserId == userId && i.Date >= supplementSince && (s.Calories > 0 || s.Protein > 0)
+                select new { i.Date, s.Calories, s.Protein })
+            .ToListAsync(cancellationToken);
+        var mealDays = meals.Select(m => DateOnly.FromDateTime(m.Date)).ToHashSet();
+        meals.AddRange(supplementIntakes
+            .Where(x => mealDays.Contains(x.Date))
+            .Select(x => new CoachMeal(x.Date.ToDateTime(new TimeOnly(12, 0), DateTimeKind.Utc), x.Calories ?? 0, x.Protein ?? 0)));
+
         var weighIns = await _context.BodyMeasurements.AsNoTracking()
             .Where(m => m.UserId == userId && m.WeightKg != null && m.Date >= DateOnly.FromDateTime(now.AddDays(-60)))
             .Select(m => new CoachWeighIn(m.Date, m.WeightKg!.Value))

@@ -109,14 +109,38 @@ public class NutritionService : INutritionService
             .Where(n => n.UserId == userId && n.Date >= from && n.Date < to)
             .ToListAsync(cancellationToken);
 
+        // Supplements marked as taken in the range count like food (whey, gainer, ...).
+        // Intakes are stored per local calendar day, while the client sends its local day as a UTC
+        // range (Turkey: 17 Nov = 16 Nov 21:00Z .. 17 Nov 21:00Z). Shifting by 12 h lands inside
+        // the intended local day for any offset between UTC-11 and UTC+12.
+        var firstDay = DateOnly.FromDateTime(from.AddHours(12));
+        var endDay = DateOnly.FromDateTime(to.AddHours(12));
+        if (endDay <= firstDay) endDay = firstDay.AddDays(1);
+        var taken = await (
+                from i in _context.SupplementIntakes
+                join s in _context.Supplements on i.SupplementId equals s.Id
+                where i.UserId == userId && i.Date >= firstDay && i.Date < endDay
+                select new { s.Calories, s.Protein, s.Carbohydrates, s.Fat })
+            .ToListAsync(cancellationToken);
+
+        var supCalories = taken.Sum(t => t.Calories ?? 0);
+        var supProtein = taken.Sum(t => t.Protein ?? 0);
+        var supCarbs = taken.Sum(t => t.Carbohydrates ?? 0);
+        var supFat = taken.Sum(t => t.Fat ?? 0);
+
         return new NutritionSummaryDto
         {
             Date = from,
-            TotalCalories = logs.Sum(l => l.Calories),
-            TotalProtein = logs.Sum(l => l.Protein),
-            TotalCarbohydrates = logs.Sum(l => l.Carbohydrates ?? 0),
-            TotalFat = logs.Sum(l => l.Fat ?? 0),
-            MealCount = logs.Count
+            TotalCalories = logs.Sum(l => l.Calories) + supCalories,
+            TotalProtein = logs.Sum(l => l.Protein) + supProtein,
+            TotalCarbohydrates = logs.Sum(l => l.Carbohydrates ?? 0) + supCarbs,
+            TotalFat = logs.Sum(l => l.Fat ?? 0) + supFat,
+            MealCount = logs.Count,
+            SupplementCalories = supCalories,
+            SupplementProtein = supProtein,
+            SupplementCarbohydrates = supCarbs,
+            SupplementFat = supFat,
+            SupplementCount = taken.Count(t => t.Calories > 0 || t.Protein > 0 || t.Carbohydrates > 0 || t.Fat > 0)
         };
     }
 

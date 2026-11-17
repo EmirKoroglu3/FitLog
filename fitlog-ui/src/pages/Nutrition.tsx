@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { NutritionLogDto, NutritionSummaryDto } from '../types/nutrition';
 import nutritionService from '../services/nutritionService';
 import { foodCategories, searchFoods, FoodItem, getFoodsByCategory, foodDatabase } from '../data/foodDatabase';
@@ -433,6 +434,12 @@ export function Nutrition() {
             {summary && (
               <div className="daily-summary animate-slideUp">
                 <h2>{dayTitle} — Özet</h2>
+                {(summary.supplementCount ?? 0) > 0 && (
+                  <p className="supplement-contribution">
+                    Takviyeler dahil: +{Number(summary.supplementProtein ?? 0).toFixed(0)} g protein, +{summary.supplementCalories ?? 0} kcal
+                    {' · '}<Link to="/supplements">Düzenle</Link>
+                  </p>
+                )}
                 <MacroProgress summary={summary} />
                 <div className="summary-cards">
                   <div className="summary-card calories">

@@ -13,10 +13,12 @@ interface Props {
   compact?: boolean;
   /** Bump to reload, e.g. after the supplement list changed. */
   refreshKey?: number;
+  /** Called after a supplement is marked/unmarked (e.g. to refresh nutrition totals). */
+  onChange?: () => void;
 }
 
 /** Today's "taken?" checklist for the user's supplements. */
-export function SupplementChecklist({ compact = false, refreshKey = 0 }: Props) {
+export function SupplementChecklist({ compact = false, refreshKey = 0, onChange }: Props) {
   const { t } = useI18n();
   const today = toLocalDateInput();
   const [supplements, setSupplements] = useState<SupplementDto[]>([]);
@@ -42,6 +44,7 @@ export function SupplementChecklist({ compact = false, refreshKey = 0 }: Props) 
     try {
       if (wasTaken) await supplementIntakeApi.unmark(id, today);
       else await supplementIntakeApi.mark(id, today);
+      onChange?.();
     } catch {
       setTaken(taken); // roll back
       setError(true);
