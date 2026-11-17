@@ -4,7 +4,8 @@
  * - Google Fonts: stale-while-revalidate.
  * - API calls are never cached (they carry per-user data and auth).
  */
-const VERSION = 'fitlog-v1';
+// Registered as /sw.js?v=<build>, so every deploy gets its own cache and the old one is deleted on activate
+const VERSION = 'fitlog-' + (new URL(self.location.href).searchParams.get('v') || 'v1');
 const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', (event) => {
