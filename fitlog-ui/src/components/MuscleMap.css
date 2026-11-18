@@ -1,0 +1,212 @@
+.muscle-map {
+  padding: 1.25rem;
+}
+
+.muscle-map .mm-head h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 1.1rem;
+}
+
+.muscle-map .mm-head h3 svg {
+  color: var(--primary);
+}
+
+.muscle-map .mm-head p {
+  margin-top: 0.15rem;
+  font-size: 0.8rem;
+  color: var(--text-2);
+}
+
+.muscle-map .mm-figures {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin: 0.75rem 0 0.5rem;
+}
+
+.muscle-map .mm-figure {
+  margin: 0;
+  text-align: center;
+}
+
+.muscle-map .mm-figure svg {
+  width: 100%;
+  max-height: 22rem;
+  overflow: visible;
+}
+
+.muscle-map .mm-figure figcaption {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+/* Muscle colours: none → little → some → solid → a lot */
+.muscle-map {
+  --mm-0: #e7e5e4;
+  --mm-1: #fde68a;
+  --mm-2: #fdba74;
+  --mm-3: #f97316;
+  --mm-4: #dc2626;
+  --mm-skin: #f5f0eb;
+  --mm-line: rgba(28, 25, 23, 0.25);
+}
+
+:root[data-theme='dark'] .muscle-map {
+  --mm-0: #3f3a36;
+  --mm-skin: #2a2623;
+  --mm-line: rgba(255, 255, 255, 0.18);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .muscle-map {
+    --mm-0: #3f3a36;
+    --mm-skin: #2a2623;
+    --mm-line: rgba(255, 255, 255, 0.18);
+  }
+}
+
+.muscle-map .mm-skin path,
+.muscle-map .mm-skin circle,
+.muscle-map .mm-skin ellipse {
+  fill: var(--mm-skin);
+  stroke: var(--mm-line);
+  stroke-width: 0.8;
+}
+
+.muscle-map .mm-skin .mm-line,
+.muscle-map .mm-lines path {
+  fill: none;
+  stroke: var(--mm-line);
+  stroke-width: 0.7;
+  pointer-events: none;
+}
+
+.muscle-map .mm-region {
+  stroke: var(--mm-line);
+  stroke-width: 0.8;
+  cursor: pointer;
+  transition: fill 200ms ease, opacity 150ms ease;
+}
+
+.muscle-map .lvl0 { fill: var(--mm-0); background: var(--mm-0); }
+.muscle-map .lvl1 { fill: var(--mm-1); background: var(--mm-1); }
+.muscle-map .lvl2 { fill: var(--mm-2); background: var(--mm-2); }
+.muscle-map .lvl3 { fill: var(--mm-3); background: var(--mm-3); }
+.muscle-map .lvl4 { fill: var(--mm-4); background: var(--mm-4); }
+
+.muscle-map .mm-region:hover {
+  opacity: 0.85;
+}
+
+.muscle-map .mm-region.selected {
+  stroke: var(--text);
+  stroke-width: 1.8;
+}
+
+.muscle-map .mm-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.72rem;
+  color: var(--text-2);
+}
+
+.muscle-map .mm-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.muscle-map .mm-swatch {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 3px;
+  border: 1px solid var(--mm-line);
+  flex-shrink: 0;
+}
+
+.muscle-map .mm-detail {
+  margin-top: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  font-size: 0.85rem;
+}
+
+.muscle-map .mm-detail p {
+  color: var(--text-2);
+}
+
+.muscle-map .mm-detail ul {
+  margin: 0.35rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.muscle-map .mm-detail li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.15rem 0;
+}
+
+.muscle-map .mm-detail li span {
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.muscle-map .mm-list {
+  margin-top: 0.6rem;
+  font-size: 0.85rem;
+}
+
+.muscle-map .mm-list summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--primary-solid);
+}
+
+.muscle-map .mm-list ul {
+  margin: 0.4rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.muscle-map .mm-list button {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.3rem 0.4rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.muscle-map .mm-list button:hover,
+.muscle-map .mm-list button.active {
+  background: var(--primary-soft);
+}
+
+.muscle-map .mm-sets {
+  margin-left: auto;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.muscle-map .mm-note {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}

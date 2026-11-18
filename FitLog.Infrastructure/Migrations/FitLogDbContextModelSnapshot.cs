@@ -207,6 +207,9 @@ namespace FitLog.Infrastructure.Migrations
                     b.Property<int>("SetCount")
                         .HasColumnType("integer");
 
+                    b.Property<bool>("SupersetWithNext")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -273,6 +276,37 @@ namespace FitLog.Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("FitnessGoals");
+                });
+
+            modelBuilder.Entity("FitLog.Domain.Entities.MealTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ItemsJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("MealTemplates");
                 });
 
             modelBuilder.Entity("FitLog.Domain.Entities.NutritionLog", b =>
@@ -1082,6 +1116,15 @@ namespace FitLog.Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("FitLog.Domain.Entities.FitnessGoal", b =>
+                {
+                    b.HasOne("FitLog.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FitLog.Domain.Entities.MealTemplate", b =>
                 {
                     b.HasOne("FitLog.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany()

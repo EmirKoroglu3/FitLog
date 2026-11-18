@@ -139,3 +139,35 @@ public class SupplementIntakeController : ControllerBase
     public async Task<IActionResult> Unmark(Guid supplementId, DateOnly date, CancellationToken ct) =>
         await _intake.UnmarkAsync(UserId, supplementId, date, ct) ? NoContent() : NotFound();
 }
+
+/// <summary>Saved meals ("my usual breakfast") to add in one tap.</summary>
+[ApiController]
+[Route("api/meal-templates")]
+[Authorize]
+public class MealTemplatesController : ControllerBase
+{
+    private readonly IMealTemplateService _templates;
+    private readonly ICurrentUserService _currentUser;
+
+    public MealTemplatesController(IMealTemplateService templates, ICurrentUserService currentUser)
+    {
+        _templates = templates;
+        _currentUser = currentUser;
+    }
+
+    private Guid UserId => _currentUser.UserId!.Value;
+
+    [HttpGet]
+    public async Task<ActionResult<List<MealTemplateDto>>> List(CancellationToken ct) =>
+        Ok(await _templates.GetAllAsync(UserId, ct));
+
+    [HttpPost]
+    public async Task<ActionResult<MealTemplateDto>> Create([FromBody] SaveMealTemplateRequest request, CancellationToken ct) =>
+        await _templates.CreateAsync(UserId, request, ct) is { } t
+            ? Ok(t)
+            : BadRequest(new { message = "Şablon kaydedilemedi (en az bir yiyecek gerekli, en fazla 50 şablon)." });
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct) =>
+        await _templates.DeleteAsync(UserId, id, ct) ? NoContent() : NotFound();
+}

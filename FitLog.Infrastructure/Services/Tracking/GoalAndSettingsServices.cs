@@ -248,3 +248,44 @@ public class SupplementIntakeService : ISupplementIntakeService
             .Where(i => i.UserId == userId && i.SupplementId == supplementId && i.Date == date)
             .ExecuteDeleteAsync(ct) > 0;
 }
+
+public class MealTemplateService : IMealTemplateService
+{
+    private const int MaxTemplatesPerUser = 50;
+    private readonly FitLogDbContext _db;
+
+    public MealTemplateService(FitLogDbContext db) => _db = db;
+
+    public Task<List<MealTemplateDto>> GetAllAsync(Guid userId, CancellationToken ct = default) =>
+        _db.MealTemplates.AsNoTracking()
+            .Where(t => t.UserId == userId)
+            .OrderBy(t => t.Name)
+            .Select(t => new MealTemplateDto { Id = t.Id, Name = t.Name, ItemsJson = t.ItemsJson, CreatedDate = t.CreatedDate })
+            .ToListAsync(ct);
+
+    public async Task<MealTemplateDto?> CreateAsync(Guid userId, SaveMealTemplateRequest request, CancellationToken ct = default)
+    {
+        // Must be a JSON array; reject anything else rather than storing junk
+        try
+        {
+            using var doc = System.Text.Json.JsonDocument.Parse(request.ItemsJson);
+            if (doc.RootElement.ValueKind != System.Text.Json.JsonValueKind.Array || doc.RootElement.GetArrayLength() == 0)
+                return null;
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            return null;
+        }
+
+        if (await _db.MealTemplates.CountAsync(t => t.UserId == userId, ct) >= MaxTemplatesPerUser)
+            return null;
+
+        var template = new MealTemplate { Id = Guid.NewGuid(), UserId = userId, Name = request.Name.Trim(), ItemsJson = request.ItemsJson };
+        _db.MealTemplates.Add(template);
+        await _db.SaveChangesAsync(ct);
+        return new MealTemplateDto { Id = template.Id, Name = template.Name, ItemsJson = template.ItemsJson, CreatedDate = template.CreatedDate };
+    }
+
+    public async Task<bool> DeleteAsync(Guid userId, Guid id, CancellationToken ct = default) =>
+        await _db.MealTemplates.Where(t => t.Id == id && t.UserId == userId).ExecuteDeleteAsync(ct) > 0;
+}

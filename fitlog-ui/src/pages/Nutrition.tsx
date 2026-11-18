@@ -4,13 +4,15 @@ import { NutritionLogDto, NutritionSummaryDto } from '../types/nutrition';
 import nutritionService from '../services/nutritionService';
 import { foodCategories, searchFoods, FoodItem, getFoodsByCategory, foodDatabase } from '../data/foodDatabase';
 import { foodMatchScore } from '../data/foodSearch';
-import { customFoodsApi, type CustomFood } from '../services/trackingService';
+import { customFoodsApi, mealTemplatesApi, type CustomFood, type MealTemplate } from '../services/trackingService';
 import { useSettings } from '../store/SettingsContext';
 import { useAuth } from '../store/AuthContext';
 import './Nutrition.css';
 import { MacroProgress } from '../components/MacroProgress';
 import { localDayRange, localInputsToIso, toLocalDateInput, toLocalTimeInput } from '../utils/dateTime';
-import { Beef, ChevronLeft, ChevronRight, Copy, Flame, Nut, Pencil, Plus, Salad, Search, Star, Trash2, Utensils, Wheat, X } from 'lucide-react';
+import { BarcodeScanner } from '../components/BarcodeScanner';
+import type { ScannedProduct } from '../utils/openFoodFacts';
+import { Beef, Bookmark, BookmarkPlus, ScanBarcode, ChevronLeft, ChevronRight, Copy, Flame, Lightbulb, Nut, Pencil, Plus, Salad, Search, Star, Trash2, Utensils, Wheat, X } from 'lucide-react';
 import { useConfirm } from '../components/ConfirmProvider';
 
 type Mode = 'serving' | 'gram';
@@ -59,7 +61,11 @@ const emptyCustom = { name: '', servingSize: '100', servingUnit: 'g', calories: 
 const addDays = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
 
 export function Nutrition() {
-  const { confirm } = useConfirm();
+  const { confirm, toast } = useConfirm();
+  const [templates, setTemplates] = useState<MealTemplate[]>([]);
+  /** Name being typed for a new template (null = form closed). */
+  const [templateName, setTemplateName] = useState<string | null>(null);
+  const [showScanner, setShowScanner] = useState(false);
   const { user } = useAuth();
   const { settings, update: updateSettings } = useSettings();
   const [day, setDay] = useState(() => addDays(new Date(), 0));
@@ -104,6 +110,7 @@ export function Nutrition() {
 
   useEffect(() => {
     customFoodsApi.list().then((c) => setCustomFoods(c.map(customToFood))).catch(() => {});
+    mealTemplatesApi.list().then(setTemplates).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -249,6 +256,90 @@ export function Nutrition() {
     } finally {
       setCopying(false);
     }
+  };
+
+  // ---- Barcode: product from Open Food Facts, kept in "Kendi Yiyeceklerim" for next time ----
+  const addScannedProduct = async (product: ScannedProduct) => {
+    const name = (product.brand && !product.name.toLocaleLowerCase('tr-TR').includes(product.brand.toLocaleLowerCase('tr-TR'))
+      ? `${product.brand} ${product.name}`
+      : product.name
+    ).slice(0, 100);
+    try {
+      const existing = customFoods.find((f) => f.name.toLocaleLowerCase('tr-TR') === name.toLocaleLowerCase('tr-TR'));
+      const food =
+        existing ??
+        customToFood(
+          await customFoodsApi.create({
+            name,
+            servingSize: 100,
+            servingUnit: product.unit,
+            calories: product.per100.calories,
+            protein: product.per100.protein,
+            carbohydrates: product.per100.carbohydrates,
+            fat: product.per100.fat,
+          }),
+        );
+      if (!existing) setCustomFoods((c) => [food, ...c]);
+      addFood(food);
+      setShowScanner(false);
+      toast(`${name} eklendi (100 ${product.unit}). Miktarı aşağıdan ayarla.`, 'success');
+    } catch {
+      toast('Ürün kaydedilemedi, tekrar dene.', 'error');
+    }
+  };
+
+  // ---- Meal templates ("my usual breakfast") ----
+  const applyTemplate = (t: MealTemplate) => {
+    try {
+      const items = JSON.parse(t.itemsJson) as SelectedFood[];
+      setSelectedFoods((current) => [...current, ...items.filter((i) => i?.food?.name)]);
+    } catch {
+      toast('Şablon okunamadı.', 'error');
+    }
+  };
+
+  const saveTemplate = async () => {
+    const name = (templateName ?? '').trim();
+    if (!name || selectedFoods.length === 0) return;
+    try {
+      const created = await mealTemplatesApi.create({ name, itemsJson: JSON.stringify(selectedFoods) });
+      setTemplates((ts) => [...ts, created].sort((a, b) => a.name.localeCompare(b.name, 'tr')));
+      setTemplateName(null);
+      toast(`"${name}" şablonu kaydedildi.`, 'success');
+    } catch {
+      toast('Şablon kaydedilemedi.', 'error');
+    }
+  };
+
+  const deleteTemplate = async (t: MealTemplate) => {
+    if (!(await confirm({ title: `"${t.name}" şablonu silinsin mi?`, message: 'Daha önce eklediğin öğünler etkilenmez.', confirmText: 'Sil', danger: true }))) return;
+    try {
+      await mealTemplatesApi.remove(t.id);
+      setTemplates((ts) => ts.filter((x) => x.id !== t.id));
+    } catch {
+      toast('Şablon silinemedi.', 'error');
+    }
+  };
+
+  // ---- "Remaining today" + foods that fit it ----
+  const remaining = useMemo(() => {
+    if (!isToday || !summary || !settings.calorieTarget) return null;
+    const kcal = Math.round(settings.calorieTarget - summary.totalCalories);
+    const protein = settings.proteinTarget ? Math.round(settings.proteinTarget - summary.totalProtein) : null;
+    if (kcal <= 60) return { kcal, protein, tips: [] as FoodItem[] };
+    const fits = foodDatabase.filter((f) => f.calories > 0 && f.calories <= kcal);
+    const tips =
+      protein != null && protein > 5
+        ? fits.filter((f) => f.protein >= 8).sort((a, b) => b.protein / b.calories - a.protein / a.calories)
+        : fits.sort((a, b) => b.calories - a.calories);
+    // One per category so the tips are varied
+    const seen = new Set<string>();
+    return { kcal, protein, tips: tips.filter((f) => !seen.has(f.category) && seen.add(f.category)).slice(0, 4) };
+  }, [isToday, summary, settings.calorieTarget, settings.proteinTarget]);
+
+  const addTip = (food: FoodItem) => {
+    openAddModal();
+    setSelectedFoods([{ food, amount: 1, mode: 'serving' }]);
   };
 
   const openAddModal = () => {
@@ -445,6 +536,32 @@ export function Nutrition() {
                   </p>
                 )}
                 <MacroProgress summary={summary} />
+                {remaining && (
+                  <div className="remaining-card">
+                    <div className="remaining-head">
+                      <Lightbulb size={16} aria-hidden="true" />
+                      {remaining.kcal > 60 ? (
+                        <span>
+                          Bugün <strong>{remaining.kcal} kcal</strong>
+                          {remaining.protein != null && remaining.protein > 0 && <> ve <strong>{remaining.protein} g protein</strong></>} kaldı
+                          {remaining.tips.length > 0 && ', şunlar uyar:'}
+                        </span>
+                      ) : (
+                        <span>Bugünkü kalori hedefine ulaştın{remaining.protein != null && remaining.protein > 0 ? ` (proteinden ${remaining.protein} g kaldı)` : ''}.</span>
+                      )}
+                    </div>
+                    {remaining.tips.length > 0 && (
+                      <div className="remaining-tips">
+                        {remaining.tips.map((f) => (
+                          <button key={f.id} type="button" className="tip-chip" onClick={() => addTip(f)} title="Öğün olarak ekle">
+                            <span aria-hidden="true">{f.icon}</span> {f.name}
+                            <small>{f.calories} kcal · {f.protein} g P</small>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
                 <div className="summary-cards">
                   <div className="summary-card calories">
                     <span className="summary-icon"><Flame size="1em" aria-hidden="true" /></span>
@@ -630,9 +747,30 @@ export function Nutrition() {
                     </button>
                   )}
                 </div>
+                <button type="button" className="barcode-btn" onClick={() => setShowScanner(true)}>
+                  <ScanBarcode size={16} aria-hidden="true" /> Barkod okut
+                </button>
+                {showScanner && <BarcodeScanner onFound={addScannedProduct} onClose={() => setShowScanner(false)} />}
 
-                {!showSearchResults && (favorites.length > 0 || recent.length > 0) && (
+                {!showSearchResults && (templates.length > 0 || favorites.length > 0 || recent.length > 0) && (
                   <div className="quick-picks">
+                    {templates.length > 0 && (
+                      <div>
+                        <span className="quick-label"><Bookmark size={14} aria-hidden="true" /> Şablonlarım</span>
+                        <div className="quick-chips">
+                          {templates.map((t) => (
+                            <span key={t.id} className="template-chip">
+                              <button type="button" className="quick-chip" onClick={() => applyTemplate(t)} title="Şablondaki yiyecekleri ekle">
+                                <Bookmark size={13} aria-hidden="true" /> {t.name}
+                              </button>
+                              <button type="button" className="template-del" onClick={() => deleteTemplate(t)} aria-label={`${t.name} şablonunu sil`}>
+                                <X size={12} aria-hidden="true" />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     {favorites.length > 0 && (
                       <div>
                         <span className="quick-label"><Star size={14} aria-hidden="true" /> Favoriler</span>
@@ -809,7 +947,31 @@ export function Nutrition() {
 
               {selectedFoods.length > 0 && (
                 <div className="selected-foods-section">
-                  <label>Seçilen Yiyecekler ({selectedFoods.length})</label>
+                  <div className="selected-head">
+                    <label>Seçilen Yiyecekler ({selectedFoods.length})</label>
+                    {templateName == null ? (
+                      <button type="button" className="save-template-btn" onClick={() => setTemplateName('')}>
+                        <BookmarkPlus size={15} aria-hidden="true" /> Şablon olarak kaydet
+                      </button>
+                    ) : (
+                      <div className="template-form">
+                        <input
+                          value={templateName}
+                          onChange={(e) => setTemplateName(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') { e.preventDefault(); saveTemplate(); }
+                            if (e.key === 'Escape') { e.stopPropagation(); setTemplateName(null); }
+                          }}
+                          placeholder="Örn: Sabah kahvaltım"
+                          maxLength={60}
+                          aria-label="Şablon adı"
+                          autoFocus
+                        />
+                        <button type="button" className="btn-primary" onClick={saveTemplate} disabled={!templateName.trim()}>Kaydet</button>
+                        <button type="button" className="icon-btn" onClick={() => setTemplateName(null)} aria-label="Vazgeç"><X size={14} aria-hidden="true" /></button>
+                      </div>
+                    )}
+                  </div>
                   <div className="selected-foods-list">
                     {selectedFoods.map((sf) => {
                       const { food, amount, mode } = sf;

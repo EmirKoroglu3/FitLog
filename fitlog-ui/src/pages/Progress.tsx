@@ -14,6 +14,7 @@ import { useSettings } from '../store/SettingsContext';
 import { TrendChart, type TrendPoint } from '../components/TrendChart';
 import { formatNumber, formatWeight, kgToUnit } from '../utils/units';
 import './Progress.css';
+import { MuscleMap } from '../components/MuscleMap';
 
 type Metric = 'estimated1Rm' | 'bestWeightKg' | 'volumeKg';
 const METRICS: Record<Metric, string> = {
@@ -37,6 +38,7 @@ export function Progress() {
   const [records, setRecords] = useState<PersonalRecord[]>([]);
   const [measurements, setMeasurements] = useState<BodyMeasurement[]>([]);
   const [sessions, setSessions] = useState<WorkoutSession[]>([]);
+  const [weekSessions, setWeekSessions] = useState<WorkoutSession[]>([]);
 
   useEffect(() => {
     Promise.all([
@@ -45,8 +47,10 @@ export function Progress() {
       sessionsApi.personalRecords(),
       bodyApi.measurements(),
       sessionsApi.list({ from: new Date(Date.now() - 31 * 86400000).toISOString() }),
+      sessionsApi.list({ from: new Date(Date.now() - 7 * 86400000).toISOString(), includeSets: true }),
     ])
-      .then(([ex, wk, pr, ms, recent]) => {
+      .then(([ex, wk, pr, ms, recent, week]) => {
+        setWeekSessions(week);
         setExercises(ex);
         // Default to the exercise with the strongest record (usually a main lift)
         setExercise(pr[0]?.exerciseName ?? ex[0] ?? '');
@@ -79,6 +83,44 @@ export function Progress() {
     .filter((m) => m.weightKg != null)
     .sort((a, b) => a.date.localeCompare(b.date))
     .map((m) => ({ label: shortDate(`${m.date}T00:00`), value: m.weightKg! }));
+
+  // 7-day trailing average: daily weight swings 1–2 kg, the average shows the real direction
+  const weightAverage = useMemo(() => {
+    const sorted = [...measurements].filter((m) => m.weightKg != null).sort((a, b) => a.date.localeCompare(b.date));
+    return sorted.map((m) => {
+      const end = new Date(`${m.date}T00:00`).getTime();
+      const window = sorted.filter((x) => {
+        const t = new Date(`${x.date}T00:00`).getTime();
+        return t <= end && t > end - 7 * 86400000;
+      });
+      return window.reduce((sum, x) => sum + x.weightKg!, 0) / window.length;
+    });
+  }, [measurements]);
+
+  // Summary of the selected exercise's history
+  const exerciseSummary = useMemo(() => {
+    if (history.length === 0) return null;
+    const best1Rm = history.reduce((a, b) => (b.estimated1Rm > a.estimated1Rm ? b : a));
+    const heaviest = history.reduce((a, b) => (b.bestWeightKg > a.bestWeightKg ? b : a));
+    const first = history[0];
+    const last = history[history.length - 1];
+    return {
+      sessions: history.length,
+      best1Rm,
+      heaviest,
+      last,
+      change1Rm: history.length > 1 ? last.estimated1Rm - first.estimated1Rm : null,
+    };
+  }, [history]);
+
+  // Working sets (no warm-ups) of the last 7 days, for the muscle map
+  const weekMuscleEntries = useMemo(
+    () =>
+      weekSessions.flatMap((s) =>
+        (s.sets ?? []).filter((x) => !x.isWarmup).map((x) => ({ name: x.exerciseName, sets: 1 })),
+      ),
+    [weekSessions],
+  );
 
   const stats = useMemo(() => {
     // Early in the week there's nothing logged yet; show last week instead of a misleading -100%
@@ -186,6 +228,39 @@ export function Progress() {
                       ))}
                     </div>
                   </div>
+                  {exerciseSummary && (
+                    <dl className="exercise-summary">
+                      <div>
+                        <dt>Seans</dt>
+                        <dd>{exerciseSummary.sessions}</dd>
+                      </div>
+                      <div>
+                        <dt>En iyi tahmini 1RM</dt>
+                        <dd>
+                          {weightFmt(exerciseSummary.best1Rm.estimated1Rm)}
+                          <small>{shortDate(exerciseSummary.best1Rm.date)}</small>
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>En ağır set</dt>
+                        <dd>
+                          {weightFmt(exerciseSummary.heaviest.bestWeightKg)} × {exerciseSummary.heaviest.repsAtBest}
+                          <small>{shortDate(exerciseSummary.heaviest.date)}</small>
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Son seans</dt>
+                        <dd>
+                          {weightFmt(exerciseSummary.last.bestWeightKg)} × {exerciseSummary.last.repsAtBest}
+                          <small>
+                            {shortDate(exerciseSummary.last.date)}
+                            {exerciseSummary.change1Rm != null && exerciseSummary.change1Rm !== 0 &&
+                              ` · 1RM ${exerciseSummary.change1Rm > 0 ? '+' : ''}${formatNumber(kgToUnit(exerciseSummary.change1Rm, unit), 1)} ${unit}`}
+                          </small>
+                        </dd>
+                      </div>
+                    </dl>
+                  )}
                   {exercisePoints.length > 1 ? (
                     <TrendChart kind="line" points={exercisePoints} seriesLabel={`${exercise} – ${METRICS[metric]}`} formatValue={weightFmt} />
                   ) : (
@@ -216,11 +291,18 @@ export function Progress() {
                 <div className="chart-head">
                   <div>
                     <h2><Scale size="1em" aria-hidden="true" /> Vücut ağırlığı</h2>
-                    <p>Vücut Takibi'ndeki ölçümlerden</p>
+                    <p>Tartılar ve 7 günlük ortalama (asıl yönü gösterir)</p>
                   </div>
                 </div>
                 {weightPoints.length > 1 ? (
-                  <TrendChart kind="line" points={weightPoints} seriesLabel="Kilo" formatValue={(v) => formatWeight(v, unit)} height={220} />
+                  <TrendChart
+                    kind="line"
+                    points={weightPoints}
+                    seriesLabel="Tartı"
+                    average={{ label: '7 günlük ortalama', values: weightAverage }}
+                    formatValue={(v) => formatWeight(v, unit)}
+                    height={220}
+                  />
                 ) : (
                   <p className="chart-empty">
                     Grafik için en az 2 kilo ölçümü gerekiyor. <Link to="/body-tracking">Ölçüm ekle</Link>
@@ -228,6 +310,14 @@ export function Progress() {
                 )}
               </section>
             </div>
+
+            {weekMuscleEntries.length > 0 && (
+              <MuscleMap
+                entries={weekMuscleEntries}
+                title="Son 7 günde çalışan kaslar"
+                subtitle={`Gerçekten yaptığın ${weekMuscleEntries.length} çalışma setine göre (ısınma setleri hariç)`}
+              />
+            )}
 
             <section className="card">
               <h2 className="pr-title"><Trophy size="1em" aria-hidden="true" /> Kişisel rekorlar</h2>

@@ -109,6 +109,7 @@ public static class DependencyInjection
         services.AddScoped<IGoalService, Services.Tracking.GoalService>();
         services.AddScoped<IUserSettingsService, Services.Tracking.UserSettingsService>();
         services.AddScoped<ICustomFoodService, Services.Tracking.CustomFoodService>();
+        services.AddScoped<IMealTemplateService, Services.Tracking.MealTemplateService>();
         services.AddScoped<ISupplementIntakeService, Services.Tracking.SupplementIntakeService>();
 
         return services;

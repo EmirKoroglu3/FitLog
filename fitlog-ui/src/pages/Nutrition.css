@@ -899,3 +899,146 @@
   font-size: 0.72rem;
   color: var(--text-2);
 }
+
+
+/* Meal templates */
+.nutrition-page .template-chip {
+  display: inline-flex;
+  align-items: center;
+}
+
+.nutrition-page .template-chip .quick-chip {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.nutrition-page .template-del {
+  display: inline-grid;
+  place-items: center;
+  align-self: stretch;
+  padding: 0 0.45rem;
+  border: 1px solid var(--border);
+  border-left: none;
+  border-radius: 0 var(--radius-full) var(--radius-full) 0;
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.nutrition-page .template-del:hover {
+  color: var(--danger);
+}
+
+.nutrition-page .selected-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.nutrition-page .selected-head label {
+  margin: 0;
+}
+
+.nutrition-page .save-template-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--primary-solid);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nutrition-page .template-form {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 1 1 16rem;
+  max-width: 24rem;
+}
+
+.nutrition-page .template-form input {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Remaining today + food tips */
+.nutrition-page .remaining-card {
+  margin: 0.75rem 0 1rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--radius-md);
+  background: var(--primary-soft);
+  font-size: 0.9rem;
+}
+
+.nutrition-page .remaining-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+}
+
+.nutrition-page .remaining-head svg {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  color: var(--primary);
+}
+
+.nutrition-page .remaining-tips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+
+.nutrition-page .tip-chip {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.nutrition-page .tip-chip:hover {
+  border-color: var(--primary);
+}
+
+.nutrition-page .tip-chip small {
+  color: var(--text-2);
+}
+
+/* Barcode button under the food search */
+.nutrition-page .barcode-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nutrition-page .barcode-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary-solid);
+}

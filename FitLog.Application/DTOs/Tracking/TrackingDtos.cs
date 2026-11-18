@@ -295,3 +295,18 @@ public class SupplementIntakeDto
     public DateOnly Date { get; set; }
     public DateTime TakenAt { get; set; }
 }
+
+public class MealTemplateDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string ItemsJson { get; set; } = "[]";
+    public DateTime CreatedDate { get; set; }
+}
+
+public class SaveMealTemplateRequest
+{
+    [Required, MaxLength(60)] public string Name { get; set; } = string.Empty;
+    /// <summary>Food snapshots + amounts as JSON (kept small: one meal).</summary>
+    [Required, MaxLength(20000)] public string ItemsJson { get; set; } = "[]";
+}

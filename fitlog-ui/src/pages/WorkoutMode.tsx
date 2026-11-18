@@ -13,6 +13,8 @@ import './WorkoutMode.css';
 import { HeartPulse, ArrowLeft, ArrowRight, BedDouble, BicepsFlexed, CalendarDays, Check, Circle, CircleCheck, CircleDot, ClipboardList, Dumbbell, Flag, Hourglass, MapPin, NotebookPen, PartyPopper, Pause, Play, Plus, Repeat, Timer, Trophy, Weight, Wind } from 'lucide-react';
 import { useConfirm } from '../components/ConfirmProvider';
 import { byMondayFirst } from '../utils/weekdays';
+import { suggestNext } from '../utils/progression';
+import { Link2, TrendingUp } from 'lucide-react';
 
 /** Previous working sets per exercise name, newest session first. */
 type LastPerformance = Record<string, SessionSet[]>;
@@ -27,7 +29,7 @@ const BEEP =
   'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2teleB0HOnHc+Y1uDA0se/D/o3YNFR9P6P+5jBEOGULZ8sSdGREWNsTnxqciGQ8wpNbMq0QhExqXwtDAdD8WHot/2/+FRCUbZnfi/55OJRpCUNz9p1omHCk+0f61eCYaMzC++reKKR4qKKjqw50qISkfoNzGqjQnJxWN0M+zQiwlDYHM37NFLSQHdsjmvVYtIwVrxea8XT0lCWPC5rtiRSoKXLzluWtMKgtXteC3dVQpDF6y3rB+WiQOYa7dq4ZeHxBeotuojGIbE1ie1qWQZhgWUJjRo5ZpFBhKksyhnWwRGkWLx52hcQ4cQIfCm6V2DBw9g76YqXoKHzl+uZasfAggNHqzk69/ByM4ebKPsIEFJjh4r4uwgwMoPnmsjbGDBys+eKiLs4QCLT93pYu0hQEvPXaijLWGADA8daCKtoYAMTt0nYm3hwAxOnOaibiHADI5cpWIuIgAMjlyko+3hwAzOXGQjrWGADQ4cI6NtYUANDdvjIy0hAA1NW6KirODADY0bYmJsoIANjNsiImxgQA3M2uGh7CAADY0aoaGr38ANjNphYWufgA3MmmDg6x9ADcyZ4KCq3wAODFmgYGqewA4MGV/f6l6ADkwZH5+qHkAOS9jfX2neAA6L2J8fKZ3ADovYXt7pXYAOy5gem1/dAAA';
 
 export function WorkoutMode() {
-  const { confirm } = useConfirm();
+  const { confirm, toast } = useConfirm();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { settings } = useSettings();
@@ -65,6 +67,9 @@ export function WorkoutMode() {
   const [newPrs, setNewPrs] = useState<{ name: string; weightKg: number; reps: number }[]>([]);
   const [offlineSaved, setOfflineSaved] = useState(false);
   const [showCardio, setShowCardio] = useState(false);
+  /** Note being edited for the current exercise (null = not editing). */
+  const [noteDraft, setNoteDraft] = useState<string | null>(null);
+  useEffect(() => setNoteDraft(null), [currentExerciseIndex]);
   const { user } = useAuth();
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -184,18 +189,39 @@ export function WorkoutMode() {
   );
   const currentSetNumber = setsForCurrent.length + 1;
 
-  // Prefill inputs: same set from last time, else the plan
+  // Progression advice from last time (add weight when every set hit the target)
+  const suggestion = useMemo(
+    () =>
+      currentExercise
+        ? suggestNext(currentExercise.name, lastPerformance[currentExercise.name], currentExercise.reps, currentExercise.setCount)
+        : null,
+    [currentExercise, lastPerformance],
+  );
+
+  // Superset group around an exercise: consecutive exercises linked with "supersetWithNext"
+  const supersetGroup = (index: number): [number, number] => {
+    const ex = currentDay?.exercises ?? [];
+    let start = index;
+    while (start > 0 && ex[start - 1]?.supersetWithNext) start--;
+    let end = index;
+    while (end < ex.length - 1 && ex[end]?.supersetWithNext) end++;
+    return [start, end];
+  };
+
+  // Prefill inputs: today's previous set, else the suggestion, else last time / the plan
   useEffect(() => {
     if (!currentExercise) return;
+    const todayPrev = setsForCurrent[setsForCurrent.length - 1];
     const prev = lastPerformance[currentExercise.name]?.[currentSetNumber - 1]
       ?? lastPerformance[currentExercise.name]?.slice(-1)[0];
-    const weightKg = prev?.weightKg ?? currentExercise.weight ?? 0;
+    const weightKg = todayPrev?.weightKg ?? suggestion?.weightKg ?? prev?.weightKg ?? currentExercise.weight ?? 0;
     setInput({
-      reps: String(prev?.reps ?? currentExercise.reps),
+      reps: String(suggestion?.reps ?? prev?.reps ?? currentExercise.reps),
       weight: weightKg > 0 ? String(kgToUnit(weightKg, unit)) : '',
       rpe: '',
     });
-  }, [currentExercise?.id, currentSetNumber, lastPerformance, unit]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentExercise?.id, currentSetNumber, lastPerformance, unit, suggestion]);
 
   const playBeep = () => {
     if (settings.soundEffects) audioRef.current?.play().catch(() => {});
@@ -245,6 +271,36 @@ export function WorkoutMode() {
     };
     setLoggedSets((prev) => [...prev, newSet]);
 
+    // Superset: go straight to the partner exercise, rest only after the round
+    const [gStart, gEnd] = supersetGroup(currentExerciseIndex);
+    if (gEnd > gStart) {
+      const exercises = currentDay.exercises;
+      const done = (i: number) =>
+        loggedSets.filter((s) => s.exerciseOrder === i && !s.isWarmup).length + (i === currentExerciseIndex ? 1 : 0);
+      const remaining = (i: number) => done(i) < exercises[i].setCount;
+
+      for (let i = currentExerciseIndex + 1; i <= gEnd; i++) {
+        if (remaining(i)) {
+          setCurrentExerciseIndex(i);
+          return; // no rest between superset partners
+        }
+      }
+      for (let i = gStart; i <= gEnd; i++) {
+        if (remaining(i)) {
+          setCurrentExerciseIndex(i);
+          startRestTimer();
+          return;
+        }
+      }
+      if (gEnd + 1 < exercises.length) {
+        setCurrentExerciseIndex(gEnd + 1);
+        startRestTimer();
+      } else {
+        finishWorkout([...loggedSets, newSet]);
+      }
+      return;
+    }
+
     if (currentSetNumber < currentExercise.setCount) {
       startRestTimer();
     } else if (currentExerciseIndex + 1 < currentDay.exercises.length) {
@@ -252,6 +308,26 @@ export function WorkoutMode() {
       startRestTimer();
     } else {
       finishWorkout([...loggedSets, newSet]);
+    }
+  };
+
+  // Save the exercise note to the program (seat height, grip...) so it shows every time
+  const saveNote = async () => {
+    if (!currentExercise || !currentDay || noteDraft == null) return;
+    const notes = noteDraft.trim();
+    try {
+      await workoutService.updateExercise(currentExercise.id, {
+        name: currentExercise.name,
+        setCount: currentExercise.setCount,
+        reps: currentExercise.reps,
+        weight: currentExercise.weight ?? undefined,
+        notes, // '' clears it
+      });
+      const exercises = currentDay.exercises.map((e) => (e.id === currentExercise.id ? { ...e, notes: notes || undefined } : e));
+      setCurrentDay({ ...currentDay, exercises });
+      setNoteDraft(null);
+    } catch {
+      toast('Not kaydedilemedi, tekrar dene.', 'error');
     }
   };
 
@@ -559,6 +635,15 @@ export function WorkoutMode() {
           <div className="exercise-screen">
             <div className="exercise-number">
               Egzersiz {currentExerciseIndex + 1}/{currentDay.exercises.length}
+              {(() => {
+                const [gs, ge] = supersetGroup(currentExerciseIndex);
+                return ge > gs ? (
+                  <span className="superset-badge" title="Bu hareketler arasında dinlenmeden geç">
+                    <Link2 size={13} aria-hidden="true" /> Superset {currentExerciseIndex - gs + 1}/{ge - gs + 1}
+                    {currentExerciseIndex < ge && <> · sıradaki: {currentDay.exercises[currentExerciseIndex + 1].name}</>}
+                  </span>
+                ) : null;
+              })()}
             </div>
 
             <h1 className="exercise-name">{currentExercise.name}</h1>
@@ -585,6 +670,19 @@ export function WorkoutMode() {
                 Geçen sefer:{' '}
                 {lastForCurrent.map((s) => `${formatNumber(kgToUnit(s.weightKg, unit), 1)}×${s.reps}`).join(' · ')}
               </p>
+            )}
+
+            {suggestion && setsForCurrent.length === 0 && (
+              <div className={`progression-tip ${suggestion.kind}`}>
+                <TrendingUp size={16} aria-hidden="true" />
+                <div>
+                  <strong>
+                    Öneri: {suggestion.weightKg > 0 ? `${formatNumber(kgToUnit(suggestion.weightKg, unit), 1)} ${unit} × ` : ''}
+                    {suggestion.reps} tekrar
+                  </strong>
+                  <span>{suggestion.reason}</span>
+                </div>
+              </div>
             )}
 
             <div className="current-set">
@@ -649,11 +747,31 @@ export function WorkoutMode() {
               onAddWarmups={addWarmupSets}
             />
 
-            {currentExercise.notes && (
-              <div className="exercise-notes">
+            {noteDraft != null ? (
+              <div className="exercise-notes editing">
+                <textarea
+                  value={noteDraft}
+                  onChange={(e) => setNoteDraft(e.target.value)}
+                  placeholder="Örn: sehpa 3. kademe, dar tutuş, koltuk 4"
+                  maxLength={500}
+                  rows={2}
+                  autoFocus
+                  aria-label="Hareket notu"
+                />
+                <div className="note-actions">
+                  <button type="button" className="btn-secondary" onClick={() => setNoteDraft(null)}>Vazgeç</button>
+                  <button type="button" className="btn-primary" onClick={saveNote}>Notu kaydet</button>
+                </div>
+              </div>
+            ) : currentExercise.notes ? (
+              <button type="button" className="exercise-notes" onClick={() => setNoteDraft(currentExercise.notes ?? '')} title="Notu düzenle">
                 <span className="notes-icon"><NotebookPen size="1em" aria-hidden="true" /></span>
                 {currentExercise.notes}
-              </div>
+              </button>
+            ) : (
+              <button type="button" className="add-note-btn" onClick={() => setNoteDraft('')}>
+                <NotebookPen size="1em" aria-hidden="true" /> Bu harekete not ekle
+              </button>
             )}
           </div>
         )}

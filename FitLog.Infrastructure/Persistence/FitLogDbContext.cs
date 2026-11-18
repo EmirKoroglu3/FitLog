@@ -37,6 +37,7 @@ public class FitLogDbContext : IdentityDbContext<ApplicationUser, IdentityRole<G
     public DbSet<OneRepMaxRecord> OneRepMaxRecords => Set<OneRepMaxRecord>();
     public DbSet<UserSettings> UserSettings => Set<UserSettings>();
     public DbSet<CustomFood> CustomFoods => Set<CustomFood>();
+    public DbSet<MealTemplate> MealTemplates => Set<MealTemplate>();
     public DbSet<SupplementIntake> SupplementIntakes => Set<SupplementIntake>();
 
     /// <summary>Refresh tokens per device (multiple concurrent sessions).</summary>
@@ -243,6 +244,14 @@ public class FitLogDbContext : IdentityDbContext<ApplicationUser, IdentityRole<G
             e.HasIndex(x => x.UserId);
         });
         OwnedByUser<CustomFood>();
+
+        builder.Entity<MealTemplate>(e =>
+        {
+            e.Property(x => x.Name).IsRequired().HasMaxLength(60);
+            e.Property(x => x.ItemsJson).IsRequired();
+            e.HasIndex(x => x.UserId);
+        });
+        OwnedByUser<MealTemplate>();
 
         builder.Entity<SupplementIntake>(e =>
         {

@@ -55,7 +55,7 @@ export const workoutService = {
     return response.data;
   },
 
-  async updateExercise(id: string, data: Partial<CreateExerciseRequest>): Promise<ExerciseDto> {
+  async updateExercise(id: string, data: Partial<CreateExerciseRequest> & { supersetWithNext?: boolean }): Promise<ExerciseDto> {
     const response = await apiClient.put<ExerciseDto>(`/workout/exercises/${id}`, data);
     return response.data;
   },

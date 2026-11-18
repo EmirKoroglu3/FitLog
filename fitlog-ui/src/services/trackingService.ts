@@ -222,6 +222,20 @@ export const settingsApi = {
   save: (body: UserSettings) => data(apiClient.put<UserSettings>('/settings', body)),
 };
 
+export interface MealTemplate {
+  id: string;
+  name: string;
+  /** JSON array of { food, amount, mode } snapshots. */
+  itemsJson: string;
+  createdDate: string;
+}
+
+export const mealTemplatesApi = {
+  list: () => data(apiClient.get<MealTemplate[]>('/meal-templates')),
+  create: (body: { name: string; itemsJson: string }) => data(apiClient.post<MealTemplate>('/meal-templates', body)),
+  remove: (id: string) => apiClient.delete(`/meal-templates/${id}`),
+};
+
 export const customFoodsApi = {
   list: () => data(apiClient.get<CustomFood[]>('/foods/custom')),
   create: (body: SaveCustomFoodRequest) => data(apiClient.post<CustomFood>('/foods/custom', body)),

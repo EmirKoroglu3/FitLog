@@ -33,11 +33,13 @@ interface Props {
   seriesLabel: string;
   formatValue: (v: number) => string;
   height?: number;
+  /** Optional smoothed line drawn over the raw points (e.g. 7-day weight average). */
+  average?: { label: string; values: number[] };
 }
 
 const css = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
-export function TrendChart({ kind, points, seriesLabel, formatValue, height = 260 }: Props) {
+export function TrendChart({ kind, points, seriesLabel, formatValue, height = 260, average }: Props) {
   const { resolved } = useTheme();
   const [showTable, setShowTable] = useState(false);
 
@@ -55,8 +57,8 @@ export function TrendChart({ kind, points, seriesLabel, formatValue, height = 26
         data: points.map((p) => p.value),
         borderColor: SERIES,
         backgroundColor: kind === 'line' ? `${SERIES}1a` : SERIES, // ~10% wash for area
-        fill: kind === 'line' ? 'origin' : undefined,
-        borderWidth: kind === 'line' ? 2 : 0,
+        fill: kind === 'line' && !average ? 'origin' : undefined,
+        borderWidth: kind === 'line' ? (average ? 1 : 2) : 0,
         tension: 0.25,
         pointRadius: points.length > 40 ? 0 : 4,
         pointHoverRadius: 6,
@@ -68,6 +70,22 @@ export function TrendChart({ kind, points, seriesLabel, formatValue, height = 26
         borderSkipped: 'bottom' as const,
         maxBarThickness: 24,
       },
+      ...(average
+        ? [
+            {
+              label: average.label,
+              data: average.values,
+              borderColor: colors.ink,
+              backgroundColor: colors.ink,
+              borderWidth: 2.5,
+              tension: 0.35,
+              pointRadius: 0,
+              pointHoverRadius: 4,
+              pointHitRadius: 10,
+              fill: false,
+            },
+          ]
+        : []),
     ],
   };
 
@@ -77,7 +95,10 @@ export function TrendChart({ kind, points, seriesLabel, formatValue, height = 26
     animation: { duration: 250 },
     interaction: { mode: 'index', intersect: false },
     plugins: {
-      legend: { display: false }, // single series: the card title names it
+      // Single series: the card title names it; with an average line, show both
+      legend: average
+        ? { display: true, position: 'bottom', labels: { color: colors.text, boxWidth: 12, boxHeight: 2, usePointStyle: false } }
+        : { display: false },
       tooltip: {
         backgroundColor: colors.ink,
         titleColor: colors.surface,
@@ -86,6 +107,7 @@ export function TrendChart({ kind, points, seriesLabel, formatValue, height = 26
         displayColors: false,
         callbacks: {
           label: (ctx) => {
+            if (ctx.datasetIndex > 0) return `${ctx.dataset.label}: ${formatValue(Number(ctx.raw))}`;
             const p = points[ctx.dataIndex];
             return [`${seriesLabel}: ${formatValue(Number(ctx.raw))}`, ...(p?.detail ? [p.detail] : [])];
           },
@@ -125,6 +147,7 @@ export function TrendChart({ kind, points, seriesLabel, formatValue, height = 26
               <tr>
                 <th scope="col">Tarih</th>
                 <th scope="col">{seriesLabel}</th>
+                {average && <th scope="col">{average.label}</th>}
               </tr>
             </thead>
             <tbody>
@@ -135,6 +158,7 @@ export function TrendChart({ kind, points, seriesLabel, formatValue, height = 26
                     {formatValue(p.value)}
                     {p.detail ? <span className="muted"> · {p.detail}</span> : null}
                   </td>
+                  {average && <td>{formatValue(average.values[i])}</td>}
                 </tr>
               ))}
             </tbody>

@@ -53,6 +53,13 @@ public interface IUserSettingsService
     Task<UserSettingsDto> SaveAsync(Guid userId, SaveUserSettingsRequest request, CancellationToken ct = default);
 }
 
+public interface IMealTemplateService
+{
+    Task<List<MealTemplateDto>> GetAllAsync(Guid userId, CancellationToken ct = default);
+    Task<MealTemplateDto?> CreateAsync(Guid userId, SaveMealTemplateRequest request, CancellationToken ct = default);
+    Task<bool> DeleteAsync(Guid userId, Guid id, CancellationToken ct = default);
+}
+
 public interface ICustomFoodService
 {
     Task<List<CustomFoodDto>> GetAllAsync(Guid userId, CancellationToken ct = default);

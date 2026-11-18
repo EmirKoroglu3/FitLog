@@ -7,6 +7,8 @@ export interface ExerciseDto {
   notes?: string;
   /** Position within the day (0 = first); the API returns exercises sorted by it. */
   order?: number;
+  /** Done back-to-back with the next exercise (superset). */
+  supersetWithNext?: boolean;
 }
 
 export interface WorkoutDayDto {

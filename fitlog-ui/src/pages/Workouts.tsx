@@ -4,10 +4,11 @@ import workoutService from '../services/workoutService';
 import { exerciseCategories, searchExercises, ExerciseItem, getExercisesByCategory } from '../data/exerciseDatabase';
 import { workoutTemplates, programCategories, ProgramTemplate, getTemplatesByCategory, DayTemplate, ExerciseTemplate } from '../data/workoutTemplates';
 import './Workouts.css';
-import { ArrowLeft, BedDouble, Check, ChevronDown, ChevronUp, CircleX, GripVertical, ClipboardList, Dumbbell, Lightbulb, Pencil, Plus, Search, Trash2, X } from 'lucide-react';
+import { ArrowLeft, BedDouble, Check, ChevronDown, ChevronUp, CircleX, GripVertical, Link2, ClipboardList, Dumbbell, Lightbulb, Pencil, Plus, Search, Trash2, X } from 'lucide-react';
 import { AppIcon } from '../components/AppIcon';
 import { useConfirm } from '../components/ConfirmProvider';
 import { ExerciseNameInput } from '../components/ExerciseNameInput';
+import { MuscleMap } from '../components/MuscleMap';
 import { WEEK_ORDER, byMondayFirst } from '../utils/weekdays';
 
 const templateCategoryIcon: Record<string, string> = {
@@ -78,6 +79,8 @@ export function Workouts() {
   // Inline düzenleme state'i
   const [editingExerciseId, setEditingExerciseId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({ name: '', setCount: 0, reps: 0, weight: 0 });
+  // Inline edit of a day's header: which weekday and the session name ("Kol Günü")
+  const [editingDay, setEditingDay] = useState<{ id: string; dayOfWeek: number; name: string } | null>(null);
   // Drag-to-reorder: which day, where the row started and where it would land
   const [drag, setDrag] = useState<{ dayId: string; from: number; over: number } | null>(null);
   const dragMids = useRef<number[]>([]);
@@ -389,8 +392,37 @@ export function Workouts() {
     }
   };
 
+  const saveDayEdit = async () => {
+    if (!selectedProgram || !editingDay) return;
+    const { id, dayOfWeek } = editingDay;
+    const name = editingDay.name.trim();
+    try {
+      const updated = await workoutService.updateDay(id, { dayOfWeek, name });
+      // The response has no exercises; keep ours and take only the header fields
+      const updatedProgram = {
+        ...selectedProgram,
+        workoutDays: selectedProgram.workoutDays.map(d =>
+          d.id === id ? { ...d, dayOfWeek: updated.dayOfWeek, name: updated.name } : d
+        ),
+      };
+      setSelectedProgram(updatedProgram);
+      setPrograms(programs.map(p => (p.id === selectedProgram.id ? updatedProgram : p)));
+      setEditingDay(null);
+    } catch {
+      setError('Gün güncellenirken hata oluştu');
+    }
+  };
+
   const handleDeleteDay = async (dayId: string) => {
     if (!selectedProgram) return;
+    const day = selectedProgram.workoutDays.find(d => d.id === dayId);
+    const ok = await confirm({
+      title: `${day ? dayNames[day.dayOfWeek] : 'Gün'}${day?.name ? ` — ${day.name}` : ''} silinsin mi?`,
+      message: `Bu gündeki ${day?.exercises.length ?? 0} hareket de programdan kaldırılır. Geçmiş antrenman kayıtların silinmez.`,
+      confirmText: 'Günü sil',
+      danger: true,
+    });
+    if (!ok) return;
     try {
       await workoutService.deleteDay(dayId);
       const updatedProgram = {
@@ -538,6 +570,34 @@ export function Workouts() {
     }
   };
 
+  // Link/unlink an exercise with the next one as a superset (done back-to-back in workout mode)
+  const toggleSuperset = async (dayId: string, exerciseId: string) => {
+    if (!selectedProgram) return;
+    const day = selectedProgram.workoutDays.find(d => d.id === dayId);
+    const ex = day?.exercises.find(e => e.id === exerciseId);
+    if (!day || !ex) return;
+    const next = !ex.supersetWithNext;
+    try {
+      await workoutService.updateExercise(ex.id, {
+        name: ex.name,
+        setCount: ex.setCount,
+        reps: ex.reps,
+        weight: ex.weight || undefined,
+        supersetWithNext: next,
+      });
+      const updatedProgram = {
+        ...selectedProgram,
+        workoutDays: selectedProgram.workoutDays.map(d =>
+          d.id === dayId ? { ...d, exercises: d.exercises.map(e => (e.id === exerciseId ? { ...e, supersetWithNext: next } : e)) } : d
+        ),
+      };
+      setSelectedProgram(updatedProgram);
+      setPrograms(programs.map(p => (p.id === selectedProgram.id ? updatedProgram : p)));
+    } catch {
+      setError('Superset kaydedilemedi');
+    }
+  };
+
   // ---- Drag-to-reorder (pointer events: works with mouse and touch) ----
   const startDrag = (e: ReactPointerEvent<HTMLButtonElement>, dayId: string, index: number) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
@@ -636,7 +696,8 @@ export function Workouts() {
         {error && <div className="error-banner">{error}</div>}
 
         <div className="workouts-layout">
-          {/* Program Listesi */}
+          {/* Program Listesi + kas haritası */}
+          <div className="sidebar-column">
           <aside className="programs-sidebar">
             <h3>Programlarım</h3>
             {programs.length === 0 ? (
@@ -661,6 +722,14 @@ export function Workouts() {
               </ul>
             )}
           </aside>
+
+          {selectedProgram && selectedProgram.workoutDays.some(d => d.exercises.length > 0) && (
+            <MuscleMap
+              entries={selectedProgram.workoutDays.flatMap(d => d.exercises.map(e => ({ name: e.name, sets: e.setCount })))}
+              subtitle={`${selectedProgram.name} · haftalık set sayısına göre`}
+            />
+          )}
+          </div>
 
           {/* Program Detay */}
           <main className="program-detail">
@@ -688,26 +757,74 @@ export function Workouts() {
                       .sort(byMondayFirst)
                       .map(day => (
                       <div key={day.id} className="day-card card">
-                        <div className="day-header">
-                          <h3>
-                            <span className="day-badge">{dayNames[day.dayOfWeek]}</span>
-                            {day.name && <span className="day-name">{day.name}</span>}
-                          </h3>
-                          <div className="day-actions">
-                            <button 
-                              className="btn-icon"
-                              onClick={() => openExerciseModal(day.id)}
+                        {editingDay?.id === day.id ? (
+                          <form
+                            className="day-header day-header-edit"
+                            onSubmit={(e) => { e.preventDefault(); saveDayEdit(); }}
+                            onKeyDown={(e) => { if (e.key === 'Escape') setEditingDay(null); }}
+                          >
+                            <select
+                              className="day-edit-select"
+                              value={editingDay.dayOfWeek}
+                              onChange={(e) => setEditingDay({ ...editingDay, dayOfWeek: parseInt(e.target.value) })}
+                              aria-label="Gün"
                             >
-                              <Plus size="1em" aria-hidden="true" />
-                            </button>
-                            <button 
-                              className="btn-icon btn-delete"
-                              onClick={() => handleDeleteDay(day.id)}
-                            >
-                              <Trash2 size="1em" aria-hidden="true" />
-                            </button>
+                              {WEEK_ORDER.map((dow) => (
+                                <option key={dow} value={dow}>{dayNames[dow]}</option>
+                              ))}
+                            </select>
+                            <input
+                              className="day-edit-name"
+                              value={editingDay.name}
+                              onChange={(e) => setEditingDay({ ...editingDay, name: e.target.value })}
+                              placeholder="Antrenman adı (örn: Kol Günü)"
+                              aria-label="Antrenman adı"
+                              maxLength={100}
+                              autoFocus
+                            />
+                            <div className="day-actions">
+                              <button type="submit" className="btn-icon btn-save" title="Kaydet" aria-label="Günü kaydet">
+                                <Check size="1em" aria-hidden="true" />
+                              </button>
+                              <button type="button" className="btn-icon btn-cancel" onClick={() => setEditingDay(null)} title="İptal" aria-label="Düzenlemeyi iptal et">
+                                <X size="1em" aria-hidden="true" />
+                              </button>
+                            </div>
+                          </form>
+                        ) : (
+                          <div className="day-header">
+                            <h3>
+                              <span className="day-badge">{dayNames[day.dayOfWeek]}</span>
+                              {day.name && <span className="day-name">{day.name}</span>}
+                            </h3>
+                            <div className="day-actions">
+                              <button
+                                className="btn-icon"
+                                onClick={() => setEditingDay({ id: day.id, dayOfWeek: day.dayOfWeek, name: day.name ?? '' })}
+                                title="Günü ve adını düzenle"
+                                aria-label={`${dayNames[day.dayOfWeek]} gününü düzenle`}
+                              >
+                                <Pencil size="1em" aria-hidden="true" />
+                              </button>
+                              <button
+                                className="btn-icon"
+                                onClick={() => openExerciseModal(day.id)}
+                                title="Hareket ekle"
+                                aria-label={`${dayNames[day.dayOfWeek]} gününe hareket ekle`}
+                              >
+                                <Plus size="1em" aria-hidden="true" />
+                              </button>
+                              <button
+                                className="btn-icon btn-delete"
+                                onClick={() => handleDeleteDay(day.id)}
+                                title="Günü sil"
+                                aria-label={`${dayNames[day.dayOfWeek]} gününü sil`}
+                              >
+                                <Trash2 size="1em" aria-hidden="true" />
+                              </button>
+                            </div>
                           </div>
-                        </div>
+                        )}
 
                         {day.exercises.length === 0 ? (
                           <p className="no-exercises">Egzersiz ekle</p>
@@ -731,6 +848,8 @@ export function Workouts() {
                                   className={[
                                     editingExerciseId === exercise.id ? 'editing' : '',
                                     drag?.dayId === day.id && day.exercises[drag.from]?.id === exercise.id ? 'dragging' : '',
+                                    exercise.supersetWithNext || day.exercises[index - 1]?.supersetWithNext ? 'in-superset' : '',
+                                    exercise.supersetWithNext ? 'superset-link' : '',
                                   ].join(' ').trim()}
                                 >
                                   <td className="order-col">
@@ -834,12 +953,29 @@ export function Workouts() {
                                     </>
                                   ) : (
                                     <>
-                                      <td>{exercise.name}</td>
+                                      <td>
+                                        {exercise.name}
+                                        {(exercise.supersetWithNext || day.exercises[index - 1]?.supersetWithNext) && (
+                                          <span className="ss-tag" title="Superset: dinlenmeden bir sonrakine geç">SS</span>
+                                        )}
+                                      </td>
                                       <td>{exercise.setCount}</td>
                                       <td>{exercise.reps}</td>
                                       <td>{exercise.weight ? `${exercise.weight} kg` : '-'}</td>
                                       <td className="action-buttons">
-                                        <button 
+                                        {index < day.exercises.length - 1 && (
+                                          <button
+                                            type="button"
+                                            className={`btn-icon btn-superset ${exercise.supersetWithNext ? 'on' : ''}`}
+                                            onClick={() => toggleSuperset(day.id, exercise.id)}
+                                            aria-pressed={!!exercise.supersetWithNext}
+                                            title={exercise.supersetWithNext ? 'Superset bağlantısını kaldır' : 'Sonraki hareketle superset yap'}
+                                            aria-label={`${exercise.name} ile sonraki hareketi superset yap`}
+                                          >
+                                            <Link2 size="1em" aria-hidden="true" />
+                                          </button>
+                                        )}
+                                        <button
                                           className="btn-icon btn-edit"
                                           onClick={() => startEditingExercise(exercise)}
                                           title="Düzenle"

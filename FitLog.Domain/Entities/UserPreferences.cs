@@ -50,3 +50,12 @@ public class SupplementIntake : BaseEntity
     public DateOnly Date { get; set; }
     public DateTime TakenAt { get; set; }
 }
+
+/// <summary>A saved group of foods ("my usual breakfast") added to a meal in one tap.</summary>
+public class MealTemplate : BaseEntity
+{
+    public Guid UserId { get; set; }
+    public string Name { get; set; } = string.Empty;
+    /// <summary>JSON array of food snapshots with amounts, written and read by the client.</summary>
+    public string ItemsJson { get; set; } = "[]";
+}

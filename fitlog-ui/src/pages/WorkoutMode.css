@@ -913,3 +913,106 @@
     height: calc(100vh - 64px);
   }
 }
+
+/* Progression advice under "Geçen sefer" */
+.workout-mode-page .progression-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin: 0.75rem auto 0;
+  max-width: 34rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--radius-md);
+  background: var(--success-soft);
+  color: var(--text);
+  text-align: left;
+  font-size: 0.88rem;
+}
+
+.workout-mode-page .progression-tip svg {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  color: var(--success);
+}
+
+.workout-mode-page .progression-tip.repeat,
+.workout-mode-page .progression-tip.more-reps {
+  background: var(--info-soft);
+}
+
+.workout-mode-page .progression-tip.repeat svg,
+.workout-mode-page .progression-tip.more-reps svg {
+  color: var(--info);
+}
+
+.workout-mode-page .progression-tip.deload {
+  background: var(--warning-soft);
+}
+
+.workout-mode-page .progression-tip.deload svg {
+  color: var(--warning);
+}
+
+.workout-mode-page .progression-tip strong {
+  display: block;
+}
+
+.workout-mode-page .progression-tip span {
+  color: var(--text-2);
+}
+
+/* Superset badge next to "Egzersiz x/y" */
+.workout-mode-page .superset-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-left: 0.5rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: var(--radius-full);
+  background: var(--primary-soft);
+  color: var(--primary-solid);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+/* Exercise note: tap to edit */
+.workout-mode-page button.exercise-notes {
+  display: block;
+  width: 100%;
+  border: none;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.workout-mode-page .exercise-notes.editing textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+.workout-mode-page .note-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.workout-mode-page .add-note-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1.5rem;
+  padding: 0.45rem 0.9rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text-2);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.workout-mode-page .add-note-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary-solid);
+}

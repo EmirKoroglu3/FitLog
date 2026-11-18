@@ -163,7 +163,11 @@ public class WorkoutService : IWorkoutService
         exercise.SetCount = request.SetCount;
         exercise.Reps = request.Reps;
         exercise.Weight = request.Weight;
-        exercise.Notes = request.Notes;
+        // Partial updates (e.g. the inline set/rep edit) must not wipe the note or superset link
+        if (request.Notes != null)
+            exercise.Notes = string.IsNullOrWhiteSpace(request.Notes) ? null : request.Notes.Trim();
+        if (request.SupersetWithNext.HasValue)
+            exercise.SupersetWithNext = request.SupersetWithNext.Value;
 
         await _unitOfWork.Exercises.UpdateAsync(exercise, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -223,7 +227,8 @@ public class WorkoutService : IWorkoutService
         Reps = exercise.Reps,
         Weight = exercise.Weight,
         Notes = exercise.Notes,
-        Order = exercise.Order
+        Order = exercise.Order,
+        SupersetWithNext = exercise.SupersetWithNext
     };
 }
 

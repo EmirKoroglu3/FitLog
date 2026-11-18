@@ -202,3 +202,44 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Selected exercise summary above its chart */
+.progress-page .exercise-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(9rem, 100%), 1fr));
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+}
+
+.progress-page .exercise-summary > div {
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+}
+
+.progress-page .exercise-summary dt {
+  font-size: 0.75rem;
+  color: var(--text-2);
+}
+
+.progress-page .exercise-summary dd {
+  margin: 0.15rem 0 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-page .exercise-summary small {
+  display: block;
+  font-weight: 400;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.progress-page .muscle-map {
+  margin-bottom: 1.25rem;
+}
+
+.progress-page .muscle-map .mm-figures {
+  max-width: 26rem;
+  margin-inline: auto;
+}
