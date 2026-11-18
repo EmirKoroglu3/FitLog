@@ -133,6 +133,8 @@ export interface UserSettings {
   notifications: boolean;
   language: 'tr' | 'en';
   favoriteFoodIds: string[];
+  /** First-run guided tour finished or skipped. */
+  onboardingDone?: boolean;
 }
 
 export const defaultSettings: UserSettings = {
@@ -144,6 +146,8 @@ export const defaultSettings: UserSettings = {
   notifications: false,
   language: 'tr',
   favoriteFoodIds: [],
+  // Assume seen until the server says otherwise, so offline users don't get the tour again
+  onboardingDone: true,
 };
 
 export interface CustomFood {

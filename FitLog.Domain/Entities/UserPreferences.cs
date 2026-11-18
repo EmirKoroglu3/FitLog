@@ -25,6 +25,9 @@ public class UserSettings : BaseEntity
     /// <summary>tr | en</summary>
     public string Language { get; set; } = "tr";
 
+    /// <summary>The first-run guided tour was finished or skipped.</summary>
+    public bool OnboardingDone { get; set; }
+
     /// <summary>Food ids (built-in or "custom:{guid}") the user starred, comma separated.</summary>
     public string FavoriteFoodIds { get; set; } = string.Empty;
 }

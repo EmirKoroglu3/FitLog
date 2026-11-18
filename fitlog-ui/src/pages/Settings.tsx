@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import './Settings.css';
-import { Settings as SettingsIcon, Bell, BicepsFlexed, Download, Dumbbell, FileSpreadsheet, Info, Palette, Save, Utensils, Wand2 } from 'lucide-react';
+import { Settings as SettingsIcon, Bell, BicepsFlexed, Compass, Download, Dumbbell, FileSpreadsheet, Info, Palette, Save, Utensils, Wand2 } from 'lucide-react';
 import { AppIcon } from '../components/AppIcon';
 import { useTheme, type ThemePreference } from '../store/ThemeContext';
 import { useSettings } from '../store/SettingsContext';
@@ -369,6 +369,14 @@ export function Settings() {
         </section>
 
         {/* Hakkında */}
+        <section className="settings-section card">
+          <h2><Compass size="1em" aria-hidden="true" /> {t("Tanıtım turu")}</h2>
+          <p className="settings-hint">{t("Uygulamanın hangi bölümünde ne yapıldığını gösteren kısa turu yeniden izle.")}</p>
+          <button type="button" className="btn-secondary" onClick={() => update({ onboardingDone: false })}>
+            <Compass size="1em" aria-hidden="true" /> {t("Turu tekrar göster")}
+          </button>
+        </section>
+
         <section className="settings-section card about-section">
           <h2><Info size="1em" aria-hidden="true" /> {t("Hakkında")}</h2>
           <div className="about-content">

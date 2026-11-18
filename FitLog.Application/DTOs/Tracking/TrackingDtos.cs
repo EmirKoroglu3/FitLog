@@ -248,6 +248,7 @@ public class UserSettingsDto
     public bool Notifications { get; set; }
     public string Language { get; set; } = "tr";
     public List<string> FavoriteFoodIds { get; set; } = new();
+    public bool OnboardingDone { get; set; }
 }
 
 public class SaveUserSettingsRequest
@@ -264,6 +265,8 @@ public class SaveUserSettingsRequest
     public bool Notifications { get; set; }
     [RegularExpression("^(tr|en)$")] public string Language { get; set; } = "tr";
     [MaxLength(200)] public List<string> FavoriteFoodIds { get; set; } = new();
+    /// <summary>null = keep the current value (older clients don't send it).</summary>
+    public bool? OnboardingDone { get; set; }
 }
 
 public class CustomFoodDto

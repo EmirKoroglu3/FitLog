@@ -8,6 +8,7 @@ import { useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AdminRoute } from './components/AdminRoute';
+import { OnboardingTour } from './components/OnboardingTour';
 import { Admin } from './pages/Admin';
 import { Home } from './pages/Home';
 import { Login } from './pages/Login';
@@ -50,6 +51,7 @@ function App() {
       <BrowserRouter>
         <LanguageSync />
         <Navbar />
+        <OnboardingTour />
         <main>
           <Routes>
             {/* Public Routes */}

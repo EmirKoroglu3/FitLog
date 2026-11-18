@@ -1,0 +1,137 @@
+.tour-root {
+  position: fixed;
+  inset: 0;
+  z-index: 1500; /* above navbar, modals and toasts */
+}
+
+/* Dim everything except the highlighted element (the huge shadow is the dimmer) */
+.tour-spotlight {
+  position: fixed;
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 0 9999px rgba(15, 15, 17, 0.62);
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  transition: left 220ms ease, top 220ms ease, width 220ms ease, height 220ms ease;
+  pointer-events: none;
+}
+
+.tour-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 15, 17, 0.62);
+}
+
+.tour-card {
+  position: fixed;
+  padding: 1.1rem 1.15rem 1rem;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-lg);
+  animation: slideUp 200ms ease-out;
+}
+
+/* Centred without transform (the entry animation uses transform and would undo it) */
+.tour-card.centered {
+  inset: 0;
+  margin: auto;
+  height: fit-content;
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  animation: fadeIn 200ms ease-out;
+}
+
+.tour-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+
+.tour-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary-solid);
+}
+
+.tour-skip {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--text-2);
+}
+
+.tour-card h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.35rem;
+}
+
+.tour-card p {
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+
+.tour-card .tour-hint {
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--primary-soft);
+  color: var(--text);
+  font-size: 0.82rem;
+}
+
+.tour-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.3rem;
+  margin: 0.9rem 0 0.75rem;
+}
+
+.tour-dots span {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background-color 150ms ease, width 150ms ease;
+}
+
+.tour-dots span.on {
+  width: 1.1rem;
+  border-radius: var(--radius-full);
+  background: var(--primary);
+}
+
+.tour-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tour-actions button {
+  padding: 0.55rem 0.95rem;
+  font-size: 0.9rem;
+}
+
+.tour-final {
+  display: flex;
+  gap: 0.4rem;
+  margin-left: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tour-spotlight,
+  .tour-card {
+    transition: none;
+    animation: none;
+  }
+}

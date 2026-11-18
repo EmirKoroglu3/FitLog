@@ -128,6 +128,7 @@ public class UserSettingsService : IUserSettingsService
         s.FavoriteFoodIds = string.Join(',', r.FavoriteFoodIds
             .Where(id => !string.IsNullOrWhiteSpace(id) && id.Length <= 64 && !id.Contains(','))
             .Distinct());
+        if (r.OnboardingDone.HasValue) s.OnboardingDone = r.OnboardingDone.Value;
 
         await _db.SaveChangesAsync(ct);
         return Map(s);
@@ -147,6 +148,7 @@ public class UserSettingsService : IUserSettingsService
         Notifications = s.Notifications,
         Language = s.Language,
         FavoriteFoodIds = s.FavoriteFoodIds.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList(),
+        OnboardingDone = s.OnboardingDone,
     };
 }
 

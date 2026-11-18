@@ -610,6 +610,9 @@ namespace FitLog.Infrastructure.Migrations
                     b.Property<bool>("Notifications")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("OnboardingDone")
+                        .HasColumnType("boolean");
+
                     b.Property<int?>("ProteinTarget")
                         .HasColumnType("integer");
 
