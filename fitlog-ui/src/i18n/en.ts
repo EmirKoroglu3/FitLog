@@ -8,6 +8,7 @@ export const en: Record<string, string> = {
   'Beslenme': 'Nutrition',
   'Takviyeler': 'Supplements',
   'Takviyeler dahil': 'Incl. supplements',
+  'Yönetim': 'Admin',
   'Vücut Ölçüleri': 'Body Tracking',
   'Hedefler': 'Goals',
   'AI Koç': 'AI Coach',

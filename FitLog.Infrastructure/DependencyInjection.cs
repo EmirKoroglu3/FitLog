@@ -74,6 +74,7 @@ public static class DependencyInjection
         services.AddScoped<INutritionService, NutritionService>();
         services.AddScoped<ISupplementService, SupplementService>();
         services.AddScoped<IProfileService, ProfileService>();
+        services.AddScoped<IAdminService, AdminService>();
         // Email: Resend (HTTP API) > SendGrid > log-only in Development.
         // With nothing configured in production, IsConfigured is false and forgot-password says so.
         if (!string.IsNullOrWhiteSpace(configuration["Resend:ApiKey"]))

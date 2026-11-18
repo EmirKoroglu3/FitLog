@@ -7,6 +7,8 @@ import { ConfirmProvider } from './components/ConfirmProvider';
 import { useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { AdminRoute } from './components/AdminRoute';
+import { Admin } from './pages/Admin';
 import { Home } from './pages/Home';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
@@ -73,6 +75,9 @@ function App() {
               <Route path="/achievements" element={<Achievements />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
+              <Route element={<AdminRoute />}>
+                <Route path="/admin" element={<Admin />} />
+              </Route>
             </Route>
           </Routes>
         </main>

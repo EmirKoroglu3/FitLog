@@ -88,13 +88,7 @@ public class AuthService : IAuthService
             Token = token,
             RefreshToken = refreshToken,
             TokenExpiration = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationInMinutes),
-            User = new UserDto
-            {
-                Id = user.Id,
-                Email = user.Email!,
-                Name = user.Name,
-                Surname = user.Surname
-            }
+            User = ToUserDto(user)
         };
     }
 
@@ -122,6 +116,17 @@ public class AuthService : IAuthService
             };
         }
 
+        // Suspended by an admin (only revealed after a correct password)
+        if (await _userManager.IsLockedOutAsync(user))
+        {
+            return new AuthResponse
+            {
+                Success = false,
+                Message = "Hesabın askıya alınmış. Bilgi için yöneticiyle iletişime geç.",
+                Errors = new List<string> { "Account locked" }
+            };
+        }
+
         var token = GenerateJwtToken(user);
         var refreshToken = await IssueRefreshTokenAsync(user.Id, cancellationToken);
 
@@ -132,13 +137,7 @@ public class AuthService : IAuthService
             Token = token,
             RefreshToken = refreshToken,
             TokenExpiration = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationInMinutes),
-            User = new UserDto
-            {
-                Id = user.Id,
-                Email = user.Email!,
-                Name = user.Name,
-                Surname = user.Surname
-            }
+            User = ToUserDto(user)
         };
     }
 
@@ -154,7 +153,7 @@ public class AuthService : IAuthService
         }
 
         var user = await _userManager.FindByIdAsync(stored.UserId.ToString());
-        if (user == null) return null;
+        if (user == null || await _userManager.IsLockedOutAsync(user)) return null;
 
         // Rotate: this device's old token stops working, other devices are unaffected.
         _db.UserRefreshTokens.Remove(stored);
@@ -168,13 +167,7 @@ public class AuthService : IAuthService
             Token = newToken,
             RefreshToken = newRefreshToken,
             TokenExpiration = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationInMinutes),
-            User = new UserDto
-            {
-                Id = user.Id,
-                Email = user.Email!,
-                Name = user.Name,
-                Surname = user.Surname
-            }
+            User = ToUserDto(user)
         };
     }
 
@@ -276,18 +269,30 @@ public class AuthService : IAuthService
         };
     }
 
+    private UserDto ToUserDto(ApplicationUser user) => new()
+    {
+        Id = user.Id,
+        Email = user.Email!,
+        Name = user.Name,
+        Surname = user.Surname,
+        IsAdmin = AdminAccess.IsAdminEmail(_configuration, user.Email)
+    };
+
     private string GenerateJwtToken(ApplicationUser user)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Email, user.Email!),
             new Claim(ClaimTypes.Name, $"{user.Name} {user.Surname}"),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
+        // Admin role comes only from server config (Admin__Emails)
+        if (AdminAccess.IsAdminEmail(_configuration, user.Email))
+            claims.Add(new Claim(ClaimTypes.Role, AdminAccess.RoleName));
 
         var token = new JwtSecurityToken(
             issuer: _jwtSettings.Issuer,

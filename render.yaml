@@ -23,5 +23,8 @@ services:
       # Password-reset email (Resend HTTP API; Render free blocks SMTP)
       - key: Resend__ApiKey
         sync: false
+      # Comma-separated emails that get the admin panel (set in the dashboard, not in git)
+      - key: Admin__Emails
+        sync: false
       - key: Database__AutoMigrate
         value: "true"

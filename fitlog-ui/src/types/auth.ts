@@ -16,6 +16,8 @@ export interface UserDto {
   email: string;
   name: string;
   surname: string;
+  /** Set by the server for emails in Admin__Emails; only controls what the UI shows. */
+  isAdmin?: boolean;
 }
 
 export interface AuthResponse {

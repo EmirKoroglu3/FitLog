@@ -14,6 +14,7 @@ import {
   Play,
   Ruler,
   Settings,
+  ShieldCheck,
   Sun,
   Target,
   TrendingUp,
@@ -65,6 +66,8 @@ export function Logo() {
 
 export function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
+  // Admin link only for admins (the API enforces the role either way)
+  const visibleMoreLinks: NavItem[] = user?.isAdmin ? [...moreLinks, { to: '/admin', label: 'Yönetim', icon: ShieldCheck }] : moreLinks;
   const { resolved, toggle } = useTheme();
   const { t, lang, setLang } = useI18n();
   const { update: updateSettings } = useSettings();
@@ -105,7 +108,7 @@ export function Navbar() {
     navigate('/login');
   };
 
-  const moreActive = moreLinks.some((l) => location.pathname === l.to) || location.pathname === '/settings';
+  const moreActive = visibleMoreLinks.some((l) => location.pathname === l.to) || location.pathname === '/settings';
   const themeLabel = t(resolved === 'dark' ? 'Açık temaya geç' : 'Koyu temaya geç');
 
   const themeButton = (
@@ -147,7 +150,7 @@ export function Navbar() {
               </button>
               {moreOpen && (
                 <div className="dropdown-menu" role="menu">
-                  {moreLinks.map(({ to, label, icon: Icon }) => (
+                  {visibleMoreLinks.map(({ to, label, icon: Icon }) => (
                     <NavLink
                       key={to}
                       to={to}
@@ -215,7 +218,7 @@ export function Navbar() {
             <Play size={16} fill="currentColor" aria-hidden="true" />
             {t('Antrenmana Başla')}
           </Link>
-          {[...primaryLinks, ...moreLinks, { to: '/settings', label: 'Ayarlar', icon: Settings }, { to: '/profile', label: 'Profil', icon: UserRound }].map(
+          {[...primaryLinks, ...visibleMoreLinks, { to: '/settings', label: 'Ayarlar', icon: Settings }, { to: '/profile', label: 'Profil', icon: UserRound }].map(
             ({ to, label, icon: Icon }) => (
               <NavLink key={to} to={to} className={({ isActive }) => `mobile-link ${isActive ? 'active' : ''}`}>
                 <Icon size={18} aria-hidden="true" />

@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { UserDto, AuthState, LoginRequest, RegisterRequest } from '../types/auth';
 import authService from '../services/authService';
+import { apiErrorMessage } from '../utils/apiError';
 
 interface AuthContextType extends AuthState {
   login: (data: LoginRequest) => Promise<{ success: boolean; message?: string }>;
@@ -70,8 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         message: response.message || 'Giriş başarısız' 
       };
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Bir hata oluştu';
-      return { success: false, message: errorMessage };
+      return { success: false, message: apiErrorMessage(error, 'Giriş yapılamadı, tekrar dene.') };
     }
   };
 
@@ -91,8 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         message: response.message || response.errors?.join(', ') || 'Kayıt başarısız' 
       };
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Bir hata oluştu';
-      return { success: false, message: errorMessage };
+      return { success: false, message: apiErrorMessage(error, 'Kayıt olunamadı, tekrar dene.') };
     }
   };
 
