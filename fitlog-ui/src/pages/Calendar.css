@@ -733,3 +733,51 @@
   display: block;
   font-size: 0.65rem;
 }
+
+/* Seven equal columns that can never push the grid wider than the card */
+.calendar-page .calendar-grid {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+/* Narrow phones (e.g. 360px Android, larger system font): colour + icon only, no labels */
+@media (max-width: 520px) {
+  .calendar-page .calendar-container {
+    padding: 0.75rem;
+  }
+
+  .calendar-page .calendar-grid {
+    gap: 0.2rem;
+  }
+
+  .calendar-page .calendar-header-day {
+    padding: 0.25rem 0;
+    font-size: 0.68rem;
+  }
+
+  .calendar-page .calendar-day {
+    aspect-ratio: auto;
+    min-height: 2.9rem;
+    padding: 0.15rem 0;
+    border-width: 1.5px;
+  }
+
+  .calendar-page .workout-name-mini {
+    display: none;
+  }
+
+  .calendar-page .workout-indicator {
+    position: static; /* below the number instead of pinned over it */
+    margin-top: 0.1rem;
+    padding: 0;
+    line-height: 1;
+  }
+
+  .calendar-page .day-number {
+    line-height: 1.1;
+  }
+
+  .calendar-page .workout-indicator svg {
+    width: 0.8rem;
+    height: 0.8rem;
+  }
+}

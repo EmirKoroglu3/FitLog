@@ -3,6 +3,18 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import UpdateBanner from './components/UpdateBanner.tsx'
 
+// Tapping a number box selects its value, so typing replaces the default (no need to delete it first).
+// setTimeout: iOS Safari places the caret after focus, which would undo an immediate select().
+document.addEventListener('focusin', (e) => {
+  const el = e.target;
+  if (!(el instanceof HTMLInputElement) || el.readOnly) return;
+  if (el.type === 'number' || el.inputMode === 'numeric' || el.inputMode === 'decimal') {
+    setTimeout(() => {
+      if (document.activeElement === el) el.select();
+    }, 0);
+  }
+});
+
 // Offline app shell (production only, so it never caches the dev server)
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   // The entry chunk's file name carries the build hash (index-XXXX.js), so it changes on every deploy

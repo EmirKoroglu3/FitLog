@@ -33,6 +33,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
+  margin-bottom: 1rem; /* keep the macro card below from touching the stat boxes */
 }
 
 :is(.dashboard, .dashboard-loading) .stat-card {

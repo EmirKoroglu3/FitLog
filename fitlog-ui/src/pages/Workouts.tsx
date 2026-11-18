@@ -9,6 +9,7 @@ import { AppIcon } from '../components/AppIcon';
 import { useConfirm } from '../components/ConfirmProvider';
 import { ExerciseNameInput } from '../components/ExerciseNameInput';
 import { MuscleMap } from '../components/MuscleMap';
+import { NumberStepper } from '../components/NumberStepper';
 import { WEEK_ORDER, byMondayFirst } from '../utils/weekdays';
 
 const templateCategoryIcon: Record<string, string> = {
@@ -1458,53 +1459,37 @@ export function Workouts() {
                   <div className="exercise-settings">
                     <div className="setting-group">
                       <label>Set Sayısı</label>
-                      <div className="number-input">
-                        <button 
-                          type="button"
-                          onClick={() => setExerciseForm({...exerciseForm, setCount: Math.max(1, exerciseForm.setCount - 1)})}
-                        >−</button>
-                        <span>{exerciseForm.setCount}</span>
-                        <button 
-                          type="button"
-                          onClick={() => setExerciseForm({...exerciseForm, setCount: exerciseForm.setCount + 1})}
-                        >+</button>
-                      </div>
+                      <NumberStepper
+                        label="Set sayısı"
+                        value={exerciseForm.setCount}
+                        min={1}
+                        max={20}
+                        onChange={(setCount) => setExerciseForm((f) => ({ ...f, setCount }))}
+                      />
                     </div>
 
                     <div className="setting-group">
                       <label>Tekrar</label>
-                      <div className="number-input">
-                        <button 
-                          type="button"
-                          onClick={() => setExerciseForm({...exerciseForm, reps: Math.max(1, exerciseForm.reps - 1)})}
-                        >−</button>
-                        <span>{exerciseForm.reps}</span>
-                        <button 
-                          type="button"
-                          onClick={() => setExerciseForm({...exerciseForm, reps: exerciseForm.reps + 1})}
-                        >+</button>
-                      </div>
+                      <NumberStepper
+                        label="Tekrar"
+                        value={exerciseForm.reps}
+                        min={1}
+                        max={100}
+                        onChange={(reps) => setExerciseForm((f) => ({ ...f, reps }))}
+                      />
                     </div>
 
                     <div className="setting-group">
                       <label>Ağırlık (kg)</label>
-                      <div className="number-input weight-input">
-                        <button 
-                          type="button"
-                          onClick={() => setExerciseForm({...exerciseForm, weight: Math.max(0, exerciseForm.weight - 2.5)})}
-                        >−</button>
-                        <input
-                          type="number"
-                          value={exerciseForm.weight}
-                          onChange={e => setExerciseForm({...exerciseForm, weight: parseFloat(e.target.value) || 0})}
-                          min="0"
-                          step="0.5"
-                        />
-                        <button 
-                          type="button"
-                          onClick={() => setExerciseForm({...exerciseForm, weight: exerciseForm.weight + 2.5})}
-                        >+</button>
-                      </div>
+                      <NumberStepper
+                        label="Ağırlık"
+                        value={exerciseForm.weight}
+                        min={0}
+                        max={1000}
+                        step={2.5}
+                        decimal
+                        onChange={(weight) => setExerciseForm((f) => ({ ...f, weight }))}
+                      />
                     </div>
                   </div>
 

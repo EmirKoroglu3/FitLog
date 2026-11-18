@@ -238,7 +238,7 @@
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1080px) { /* hamburger below ~1080px: the full link row needs about that much room */
   .navbar-links,
   .logout-btn {
     display: none;

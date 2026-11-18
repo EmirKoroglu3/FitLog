@@ -563,7 +563,8 @@
 /* Exercise Settings */
 :is(.workouts-page, .workouts-loading) .exercise-settings {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* 3 across when there's room, wraps on phones instead of squeezing the numbers */
+  grid-template-columns: repeat(auto-fit, minmax(min(9.5rem, 100%), 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
@@ -1384,4 +1385,40 @@
 
 :is(.workouts-page, .workouts-loading) .btn-superset.on {
   color: var(--primary);
+}
+
+/* Day header on narrow phones: name shrinks (ellipsis), the three buttons always fit */
+:is(.workouts-page, .workouts-loading) .day-header {
+  gap: 0.5rem;
+}
+
+:is(.workouts-page, .workouts-loading) .day-header h3 {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+:is(.workouts-page, .workouts-loading) .day-header .day-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:is(.workouts-page, .workouts-loading) .day-header .day-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.3rem;
+}
+
+@media (max-width: 420px) {
+  :is(.workouts-page, .workouts-loading) .day-header .day-actions .btn-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+  }
+
+  :is(.workouts-page, .workouts-loading) .day-header h3 {
+    gap: 0.5rem;
+    font-size: 1.1rem;
+  }
 }
