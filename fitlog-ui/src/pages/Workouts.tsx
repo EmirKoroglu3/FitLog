@@ -1,12 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { WorkoutProgramDto } from '../types/workout';
 import workoutService from '../services/workoutService';
 import { exerciseCategories, searchExercises, ExerciseItem, getExercisesByCategory } from '../data/exerciseDatabase';
 import { workoutTemplates, programCategories, ProgramTemplate, getTemplatesByCategory, DayTemplate, ExerciseTemplate } from '../data/workoutTemplates';
 import './Workouts.css';
-import { ArrowLeft, BedDouble, Check, ChevronDown, ChevronUp, CircleX, ClipboardList, Dumbbell, Lightbulb, Pencil, Plus, Search, Trash2, X } from 'lucide-react';
+import { ArrowLeft, BedDouble, Check, ChevronDown, ChevronUp, CircleX, GripVertical, ClipboardList, Dumbbell, Lightbulb, Pencil, Plus, Search, Trash2, X } from 'lucide-react';
 import { AppIcon } from '../components/AppIcon';
 import { useConfirm } from '../components/ConfirmProvider';
+import { ExerciseNameInput } from '../components/ExerciseNameInput';
 import { WEEK_ORDER, byMondayFirst } from '../utils/weekdays';
 
 const templateCategoryIcon: Record<string, string> = {
@@ -33,6 +34,14 @@ interface EditableTemplate {
   name: string;
   description: string;
   days: EditableDay[];
+}
+
+/** Returns a copy of the list with the item at `from` moved to `to`. */
+function moveItem<T>(list: T[], from: number, to: number): T[] {
+  const copy = [...list];
+  const [item] = copy.splice(from, 1);
+  copy.splice(to, 0, item);
+  return copy;
 }
 
 export function Workouts() {
@@ -69,7 +78,9 @@ export function Workouts() {
   // Inline düzenleme state'i
   const [editingExerciseId, setEditingExerciseId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({ name: '', setCount: 0, reps: 0, weight: 0 });
-  const [showNameSuggestions, setShowNameSuggestions] = useState(false);
+  // Drag-to-reorder: which day, where the row started and where it would land
+  const [drag, setDrag] = useState<{ dayId: string; from: number; over: number } | null>(null);
+  const dragMids = useRef<number[]>([]);
   
   // Form states
   const [programForm, setProgramForm] = useState({ name: '', description: '' });
@@ -448,7 +459,6 @@ export function Workouts() {
   // Inline düzenleme başlat
   const startEditingExercise = (exercise: { id: string; name: string; setCount: number; reps: number; weight?: number }) => {
     setEditingExerciseId(exercise.id);
-    setShowNameSuggestions(false);
     setEditForm({
       name: exercise.name,
       setCount: exercise.setCount,
@@ -499,20 +509,17 @@ export function Workouts() {
   // Düzenleme iptal
   const cancelEditingExercise = () => {
     setEditingExerciseId(null);
-    setShowNameSuggestions(false);
     setEditForm({ name: '', setCount: 0, reps: 0, weight: 0 });
   };
 
-  // Move an exercise up/down within its day; workout mode follows this order
-  const moveExercise = async (dayId: string, index: number, direction: -1 | 1) => {
+  // Move an exercise to another position within its day; workout mode follows this order
+  const moveExercise = async (dayId: string, from: number, to: number) => {
     if (!selectedProgram) return;
     const day = selectedProgram.workoutDays.find(d => d.id === dayId);
     if (!day) return;
-    const target = index + direction;
-    if (target < 0 || target >= day.exercises.length) return;
+    if (from === to || to < 0 || to >= day.exercises.length) return;
 
-    const reordered = [...day.exercises];
-    [reordered[index], reordered[target]] = [reordered[target], reordered[index]];
+    const reordered = moveItem(day.exercises, from, to);
     const apply = (exercises: typeof day.exercises) => {
       const updatedProgram = {
         ...selectedProgram,
@@ -529,6 +536,42 @@ export function Workouts() {
       apply(day.exercises);
       setError('Sıralama kaydedilemedi');
     }
+  };
+
+  // ---- Drag-to-reorder (pointer events: works with mouse and touch) ----
+  const startDrag = (e: ReactPointerEvent<HTMLButtonElement>, dayId: string, index: number) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    e.preventDefault();
+    const tbody = e.currentTarget.closest('tbody');
+    if (!tbody) return;
+    // Row centres in page coordinates, measured once at the start
+    dragMids.current = Array.from(tbody.rows).map(r => {
+      const b = r.getBoundingClientRect();
+      return b.top + window.scrollY + b.height / 2;
+    });
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setDrag({ dayId, from: index, over: index });
+  };
+
+  const moveDrag = (e: ReactPointerEvent<HTMLButtonElement>) => {
+    if (!drag) return;
+    // Scroll the page when dragging near the top/bottom edge
+    if (e.clientY < 70) window.scrollBy(0, -12);
+    else if (e.clientY > window.innerHeight - 70) window.scrollBy(0, 12);
+
+    const y = e.clientY + window.scrollY;
+    const mids = dragMids.current;
+    let over = mids.filter(m => m < y).length;
+    if (over > drag.from) over -= 1; // the dragged row's own slot doesn't count
+    over = Math.max(0, Math.min(mids.length - 1, over));
+    if (over !== drag.over) setDrag({ ...drag, over });
+  };
+
+  const endDrag = () => {
+    if (!drag) return;
+    const { dayId, from, over } = drag;
+    setDrag(null);
+    if (from !== over) moveExercise(dayId, from, over);
   };
 
   const selectExercise = (exercise: ExerciseItem) => {
@@ -682,16 +725,35 @@ export function Workouts() {
                               </tr>
                             </thead>
                             <tbody>
-                              {day.exercises.map((exercise, index) => (
-                                <tr key={exercise.id} className={editingExerciseId === exercise.id ? 'editing' : ''}>
+                              {(drag?.dayId === day.id ? moveItem(day.exercises, drag.from, drag.over) : day.exercises).map((exercise, index) => (
+                                <tr
+                                  key={exercise.id}
+                                  className={[
+                                    editingExerciseId === exercise.id ? 'editing' : '',
+                                    drag?.dayId === day.id && day.exercises[drag.from]?.id === exercise.id ? 'dragging' : '',
+                                  ].join(' ').trim()}
+                                >
                                   <td className="order-col">
                                     <div className="order-cell">
+                                      <button
+                                        type="button"
+                                        className="drag-handle"
+                                        onPointerDown={(e) => startDrag(e, day.id, index)}
+                                        onPointerMove={moveDrag}
+                                        onPointerUp={endDrag}
+                                        onPointerCancel={() => setDrag(null)}
+                                        aria-label={`${exercise.name} sürükleyerek taşı (klavyede okları kullan)`}
+                                        title="Tutup sürükle"
+                                        tabIndex={-1}
+                                      >
+                                        <GripVertical size={16} aria-hidden="true" />
+                                      </button>
                                       <span className="order-num">{index + 1}</span>
                                       <div className="order-buttons">
                                         <button
                                           type="button"
                                           className="order-btn"
-                                          onClick={() => moveExercise(day.id, index, -1)}
+                                          onClick={() => moveExercise(day.id, index, index - 1)}
                                           disabled={index === 0}
                                           aria-label={`${exercise.name} yukarı taşı`}
                                           title="Yukarı taşı"
@@ -701,7 +763,7 @@ export function Workouts() {
                                         <button
                                           type="button"
                                           className="order-btn"
-                                          onClick={() => moveExercise(day.id, index, 1)}
+                                          onClick={() => moveExercise(day.id, index, index + 1)}
                                           disabled={index === day.exercises.length - 1}
                                           aria-label={`${exercise.name} aşağı taşı`}
                                           title="Aşağı taşı"
@@ -714,36 +776,13 @@ export function Workouts() {
                                   {editingExerciseId === exercise.id ? (
                                     <>
                                       <td className="name-edit-cell">
-                                        <input
-                                          type="text"
+                                        <ExerciseNameInput
                                           className="inline-edit-input name"
                                           value={editForm.name}
-                                          onChange={(e) => { setEditForm({ ...editForm, name: e.target.value }); setShowNameSuggestions(true); }}
-                                          onFocus={() => setShowNameSuggestions(true)}
-                                          onBlur={() => setTimeout(() => setShowNameSuggestions(false), 150)}
-                                          placeholder="Egzersiz ara veya yaz"
-                                          aria-label="Egzersiz adı"
+                                          onChange={(name) => setEditForm({ ...editForm, name })}
+                                          onSubmit={() => saveExerciseEdit(day.id, exercise.id)}
                                           autoFocus
                                         />
-                                        {showNameSuggestions && editForm.name.trim().length >= 2 && (
-                                          <ul className="name-suggestions" role="listbox">
-                                            {searchExercises(editForm.name)
-                                              .filter(s => s.name !== editForm.name)
-                                              .slice(0, 6)
-                                              .map(s => (
-                                                <li key={s.id}>
-                                                  <button
-                                                    type="button"
-                                                    onMouseDown={(ev) => ev.preventDefault()}
-                                                    onClick={() => { setEditForm({ ...editForm, name: s.name }); setShowNameSuggestions(false); }}
-                                                  >
-                                                    <strong>{s.name}</strong>
-                                                    <small>{s.muscleGroup}</small>
-                                                  </button>
-                                                </li>
-                                              ))}
-                                          </ul>
-                                        )}
                                       </td>
                                       <td>
                                         <input 

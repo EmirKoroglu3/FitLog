@@ -1,0 +1,46 @@
+/* Rendered in a portal on <body>, so it is never clipped by table scroll wrappers */
+.exercise-suggestions {
+  position: fixed;
+  z-index: 1100; /* above modals' overlay (1000) */
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: 0;
+  padding: 0.3rem;
+  list-style: none;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  animation: fadeIn 120ms ease-out;
+}
+
+.exercise-suggestions button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.exercise-suggestions button:hover,
+.exercise-suggestions button.active {
+  background: var(--primary-soft);
+}
+
+.exercise-suggestions strong {
+  font-size: 0.92rem;
+}
+
+.exercise-suggestions small {
+  font-size: 0.75rem;
+  color: var(--text-2);
+}
