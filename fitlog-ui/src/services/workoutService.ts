@@ -63,6 +63,12 @@ export const workoutService = {
   async deleteExercise(id: string): Promise<void> {
     await apiClient.delete(`/workout/exercises/${id}`);
   },
+
+  /** Saves a day's exercise order: every exercise id of the day, first to last. */
+  async reorderExercises(dayId: string, exerciseIds: string[]): Promise<ExerciseDto[]> {
+    const response = await apiClient.put<ExerciseDto[]>(`/workout/days/${dayId}/exercise-order`, { exerciseIds });
+    return response.data;
+  },
 };
 
 export default workoutService;

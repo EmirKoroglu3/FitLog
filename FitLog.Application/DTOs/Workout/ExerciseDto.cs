@@ -11,6 +11,13 @@ public class ExerciseDto
     public int Reps { get; set; }
     public decimal? Weight { get; set; }
     public string? Notes { get; set; }
+    public int Order { get; set; }
+}
+
+/// <summary>New order of a day's exercises: every exercise id of the day, first to last.</summary>
+public class ReorderExercisesRequest
+{
+    public List<Guid> ExerciseIds { get; set; } = new();
 }
 
 public class CreateExerciseRequest

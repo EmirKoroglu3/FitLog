@@ -4,7 +4,7 @@ import workoutService from '../services/workoutService';
 import { exerciseCategories, searchExercises, ExerciseItem, getExercisesByCategory } from '../data/exerciseDatabase';
 import { workoutTemplates, programCategories, ProgramTemplate, getTemplatesByCategory, DayTemplate, ExerciseTemplate } from '../data/workoutTemplates';
 import './Workouts.css';
-import { ArrowLeft, BedDouble, Check, CircleX, ClipboardList, Dumbbell, Lightbulb, Pencil, Plus, Search, Trash2, X } from 'lucide-react';
+import { ArrowLeft, BedDouble, Check, ChevronDown, ChevronUp, CircleX, ClipboardList, Dumbbell, Lightbulb, Pencil, Plus, Search, Trash2, X } from 'lucide-react';
 import { AppIcon } from '../components/AppIcon';
 import { useConfirm } from '../components/ConfirmProvider';
 import { WEEK_ORDER, byMondayFirst } from '../utils/weekdays';
@@ -68,7 +68,8 @@ export function Workouts() {
   
   // Inline düzenleme state'i
   const [editingExerciseId, setEditingExerciseId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState({ setCount: 0, reps: 0, weight: 0 });
+  const [editForm, setEditForm] = useState({ name: '', setCount: 0, reps: 0, weight: 0 });
+  const [showNameSuggestions, setShowNameSuggestions] = useState(false);
   
   // Form states
   const [programForm, setProgramForm] = useState({ name: '', description: '' });
@@ -445,9 +446,11 @@ export function Workouts() {
   };
 
   // Inline düzenleme başlat
-  const startEditingExercise = (exercise: { id: string; setCount: number; reps: number; weight?: number }) => {
+  const startEditingExercise = (exercise: { id: string; name: string; setCount: number; reps: number; weight?: number }) => {
     setEditingExerciseId(exercise.id);
+    setShowNameSuggestions(false);
     setEditForm({
+      name: exercise.name,
       setCount: exercise.setCount,
       reps: exercise.reps,
       weight: exercise.weight || 0
@@ -458,7 +461,13 @@ export function Workouts() {
   const saveExerciseEdit = async (dayId: string, exerciseId: string) => {
     if (!selectedProgram) return;
     try {
+      const name = editForm.name.trim();
+      if (!name) {
+        setError('Egzersiz adı boş olamaz');
+        return;
+      }
       const updated = await workoutService.updateExercise(exerciseId, {
+        name,
         setCount: editForm.setCount,
         reps: editForm.reps,
         weight: editForm.weight || undefined
@@ -472,7 +481,7 @@ export function Workouts() {
                 ...day, 
                 exercises: day.exercises.map(e => 
                   e.id === exerciseId 
-                    ? { ...e, setCount: updated.setCount, reps: updated.reps, weight: updated.weight }
+                    ? { ...e, name: updated.name, setCount: updated.setCount, reps: updated.reps, weight: updated.weight }
                     : e
                 )
               }
@@ -490,7 +499,36 @@ export function Workouts() {
   // Düzenleme iptal
   const cancelEditingExercise = () => {
     setEditingExerciseId(null);
-    setEditForm({ setCount: 0, reps: 0, weight: 0 });
+    setShowNameSuggestions(false);
+    setEditForm({ name: '', setCount: 0, reps: 0, weight: 0 });
+  };
+
+  // Move an exercise up/down within its day; workout mode follows this order
+  const moveExercise = async (dayId: string, index: number, direction: -1 | 1) => {
+    if (!selectedProgram) return;
+    const day = selectedProgram.workoutDays.find(d => d.id === dayId);
+    if (!day) return;
+    const target = index + direction;
+    if (target < 0 || target >= day.exercises.length) return;
+
+    const reordered = [...day.exercises];
+    [reordered[index], reordered[target]] = [reordered[target], reordered[index]];
+    const apply = (exercises: typeof day.exercises) => {
+      const updatedProgram = {
+        ...selectedProgram,
+        workoutDays: selectedProgram.workoutDays.map(d => (d.id === dayId ? { ...d, exercises } : d)),
+      };
+      setSelectedProgram(updatedProgram);
+      setPrograms(programs.map(p => (p.id === selectedProgram.id ? updatedProgram : p)));
+    };
+
+    apply(reordered); // optimistic
+    try {
+      await workoutService.reorderExercises(dayId, reordered.map(e => e.id));
+    } catch {
+      apply(day.exercises);
+      setError('Sıralama kaydedilemedi');
+    }
   };
 
   const selectExercise = (exercise: ExerciseItem) => {
@@ -631,9 +669,11 @@ export function Workouts() {
                         {day.exercises.length === 0 ? (
                           <p className="no-exercises">Egzersiz ekle</p>
                         ) : (
+                          <div className="exercises-table-wrap">
                           <table className="exercises-table">
                             <thead>
                               <tr>
+                                <th className="order-col">#</th>
                                 <th>Egzersiz</th>
                                 <th>Set</th>
                                 <th>Tekrar</th>
@@ -642,11 +682,69 @@ export function Workouts() {
                               </tr>
                             </thead>
                             <tbody>
-                              {day.exercises.map(exercise => (
+                              {day.exercises.map((exercise, index) => (
                                 <tr key={exercise.id} className={editingExerciseId === exercise.id ? 'editing' : ''}>
-                                  <td>{exercise.name}</td>
+                                  <td className="order-col">
+                                    <div className="order-cell">
+                                      <span className="order-num">{index + 1}</span>
+                                      <div className="order-buttons">
+                                        <button
+                                          type="button"
+                                          className="order-btn"
+                                          onClick={() => moveExercise(day.id, index, -1)}
+                                          disabled={index === 0}
+                                          aria-label={`${exercise.name} yukarı taşı`}
+                                          title="Yukarı taşı"
+                                        >
+                                          <ChevronUp size={14} aria-hidden="true" />
+                                        </button>
+                                        <button
+                                          type="button"
+                                          className="order-btn"
+                                          onClick={() => moveExercise(day.id, index, 1)}
+                                          disabled={index === day.exercises.length - 1}
+                                          aria-label={`${exercise.name} aşağı taşı`}
+                                          title="Aşağı taşı"
+                                        >
+                                          <ChevronDown size={14} aria-hidden="true" />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </td>
                                   {editingExerciseId === exercise.id ? (
                                     <>
+                                      <td className="name-edit-cell">
+                                        <input
+                                          type="text"
+                                          className="inline-edit-input name"
+                                          value={editForm.name}
+                                          onChange={(e) => { setEditForm({ ...editForm, name: e.target.value }); setShowNameSuggestions(true); }}
+                                          onFocus={() => setShowNameSuggestions(true)}
+                                          onBlur={() => setTimeout(() => setShowNameSuggestions(false), 150)}
+                                          placeholder="Egzersiz ara veya yaz"
+                                          aria-label="Egzersiz adı"
+                                          autoFocus
+                                        />
+                                        {showNameSuggestions && editForm.name.trim().length >= 2 && (
+                                          <ul className="name-suggestions" role="listbox">
+                                            {searchExercises(editForm.name)
+                                              .filter(s => s.name !== editForm.name)
+                                              .slice(0, 6)
+                                              .map(s => (
+                                                <li key={s.id}>
+                                                  <button
+                                                    type="button"
+                                                    onMouseDown={(ev) => ev.preventDefault()}
+                                                    onClick={() => { setEditForm({ ...editForm, name: s.name }); setShowNameSuggestions(false); }}
+                                                  >
+                                                    <strong>{s.name}</strong>
+                                                    <small>{s.muscleGroup}</small>
+                                                  </button>
+                                                </li>
+                                              ))}
+                                          </ul>
+                                        )}
+                                      </td>
                                       <td>
                                         <input 
                                           type="number" 
@@ -697,6 +795,7 @@ export function Workouts() {
                                     </>
                                   ) : (
                                     <>
+                                      <td>{exercise.name}</td>
                                       <td>{exercise.setCount}</td>
                                       <td>{exercise.reps}</td>
                                       <td>{exercise.weight ? `${exercise.weight} kg` : '-'}</td>
@@ -722,6 +821,7 @@ export function Workouts() {
                               ))}
                             </tbody>
                           </table>
+                          </div>
                         )}
                       </div>
                     ))

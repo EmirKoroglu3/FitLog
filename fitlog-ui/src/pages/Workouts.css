@@ -32,8 +32,13 @@
 
 :is(.workouts-page, .workouts-loading) .workouts-layout {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 280px minmax(0, 1fr); /* minmax: wide tables scroll instead of stretching the page */
   gap: 2rem;
+}
+
+:is(.workouts-page, .workouts-loading) .program-detail,
+:is(.workouts-page, .workouts-loading) .day-card {
+  min-width: 0;
 }
 
 
@@ -1193,7 +1198,7 @@
 /* Responsive */
 @media (max-width: 768px) {
   :is(.workouts-page, .workouts-loading) .workouts-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   :is(.workouts-page, .workouts-loading) .programs-sidebar {
@@ -1203,3 +1208,116 @@
   :is(.workouts-page, .workouts-loading) .modal .form-row {
     grid-template-columns: 1fr;
   }}
+
+/* Phones: the exercise table scrolls sideways instead of squeezing its columns */
+:is(.workouts-page, .workouts-loading) .exercises-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+:is(.workouts-page, .workouts-loading) .exercises-table td {
+  white-space: nowrap;
+}
+
+/* Exercise order (#) column with move up/down */
+:is(.workouts-page, .workouts-loading) .exercises-table .order-col {
+  width: 3.5rem;
+  padding-right: 0;
+}
+
+:is(.workouts-page, .workouts-loading) .order-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+:is(.workouts-page, .workouts-loading) .order-num {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: var(--primary-soft);
+  color: var(--primary-solid);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+:is(.workouts-page, .workouts-loading) .order-buttons {
+  display: flex;
+  flex-direction: column;
+}
+
+:is(.workouts-page, .workouts-loading) .order-btn {
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.2rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+:is(.workouts-page, .workouts-loading) .order-btn:hover:not(:disabled) {
+  color: var(--primary);
+}
+
+:is(.workouts-page, .workouts-loading) .order-btn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+/* Rename an exercise inline, with suggestions from the exercise library */
+:is(.workouts-page, .workouts-loading) .name-edit-cell {
+  position: relative;
+  min-width: 11rem;
+}
+
+:is(.workouts-page, .workouts-loading) .inline-edit-input.name {
+  width: 100%;
+  text-align: left;
+}
+
+:is(.workouts-page, .workouts-loading) .name-suggestions {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% - 0.25rem);
+  left: 0.5rem;
+  min-width: 15rem;
+  max-height: 16rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0.3rem;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  white-space: normal;
+}
+
+:is(.workouts-page, .workouts-loading) .name-suggestions button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+:is(.workouts-page, .workouts-loading) .name-suggestions button:hover,
+:is(.workouts-page, .workouts-loading) .name-suggestions button:focus-visible {
+  background: var(--primary-soft);
+}
+
+:is(.workouts-page, .workouts-loading) .name-suggestions small {
+  font-size: 0.75rem;
+  color: var(--text-2);
+}

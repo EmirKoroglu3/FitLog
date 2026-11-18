@@ -23,5 +23,7 @@ public interface IWorkoutService
     Task<ExerciseDto> CreateExerciseAsync(CreateExerciseRequest request, CancellationToken cancellationToken = default);
     Task<ExerciseDto?> UpdateExerciseAsync(Guid id, UpdateExerciseRequest request, CancellationToken cancellationToken = default);
     Task<bool> DeleteExerciseAsync(Guid id, CancellationToken cancellationToken = default);
+    /// <summary>Sets the order of a day's exercises; null when the ids don't match the day.</summary>
+    Task<List<ExerciseDto>?> ReorderExercisesAsync(Guid dayId, IReadOnlyList<Guid> exerciseIds, CancellationToken cancellationToken = default);
 }
 

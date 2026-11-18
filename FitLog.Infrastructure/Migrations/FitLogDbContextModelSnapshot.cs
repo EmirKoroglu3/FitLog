@@ -198,6 +198,9 @@ namespace FitLog.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
                     b.Property<int>("Reps")
                         .HasColumnType("integer");
 

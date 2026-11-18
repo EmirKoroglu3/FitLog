@@ -153,6 +153,25 @@ public class WorkoutController : ControllerBase
         return NoContent();
     }
 
+    /// <summary>
+    /// Günün egzersiz sırasını değiştirir (tüm egzersiz id'leri, ilkten sona).
+    /// </summary>
+    [HttpPut("days/{id:guid}/exercise-order")]
+    [ProducesResponseType(typeof(List<ExerciseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ReorderExercises(Guid id, [FromBody] ReorderExercisesRequest request, [FromServices] IResourceOwnershipService ownership, CancellationToken cancellationToken)
+    {
+        if (!await ownership.OwnsDayAsync(_currentUserService.UserId!.Value, id, cancellationToken))
+            return NotFound(new { message = "Kayıt bulunamadı." });
+
+        var exercises = await _workoutService.ReorderExercisesAsync(id, request.ExerciseIds, cancellationToken);
+        if (exercises == null)
+            return BadRequest(new { message = "Liste bu günün egzersizleriyle eşleşmiyor." });
+
+        return Ok(exercises);
+    }
+
     // Exercises
     /// <summary>
     /// Yeni egzersiz ekler.

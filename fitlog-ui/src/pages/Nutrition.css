@@ -803,3 +803,99 @@
   color: var(--primary-solid);
   font-weight: 600;
 }
+
+
+/* Browse every food as cards (empty search focused) */
+:is(.nutrition-page, .nutrition-loading) .food-browse {
+  margin-top: 1rem;
+  max-height: 24rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+}
+
+:is(.nutrition-page, .nutrition-loading) .food-browse-head {
+  position: sticky;
+  top: -0.75rem;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin: -0.75rem -0.75rem 0.5rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+:is(.nutrition-page, .nutrition-loading) .food-browse-close {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+:is(.nutrition-page, .nutrition-loading) .food-browse-group + .food-browse-group {
+  margin-top: 1rem;
+}
+
+:is(.nutrition-page, .nutrition-loading) .food-browse-group h5 {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+}
+
+:is(.nutrition-page, .nutrition-loading) .food-browse-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(7.25rem, 100%), 1fr)); /* 2 per row on phones */
+  gap: 0.5rem;
+}
+
+:is(.nutrition-page, .nutrition-loading) .food-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  min-width: 0;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--transition-base), transform var(--transition-base);
+}
+
+:is(.nutrition-page, .nutrition-loading) .food-card:hover,
+:is(.nutrition-page, .nutrition-loading) .food-card:focus-visible {
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+:is(.nutrition-page, .nutrition-loading) .food-card-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+:is(.nutrition-page, .nutrition-loading) .food-card-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+:is(.nutrition-page, .nutrition-loading) .food-card-meta {
+  font-size: 0.72rem;
+  color: var(--text-2);
+}

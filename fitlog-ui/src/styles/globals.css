@@ -713,8 +713,20 @@ textarea {
   }
 }
 
-/* Long words (food names, notes) wrap instead of widening the page */
+/* Long words (food names, notes) wrap instead of widening the page.
+   break-word (not anywhere) so table columns keep their natural width on phones. */
 .card,
 .modal-content {
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+}
+
+/* Tables never break words letter by letter; their wrapper scrolls sideways instead */
+table th,
+table td {
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+table th {
+  white-space: nowrap;
 }

@@ -79,6 +79,8 @@ export function Nutrition() {
   const [selectedFoods, setSelectedFoods] = useState<SelectedFood[]>([]);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [showSearchResults, setShowSearchResults] = useState(false);
+  /** Browse every food as cards (empty search box focused) for when the name doesn't come to mind. */
+  const [browseAll, setBrowseAll] = useState(false);
   const [showCustomForm, setShowCustomForm] = useState(false);
   const [customForm, setCustomForm] = useState(emptyCustom);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -284,6 +286,7 @@ export function Nutrition() {
     setSearchQuery('');
     setSearchResults([]);
     setActiveCategory(null);
+    setBrowseAll(false);
     setShowCustomForm(false);
     setCustomForm(emptyCustom);
   };
@@ -328,6 +331,7 @@ export function Nutrition() {
   };
 
   const handleCategoryClick = (categoryId: string) => {
+    setBrowseAll(false);
     if (activeCategory === categoryId) {
       setActiveCategory(null);
       setSearchResults([]);
@@ -593,8 +597,22 @@ export function Nutrition() {
                     type="text"
                     placeholder="Yiyecek ara... (örn: yumurta, tavuk, pilav)"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setBrowseAll(e.target.value.trim() === '' && !activeCategory);
+                    }}
+                    onFocus={() => {
+                      if (searchQuery.length >= 2) setShowSearchResults(true);
+                      else if (!searchQuery && !activeCategory) setBrowseAll(true);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape' && browseAll) {
+                        e.stopPropagation();
+                        setBrowseAll(false);
+                      }
+                    }}
+                    aria-expanded={browseAll}
+                    aria-controls="food-browse"
                     className="food-search-input"
                   />
                   {searchQuery && (
@@ -647,6 +665,40 @@ export function Nutrition() {
                     </button>
                   ))}
                 </div>
+
+                {browseAll && !showSearchResults && !searchQuery && (
+                  <div className="food-browse" id="food-browse">
+                    <div className="food-browse-head">
+                      <span>Tüm yiyecekler — dokun, öğüne eklensin</span>
+                      <button type="button" className="food-browse-close" onClick={() => setBrowseAll(false)}>
+                        <X size={14} aria-hidden="true" /> Kapat
+                      </button>
+                    </div>
+                    {[
+                      ...(customFoods.length > 0 ? [{ id: MY_FOODS, name: 'Kendi Yiyeceklerim', icon: '🍴', foods: customFoods }] : []),
+                      ...foodCategories.map((cat) => ({ ...cat, foods: getFoodsByCategory(cat.id) })),
+                    ]
+                      .filter((group) => group.foods.length > 0)
+                      .map((group) => (
+                        <section key={group.id} className="food-browse-group">
+                          <h5>
+                            <span aria-hidden="true">{group.icon}</span> {group.name}
+                          </h5>
+                          <div className="food-browse-grid">
+                            {group.foods.map((food) => (
+                              <button key={food.id} type="button" className="food-card" onClick={() => addFood(food)}>
+                                <span className="food-card-icon" aria-hidden="true">{food.icon}</span>
+                                <span className="food-card-name">{food.name}</span>
+                                <span className="food-card-meta">
+                                  {food.calories} kcal · {food.servingSize} {food.servingUnit}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        </section>
+                      ))}
+                  </div>
+                )}
 
                 {activeCategory === MY_FOODS && (
                   <div className="custom-food-box">

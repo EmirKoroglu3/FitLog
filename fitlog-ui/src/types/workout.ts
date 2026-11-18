@@ -5,6 +5,8 @@ export interface ExerciseDto {
   reps: number;
   weight?: number;
   notes?: string;
+  /** Position within the day (0 = first); the API returns exercises sorted by it. */
+  order?: number;
 }
 
 export interface WorkoutDayDto {

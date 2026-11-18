@@ -128,6 +128,12 @@ public class WorkoutService : IWorkoutService
     // Exercises
     public async Task<ExerciseDto> CreateExerciseAsync(CreateExerciseRequest request, CancellationToken cancellationToken = default)
     {
+        // New exercises go to the end of the day
+        var nextOrder = await _context.Exercises
+            .Where(e => e.WorkoutDayId == request.WorkoutDayId)
+            .Select(e => (int?)e.Order)
+            .MaxAsync(cancellationToken) is { } max ? max + 1 : 0;
+
         var exercise = new Exercise
         {
             Id = Guid.NewGuid(),
@@ -136,7 +142,8 @@ public class WorkoutService : IWorkoutService
             SetCount = request.SetCount,
             Reps = request.Reps,
             Weight = request.Weight,
-            Notes = request.Notes
+            Notes = request.Notes,
+            Order = nextOrder
         };
 
         await _unitOfWork.Exercises.AddAsync(exercise, cancellationToken);
@@ -150,7 +157,9 @@ public class WorkoutService : IWorkoutService
         var exercise = await _unitOfWork.Exercises.GetByIdAsync(id, cancellationToken);
         if (exercise == null) return null;
 
-        exercise.Name = request.Name;
+        // Older clients sent updates without a name; never blank an exercise out
+        if (!string.IsNullOrWhiteSpace(request.Name))
+            exercise.Name = request.Name.Trim();
         exercise.SetCount = request.SetCount;
         exercise.Reps = request.Reps;
         exercise.Weight = request.Weight;
@@ -160,6 +169,22 @@ public class WorkoutService : IWorkoutService
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return MapToExerciseDto(exercise);
+    }
+
+    public async Task<List<ExerciseDto>?> ReorderExercisesAsync(Guid dayId, IReadOnlyList<Guid> exerciseIds, CancellationToken cancellationToken = default)
+    {
+        var exercises = await _context.Exercises.Where(e => e.WorkoutDayId == dayId).ToListAsync(cancellationToken);
+
+        // The list must contain exactly this day's exercises, each once
+        if (exerciseIds.Count != exercises.Count || exerciseIds.Distinct().Count() != exerciseIds.Count
+            || !exercises.All(e => exerciseIds.Contains(e.Id)))
+            return null;
+
+        for (var i = 0; i < exerciseIds.Count; i++)
+            exercises.First(e => e.Id == exerciseIds[i]).Order = i;
+
+        await _context.SaveChangesAsync(cancellationToken);
+        return exercises.OrderBy(e => e.Order).Select(MapToExerciseDto).ToList();
     }
 
     public async Task<bool> DeleteExerciseAsync(Guid id, CancellationToken cancellationToken = default)
@@ -187,7 +212,7 @@ public class WorkoutService : IWorkoutService
         Id = day.Id,
         DayOfWeek = day.DayOfWeek,
         Name = day.Name,
-        Exercises = day.Exercises?.Select(MapToExerciseDto).ToList() ?? new()
+        Exercises = day.Exercises?.OrderBy(e => e.Order).ThenBy(e => e.CreatedDate).Select(MapToExerciseDto).ToList() ?? new()
     };
 
     private static ExerciseDto MapToExerciseDto(Exercise exercise) => new()
@@ -197,7 +222,8 @@ public class WorkoutService : IWorkoutService
         SetCount = exercise.SetCount,
         Reps = exercise.Reps,
         Weight = exercise.Weight,
-        Notes = exercise.Notes
+        Notes = exercise.Notes,
+        Order = exercise.Order
     };
 }
 

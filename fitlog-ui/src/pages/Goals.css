@@ -235,6 +235,7 @@
 /* Percentages Table */
 .goals-page .percentages-table {
   margin-top: 1rem;
+  overflow-x: auto;
 }
 
 .goals-page .percentages-table h4 {

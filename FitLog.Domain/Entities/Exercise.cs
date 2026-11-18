@@ -14,6 +14,9 @@ public class Exercise : BaseEntity
     public int Reps { get; set; }
     public decimal? Weight { get; set; } // Kilo (kg)
     public string? Notes { get; set; }
+
+    /// <summary>Position within the day (0 = first). Workout mode runs exercises in this order.</summary>
+    public int Order { get; set; }
     
     // Navigation Property
     public virtual WorkoutDay WorkoutDay { get; set; } = null!;
