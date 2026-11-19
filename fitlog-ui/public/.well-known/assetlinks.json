@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "online.emirkoroglu.fitlog",
+      "sha256_cert_fingerprints": [
+        "54:40:10:83:CB:6E:87:98:80:4D:28:1C:D0:95:2B:C4:A2:87:86:C1:ED:94:36:76:10:B0:57:6B:44:61:81:79"
+      ]
+    }
+  }
+]
