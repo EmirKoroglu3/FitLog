@@ -1,18 +1,24 @@
-# 💪 FitLog - Fitness Tracking Application
-
 <div align="center">
 
-![FitLog Banner](https://img.shields.io/badge/FitLog-Fitness%20Tracker-00d4aa?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0yMC41NyAxNC44NkwxOC41NSAxM2ExLjUgMS41IDAgMDAtMi4xMiAwbC0uNzEuNzFhMSAxIDAgMDEtMS40MSAwbC0yLjEyLTIuMTJhMSAxIDAgMDEwLTEuNDFsLjcxLS43MWExLjUgMS41IDAgMDAwLTIuMTJsLTEuODYtMS44NmExLjUgMS41IDAgMDAtMi4xMiAwTDcuMiA3LjJhMyAzIDAgMDAwIDQuMjRsNS4zNiA1LjM2YTMgMyAwIDAwNC4yNCAwbDEuNzEtMS43MWExLjUgMS41IDAgMDAwLTIuMTJ6Ii8+PC9zdmc+)
+<img src="fitlog-ui/public/icon-192.png" width="88" alt="FitLog logo" />
+
+# FitLog
+
+**Antrenman, beslenme ve vücut gelişimini tek yerden takip eden full-stack fitness uygulaması**
 
 [![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
-[![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql)](https://www.postgresql.org/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-7-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vite.dev/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![PWA](https://img.shields.io/badge/PWA-ready-5A0FC8?style=flat-square&logo=pwa)](#)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 
-**Modern, full-stack fitness tracking application built with Clean Architecture**
+🌐 **Canlı:** [emirkoroglu.online](https://www.emirkoroglu.online)
 
-[Özellikler](#-özellikler) • [Teknolojiler](#-teknolojiler) • [Kurulum](#-kurulum) • [Ekran Görüntüleri](#-ekran-görüntüleri) • [API](#-api-endpoints)
+[Özellikler](#-özellikler) • [Ekran Görüntüleri](#-ekran-görüntüleri) • [Teknolojiler](#-teknolojiler) • [Kurulum](#-kurulum) • [API](#-api-endpoints)
+
+<img src="docs/screenshots/landing.png" alt="FitLog ana sayfa" width="900" />
 
 </div>
 
@@ -20,94 +26,114 @@
 
 ## 📖 Proje Hakkında
 
-FitLog, kullanıcıların fitness yolculuklarını kapsamlı bir şekilde takip etmelerini sağlayan modern bir web uygulamasıdır. Clean Architecture prensiplerine uygun olarak geliştirilmiş, **ASP.NET Core** backend ve **React + TypeScript** frontend ile güçlendirilmiştir.
+FitLog; antrenman programlarını, canlı antrenman takibini, beslenme, su ve takviye kayıtlarını, vücut ölçülerini ve hedefleri tek bir uygulamada toplar. Backend **ASP.NET Core 9** ile Clean Architecture'a göre katmanlara ayrılmıştır. Frontend **React + TypeScript** ile yazılmış, telefona kurulabilen (PWA), açık/koyu temalı ve Türkçe/İngilizce bir arayüzdür.
 
-### 🎯 Neden FitLog?
-
-- **Antrenman Takibi**: Programlar oluştur, günleri planla, egzersizleri takip et
-- **Canlı Antrenman Modu**: Set sayacı, dinlenme timer'ı, ilerleme takibi
-- **Beslenme Yönetimi**: 100+ yiyecek veritabanı ile kalori ve makro takibi
-- **Vücut Ölçüleri**: Kilo, yağ oranı ve çevre ölçülerini kaydet
-- **Hedef & Başarılar**: Hedefler belirle, rozetler kazan
-- **Su Takibi**: Günlük su tüketimini izle
+Uygulama yayında: API **Render** (Docker), veritabanı **Neon** (PostgreSQL), arayüz **Vercel** üzerinde çalışıyor.
 
 ---
 
 ## ✨ Özellikler
 
-### 🏋️ Antrenman Modülü
-- ✅ Özelleştirilebilir antrenman programları
-- ✅ Push/Pull/Legs, Full Body gibi hazır şablonlar
-- ✅ Haftalık program takvimi
-- ✅ Canlı antrenman modu (timer, set takibi)
-- ✅ Egzersiz veritabanı (200+ egzersiz)
-- ✅ Ağırlık ve tekrar takibi
+### 🏋️ Antrenman
+- **Kas haritası:** Seçili programa göre insan vücudu üzerinde hangi kasın haftada kaç set çalıştığı ısı haritası olarak görünür.
+- **Programlar:** Push/Pull/Legs, Full Body, Upper/Lower gibi 16 hazır şablon ya da sıfırdan kendi programın.
+- **Sürükle-bırak:** Egzersizleri sürükleyerek sıralayabilir, yeniden adlandırabilirsin.
+- **Süperset:** İki egzersizi tek dokunuşla birbirine bağlarsın.
+- **Egzersiz kütüphanesi:** 190+ egzersiz, yazım hatalarını ve takma adları tolere eden arama, "nasıl yapılır" açıklamaları.
+- **Canlı antrenman modu:** Set kaydı, dinlenme sayacı, plaka hesaplayıcı, ısınma setleri ve RPE.
+- **İlerleme önerisi:** Geçen seansa bakıp "bu sefer +2,5 kg dene" gibi öneri verir.
+- **Kardiyo kaydı:** Mesafe, hız, eğim ve nabız girersin, yakılan kalori tahmin edilir.
 
-### 🥗 Beslenme Modülü
-- ✅ Yemek kaydı ve kalori takibi
-- ✅ Makro besin (protein, karbonhidrat, yağ) hesaplama
-- ✅ 100+ yiyecek içeren veritabanı
-- ✅ Öğün bazlı kayıt (kahvaltı, öğle, akşam)
+### 🥗 Beslenme
+- **Yiyecek veritabanı:** 160+ Türk ve dünya yemeği (et sote, tavuk sote, çorbalar, tatlılar…), yine hataya toleranslı aramayla.
+- **Barkod okuma:** Kamerayla barkodu okutunca ürünün değerleri Open Food Facts'ten gelir.
+- **Öğün şablonları ve kopyalama:** Sık yediğin öğünleri şablon olarak kaydeder, önceki günü tek tıkla kopyalarsın.
+- **Makro takibi:** Kalori, protein, karbonhidrat ve yağ için hedef çubukları.
+- **Akıllı öneri:** Kalan kalori ve proteine göre ne yiyebileceğini önerir.
+- **Takviye kontrol listesi:** Günlük takviyelerini işaretlersin, besin değerleri günlük toplama eklenir.
 
-### 📊 Analiz & Takip
-- ✅ Antrenman takvimi ve streak takibi
-- ✅ Vücut ölçüleri (kilo, boy, çevre ölçüleri)
-- ✅ BMI ve BMR hesaplayıcı
-- ✅ 1RM (One Rep Max) hesaplayıcı
-- ✅ Kişiselleştirilmiş öneriler
+### 📊 Takip & Analiz
+- **İlerleme grafikleri:** Egzersiz bazında tahmini 1RM, en ağır set ve hacim; haftalık hacim ve kişisel rekorlar.
+- **Takvim ve seri:** Antrenman takvimi ve günlük seri (streak) takibi.
+- **Vücut ölçüleri:** Kilo, çevre ölçüleri, otomatik yağ oranı tahmini ve ilerleme fotoğrafları.
+- **Su takibi:** Panelden tek dokunuşla bardak ekleme.
+- **Hesaplayıcılar ve yakılan kalori:** BMI/BMR, 1RM ve günlük yakılan kalori tahmini.
+- **AI Koç:** Verilerine bakarak kişisel öneriler veren koç.
 
-### 🏆 Motivasyon
-- ✅ 25+ başarı rozeti
-- ✅ Hedef belirleme ve takip
-- ✅ Günlük streak sistemi
-- ✅ Su tüketimi takibi
+### 🏆 Motivasyon & Deneyim
+- **Rozetler ve hedefler:** 26 başarı rozeti, hedef belirleme ve takibi.
+- **İlk giriş turu:** Yeni kullanıcıya uygulamayı adım adım gösteren rehber kartlar.
+- **Platform:** Açık/koyu tema, TR/EN dil desteği, telefon ve tablet uyumlu PWA.
+- **Güncelleme bildirimi:** Yeni sürüm yayınlanınca kullanıcıya haber verir.
+- **Admin paneli:** Kullanıcı istatistikleri, hesap kilitleme ve şifre sıfırlama.
 
-### ⚙️ Diğer
-- ✅ JWT Authentication
-- ✅ Dark/Light tema desteği
-- ✅ Responsive tasarım
-- ✅ Veri dışa aktarma (JSON)
+---
+
+## 📸 Ekran Görüntüleri
+
+| Panel | Antrenmanlar & Kas Haritası |
+|:---:|:---:|
+| <img src="docs/screenshots/dashboard.png" alt="Panel" /> | <img src="docs/screenshots/workouts-muscle-map.png" alt="Antrenman programları ve kas haritası" /> |
+| **Canlı Antrenman Modu** | **İlerleme** |
+| <img src="docs/screenshots/workout-mode.png" alt="Canlı antrenman modu ve ilerleme önerisi" /> | <img src="docs/screenshots/progress.png" alt="İlerleme grafikleri" /> |
+| **Beslenme** | **Takvim** |
+| <img src="docs/screenshots/nutrition.png" alt="Beslenme takibi" /> | <img src="docs/screenshots/calendar.png" alt="Antrenman takvimi" /> |
+| **Vücut Ölçüleri** | **Başarılar** |
+| <img src="docs/screenshots/body-tracking.png" alt="Vücut ölçüleri" /> | <img src="docs/screenshots/achievements.png" alt="Başarı rozetleri" /> |
+
+<div align="center">
+
+**Mobil: ilk giriş turu ve kas haritası (açık tema)**
+
+<img src="docs/screenshots/mobile-tour.png" alt="Mobil ilk giriş turu" width="260" />&nbsp;&nbsp;&nbsp;
+<img src="docs/screenshots/mobile-muscle-map.png" alt="Mobil kas haritası" width="260" />
+
+</div>
 
 ---
 
 ## 🛠 Teknolojiler
 
 ### Backend
-| Teknoloji | Versiyon | Açıklama |
-|-----------|----------|----------|
-| .NET | 9.0 | Framework |
-| ASP.NET Core | 9.0 | Web API |
-| Entity Framework Core | 9.0 | ORM |
-| PostgreSQL | 16+ | Veritabanı |
-| ASP.NET Identity | - | Kimlik Yönetimi |
-| JWT Bearer | - | Authentication |
-| FluentValidation | 11.x | Validation |
-| Swagger/OpenAPI | - | API Dokümantasyonu |
+| Teknoloji | Açıklama |
+|-----------|----------|
+| .NET 9 / ASP.NET Core | Web API |
+| Entity Framework Core 9 + Npgsql | ORM, PostgreSQL |
+| ASP.NET Identity + JWT | Kimlik doğrulama, refresh token |
+| FluentValidation | İstek doğrulama |
+| Resend | Şifre sıfırlama e-postaları |
+| OpenAI API | AI Koç analizleri |
+| Swagger / OpenAPI | API dokümantasyonu |
 
 ### Frontend
-| Teknoloji | Versiyon | Açıklama |
-|-----------|----------|----------|
-| React | 18.x | UI Library |
-| TypeScript | 5.x | Type Safety |
-| Vite | 5.x | Build Tool |
-| React Router | 6.x | Routing |
-| Axios | 1.x | HTTP Client |
-| CSS3 | - | Styling |
+| Teknoloji | Açıklama |
+|-----------|----------|
+| React 19 + TypeScript 5.9 | UI |
+| Vite 7 | Build aracı |
+| React Router 7 | Yönlendirme |
+| Chart.js | Grafikler |
+| ZXing | Barkod okuma |
+| Lucide | İkonlar |
+| PWA (manifest + service worker) | Telefona kurulum |
+
+### Altyapı
+| Servis | Kullanım |
+|--------|----------|
+| Render (Docker) | API |
+| Neon | PostgreSQL |
+| Vercel | Frontend |
 
 ### Mimari
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                         API Layer                            │
-│                    (Controllers, Middleware)                 │
+│  API Layer             Controllers, Middleware, Auth         │
 ├─────────────────────────────────────────────────────────────┤
-│                     Application Layer                        │
-│              (DTOs, Interfaces, Validators)                  │
+│  Application Layer     DTOs, Service interfaces, Validators │
 ├─────────────────────────────────────────────────────────────┤
-│                    Infrastructure Layer                      │
-│         (DbContext, Repositories, Services, Identity)        │
+│  Infrastructure Layer  DbContext, Migrations, Services,     │
+│                        Identity, OpenAI, Email              │
 ├─────────────────────────────────────────────────────────────┤
-│                       Domain Layer                           │
-│                   (Entities, Value Objects)                  │
+│  Domain Layer          Entities                             │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -117,75 +143,46 @@ FitLog, kullanıcıların fitness yolculuklarını kapsamlı bir şekilde takip 
 
 ### Gereksinimler
 - [.NET 9 SDK](https://dotnet.microsoft.com/download)
-- [Node.js 18+](https://nodejs.org/)
-- [PostgreSQL 14+](https://www.postgresql.org/)
-- [Git](https://git-scm.com/)
+- [Node.js 20+](https://nodejs.org/)
+- PostgreSQL 14+ (yerelde ya da Docker ile)
 
-### 1. Projeyi Klonla
+### 1. Projeyi klonla
 ```bash
 git clone https://github.com/EmirKoroglu3/FitLog.git
 cd FitLog
 ```
 
-### 2. Backend Kurulumu
+### 2. Veritabanı (Docker ile hızlı yol)
 ```bash
-# Ayar dosyasını oluştur
-cp FitLog.API/appsettings.Development.json.example FitLog.API/appsettings.Development.json
-
-# ⚠️ appsettings.Development.json dosyasını düzenle:
-# - PostgreSQL şifreni gir
-# - JWT Secret key oluştur (min 32 karakter)
-
-# Paketleri yükle
-dotnet restore
-
-# Veritabanını oluştur
-dotnet ef database update --project FitLog.Infrastructure --startup-project FitLog.API
-
-# Backend'i çalıştır
-cd FitLog.API
-dotnet run
+docker run -d --name fitlog-pg -p 5432:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=fitlog postgres:16-alpine
 ```
 
-### 3. Frontend Kurulumu
+### 3. Backend
+```bash
+cp FitLog.API/appsettings.Development.json.example FitLog.API/appsettings.Development.json
+# appsettings.Development.json içinde bağlantı cümlesini ve JWT Secret'ı (min 32 karakter) düzenle
+
+dotnet restore
+dotnet ef database update --project FitLog.Infrastructure --startup-project FitLog.API
+dotnet run --project FitLog.API --launch-profile http
+```
+
+### 4. Frontend
 ```bash
 cd fitlog-ui
+cp .env.example .env
 npm install
 npm run dev
 ```
 
-### 4. Erişim
+### 5. Erişim
 | Servis | URL |
 |--------|-----|
 | Frontend | http://localhost:5173 |
 | Backend API | http://localhost:5001 |
 | Swagger UI | http://localhost:5001/swagger |
 
-### 5. Production Deployment
-
-#### Environment Variables (Önerilen)
-
-Production ortamında hassas bilgileri ve yapılandırmaları environment variable olarak ayarlayın:
-
-**Backend için:**
-```bash
-# Windows
-set SendGrid__ApiKey=YOUR_SENDGRID_API_KEY
-set FrontendUrl=https://yourdomain.com
-set ConnectionStrings__DefaultConnection=Host=...;Database=...;Username=...;Password=...
-
-# Linux/Mac
-export SendGrid__ApiKey=YOUR_SENDGRID_API_KEY
-export FrontendUrl=https://yourdomain.com
-export ConnectionStrings__DefaultConnection="Host=...;Database=...;Username=...;Password=..."
-```
-
-**Öncelik Sırası:**
-1. Environment Variables (en yüksek öncelik)
-2. `appsettings.Production.json`
-3. `appsettings.json` (fallback)
-
-**Not:** `FrontendUrl` environment variable olarak ayarlandığında, şifre sıfırlama email'lerindeki linkler otomatik olarak production URL'ini kullanır.
+Production kurulumu (Render + Neon + Vercel) için [DEPLOY.md](DEPLOY.md) dosyasına bakın.
 
 ---
 
@@ -193,94 +190,46 @@ export ConnectionStrings__DefaultConnection="Host=...;Database=...;Username=...;
 
 ```
 FitLog/
-├── 📂 FitLog.Domain/           # Domain Layer
-│   ├── Common/                 # Base classes
-│   └── Entities/               # Domain entities
-│
-├── 📂 FitLog.Application/      # Application Layer
-│   ├── DTOs/                   # Data Transfer Objects
-│   ├── Interfaces/             # Abstractions
-│   ├── Services/               # Service interfaces
-│   └── Validators/             # FluentValidation
-│
-├── 📂 FitLog.Infrastructure/   # Infrastructure Layer
-│   ├── Identity/               # ASP.NET Identity
-│   ├── Migrations/             # EF Core migrations
-│   ├── Persistence/            # DbContext
-│   ├── Repositories/           # Repository pattern
-│   └── Services/               # Service implementations
-│
-├── 📂 FitLog.API/              # API Layer
-│   ├── Controllers/            # API endpoints
-│   ├── Middleware/             # Custom middleware
-│   └── Services/               # API services
-│
-└── 📂 fitlog-ui/               # Frontend (React)
-    ├── src/
-    │   ├── api/                # Axios client
-    │   ├── components/         # React components
-    │   ├── data/               # Static data (foods, exercises)
-    │   ├── pages/              # Page components
-    │   ├── services/           # API services
-    │   ├── store/              # Context (Auth)
-    │   ├── styles/             # Global styles
-    │   └── types/              # TypeScript types
-    └── public/
+├── FitLog.Domain/           # Entity'ler
+├── FitLog.Application/      # DTO'lar, servis arayüzleri, validator'lar
+├── FitLog.Infrastructure/   # DbContext, migration'lar, servisler, Identity, OpenAI
+├── FitLog.API/              # Controller'lar, middleware
+├── fitlog-ui/               # React + TypeScript (Vite)
+│   └── src/
+│       ├── components/      # Kas haritası, barkod okuyucu, tur, grafikler…
+│       ├── data/            # Egzersiz, yiyecek, takviye ve şablon veritabanları
+│       ├── pages/           # Sayfalar
+│       ├── services/        # API servisleri
+│       └── store/           # Auth, tema, ayarlar context'leri
+├── docs/screenshots/        # README görselleri
+├── Dockerfile               # API imajı
+└── render.yaml              # Render blueprint
 ```
 
 ---
 
 ## 🔌 API Endpoints
 
-### Authentication
-| Method | Endpoint | Açıklama |
-|--------|----------|----------|
-| POST | `/api/auth/register` | Yeni kullanıcı kaydı |
-| POST | `/api/auth/login` | Kullanıcı girişi |
-| POST | `/api/auth/refresh` | Token yenileme |
+Tüm uç noktalar `/api` altındadır; ayrıntılar Swagger'da.
 
-### Workouts
-| Method | Endpoint | Açıklama |
-|--------|----------|----------|
-| GET | `/api/workout/programs` | Tüm programları getir |
-| POST | `/api/workout/programs` | Yeni program oluştur |
-| PUT | `/api/workout/programs/{id}` | Program güncelle |
-| DELETE | `/api/workout/programs/{id}` | Program sil |
-| POST | `/api/workout/days` | Gün ekle |
-| POST | `/api/workout/exercises` | Egzersiz ekle |
-
-### Nutrition
-| Method | Endpoint | Açıklama |
-|--------|----------|----------|
-| GET | `/api/nutrition` | Beslenme kayıtları |
-| POST | `/api/nutrition` | Yeni kayıt ekle |
-| DELETE | `/api/nutrition/{id}` | Kayıt sil |
-
-### Profile
-| Method | Endpoint | Açıklama |
-|--------|----------|----------|
-| GET | `/api/profile` | Profil bilgileri |
-| PUT | `/api/profile` | Profil güncelle |
-| GET | `/api/profile/analysis` | BMI/BMR analizi |
-
----
-
-
-## 🤝 Katkıda Bulunma
-
-1. Fork yapın
-2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
-3. Commit yapın (`git commit -m 'feat: Add amazing feature'`)
-4. Push yapın (`git push origin feature/amazing-feature`)
-5. Pull Request açın
+| Alan | Uç noktalar |
+|------|-------------|
+| Auth | `POST auth/register` · `auth/login` · `auth/refresh` · `auth/forgot-password` · `auth/reset-password` |
+| Programlar | `workout/programs` · `workout/days` · `workout/exercises` · `PUT workout/days/{id}/exercise-order` |
+| Seanslar | `sessions` · `sessions/exercise-history` · `sessions/weekly-volume` · `sessions/personal-records` |
+| Beslenme | `nutrition` · `nutrition/summary` · `meal-templates` · `foods/custom` |
+| Takviye | `supplement` · `supplement-intake/{id}/{date}` |
+| Vücut | `body/measurements` · `body/water/{date}` · `body/photos` |
+| Hedefler | `goals` · `goals/one-rep-max` |
+| Profil & Ayarlar | `profile` · `profile/analysis` · `settings` |
+| AI Koç | `POST aicoach/analyze` |
+| Admin | `admin/stats` · `admin/users` · `admin/users/{id}/lock` · `unlock` · `password-reset` |
 
 ---
 
 ## 📝 Lisans
 
-Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
-
----
+MIT lisansı altındadır. Ayrıntılar için [LICENSE](LICENSE).
 
 ## 👤 Geliştirici
 
@@ -289,12 +238,8 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICE
 [![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/EmirKoroglu3)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/emir-koroglu)
 
----
-
 <div align="center">
 
-**⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın! ⭐**
-
-Made with ❤️ and ☕
+⭐ Projeyi beğendiyseniz yıldız vermeyi unutmayın!
 
 </div>
