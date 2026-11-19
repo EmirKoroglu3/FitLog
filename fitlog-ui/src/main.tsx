@@ -3,6 +3,13 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import UpdateBanner from './components/UpdateBanner.tsx'
 
+// Chrome/Android "install app" event: keep it for the dashboard's install card (it can fire before that mounts)
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault(); // we show our own card instead of the mini-infobar
+  (window as unknown as { __fitlogInstallEvent?: Event }).__fitlogInstallEvent = e;
+  window.dispatchEvent(new Event('fitlog:install-available'));
+});
+
 // Tapping a number box selects its value, so typing replaces the default (no need to delete it first).
 // setTimeout: iOS Safari places the caret after focus, which would undo an immediate select().
 document.addEventListener('focusin', (e) => {

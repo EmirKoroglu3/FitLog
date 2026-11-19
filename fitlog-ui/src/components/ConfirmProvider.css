@@ -76,8 +76,8 @@
 
 .toast-stack {
   position: fixed;
-  right: 1rem;
-  bottom: 1rem;
+  right: calc(1rem + env(safe-area-inset-right, 0px));
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px)); /* above the iPhone home bar */
   z-index: 2100;
   display: flex;
   flex-direction: column;

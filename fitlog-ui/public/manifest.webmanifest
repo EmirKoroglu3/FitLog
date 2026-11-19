@@ -1,5 +1,6 @@
 {
   "name": "FitLog — Antrenman & Beslenme Takibi",
+  "id": "/",
   "short_name": "FitLog",
   "description": "Antrenman, beslenme, takviye ve gelişim takibini tek yerden yönet.",
   "lang": "tr",

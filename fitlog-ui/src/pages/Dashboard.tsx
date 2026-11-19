@@ -13,6 +13,7 @@ import { WaterCard } from '../components/WaterCard';
 import { ArrowRight, Beef, BicepsFlexed, Dumbbell, Flame, Nut, Pill, Salad, Wheat } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext';
 import { byMondayFirst } from '../utils/weekdays';
+import { InstallPrompt } from '../components/InstallPrompt';
 
 export function Dashboard() {
   const { t } = useI18n();
@@ -57,6 +58,8 @@ export function Dashboard() {
     <div className="dashboard">
       <div className="container">
         {/* Hero Section */}
+        <InstallPrompt />
+
         <section className="dashboard-hero animate-slideUp">
           <div className="hero-content">
             <h1>
